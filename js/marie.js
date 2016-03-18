@@ -1,3 +1,5 @@
+"use strict";
+
 function MarieSim(assembled, inputFunc, outputFunc) {
     this.memory = [];
     this.origin = assembled.origin;
@@ -342,11 +344,33 @@ MarieSim.prototype.operators = {
             yield this.regSet("ac", "mbr");
         }
     },
+    loadi: {
+        opcode: 0xD,
+        operand: true,
+        fn: function*() {
+            yield this.regSet("mar", "ir", 0xFFF);
+            yield this.regSet("mbr", "m");
+            yield this.regSet("mar", "mbr");
+            yield this.regSet("mbr", "m");
+            yield this.regSet("ac", "mbr");
+        }
+    },
     store: {
         opcode: 0x2,
         operand: true,
         fn: function*() {
             yield this.regSet("mar", "ir", 0xFFF);
+            yield this.regSet("mbr", "ac");
+            yield this.regSet("m", "mbr");
+        }
+    },
+    storei: {
+        opcode: 0xE,
+        operand: true,
+        fn: function*() {
+            yield this.regSet("mar", "ir", 0xFFF);
+            yield this.regSet("mbr", "m");
+            yield this.regSet("mar", "mbr");
             yield this.regSet("mbr", "ac");
             yield this.regSet("m", "mbr");
         }
@@ -520,7 +544,7 @@ MarieAsm.prototype.assemble = function() {
         
         var operator = MarieSim.prototype.operators[instruction.operator],
             operand = instruction.operand;
-        
+        console.log(instruction.operand);
         if (!operator) {
             throw new Error(["Syntax error on line ", instruction.line, ". Unknown operator ", instruction.operator, "."].join(""));
         }
@@ -535,7 +559,7 @@ MarieAsm.prototype.assemble = function() {
                 throw new Error(["Syntax error on line ", instruction.line, ". Unexpected operand ", instruction.operand, "."].join(""));
             }
             
-            if (operand.match(/^0[0-9a-fA-F]{2}$/)) {
+            if (operand.match(/^[0-9a-fA-F]{3}$/)) {
                 // This is a literal address
                 operand = parseInt(operand, 16);
             }
