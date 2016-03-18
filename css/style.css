@@ -1,0 +1,20 @@
+#program {
+    width: 800px;
+    height: 400px;
+}
+
+#memory-container {
+    display: none;
+    width: 824px;
+    height: 400px;
+    overflow: scroll;
+}
+
+#memory-headers, #memory {
+    width: 800px;
+    table-layout: fixed;
+}
+
+#registers, #memory-headers, #memory {
+    font-family: Courier New, Courier, monospace;
+}

@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>MARIE.js</title>
+        <script src="js/marie.js"></script>
+        <link rel="stylesheet" href="css/style.css">
+    </head>
+    <body>
+        <textarea id="program"></textarea><br>
+        <button id="assemble">Assemble</button>
+        <button id="step" disabled>Step</button>
+        <button id="microstep" disabled>Microstep</button>
+        <button id="run" disabled>Run</button>
+        <button id="restart" disabled>Restart</button><br>
+        <table id="registers">
+            <tr><th>AC</th><th>IR</th><th>MAR</th><th>MBR</th><th>PC</th><th>IN</th><th>OUT</th></tr>
+            <tr><td id="ac">0000</td><td id="ir">0000</td><td id="mar">0000</td><td id="mbr">0000</td><td id="pc">0000</td><td id="in">0000</td><td id="out">0000</td></tr>
+        </table>
+        <table id="memory-headers"></table>
+        <div id="memory-container">
+            <table id="memory"></table>
+        </div>
+        <script src="js/interface.js"></script>
+    </body>
+</html>
