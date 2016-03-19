@@ -2,14 +2,19 @@ var assembleButton = document.getElementById("assemble"),
     stepButton = document.getElementById("step"),
     microStepButton = document.getElementById("microstep"),
     runButton = document.getElementById("run"),
+    range_delay = document.getElementById("range_delay"),
+    display_delay_ms = document.getElementById("display_delay_ms"),
     restartButton = document.getElementById("restart"),
     textArea = document.getElementById("program"),
     memoryContainer = document.getElementById("memory-container"),
     memoryHeaders = document.getElementById("memory-headers"),
-    memory = document.getElementById("memory");
+    memory = document.getElementById("memory"),
+    status_info = document.getElementById("status_info");
 
-var sim = null,
-    interval = null;
+var asm = null,
+    sim = null,
+    interval = null,
+    delay = 1;
 
 function hex(num) {
     var s = "0000" + (num >>> 0).toString(16).toUpperCase();
@@ -70,8 +75,27 @@ function resetRegisters() {
 assembleButton.addEventListener("click", function() {
     window.clearInterval(interval);
     var assembler = new MarieAsm(textArea.value);
-    var asm = assembler.assemble();
-    sim = new MarieSim(asm);
+    
+    try {
+        asm = assembler.assemble();
+    } catch(e) {
+        status_info.innerText = e.message;
+        status_info.className = "error";
+        console.error(e);
+        return;
+    }
+    
+    try {
+        sim = new MarieSim(asm);
+    } catch(e) {
+        status_info.innerText = e.message;
+        status_info.className = "error";
+        console.error(e);
+        return;
+    }
+    
+    status_info.innerText = "Assembled successfully";
+    status_info.className = ""; 
     
     sim.addEventListener("regwrite", function(e) {
         document.getElementById(e.register).innerText = hex(e.newValue);
@@ -83,6 +107,7 @@ assembleButton.addEventListener("click", function() {
         cell.innerText = hex(e.newCell.contents);
         cell.style.color = 'red';
     });
+    
     stepButton.disabled = false;
     microStepButton.disabled = false;
     runButton.disabled = false;
@@ -101,19 +126,38 @@ runButton.addEventListener("click", function() {
     if (interval) {
         window.clearInterval(interval);
         runButton.value = "Run";
+        range_delay.disabled = false;
+        status_info.innerText = "Halted at user request.";
     }
     else {
         runButton.value = "Stop";
+        status_info.innerText = "Running...";
+        range_delay.disabled = true;
+        
         interval = window.setInterval(function() {
             sim.step();
             if (sim.halted || sim.current().breakPoint) {
                 window.clearInterval(interval);
+                range_delay.disabled = false;
+                status_info.innerText = "Machine halted normally.";
             }
-        }, 1);
+        }, delay);
     }
+});
+
+range_delay.addEventListener("input", function() {
+    display_delay_ms.innerText = this.value + " ms";
+    delay = parseInt(this.value);
 });
 
 restartButton.addEventListener("click", function() {
     sim.restart();
     resetRegisters();
+    status_info.innerText = "Restarted simulator (memory contents are still preserved)";
 });
+
+window.onbeforeunload = function() {
+    if(textArea.value.trim()) {
+        return "MARIE.js currently does not have the ability to save files. If you want to keep this file, please copy the program and paste it in a text editor.";
+    }
+}
