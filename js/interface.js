@@ -74,6 +74,8 @@ function resetRegisters() {
 
 assembleButton.addEventListener("click", function() {
     window.clearInterval(interval);
+    interval = null;
+    
     var assembler = new MarieAsm(textArea.value);
     
     try {
@@ -116,21 +118,28 @@ assembleButton.addEventListener("click", function() {
 
 stepButton.addEventListener("click", function() {
     sim.step();
+    if (sim.halted) {
+        statusInfo.textContent = "Machine halted normally.";
+    }
 });
 
 microStepButton.addEventListener("click", function() {
     sim.microStep();
+    if (sim.halted) {
+        statusInfo.textContent = "Machine halted normally.";
+    }
 });
 
 runButton.addEventListener("click", function() {
     if (interval) {
         window.clearInterval(interval);
-        runButton.value = "Run";
+        interval = null;
+        runButton.textContent = "Run";
         rangeDelay.disabled = false;
         statusInfo.textContent = "Halted at user request.";
     }
     else {
-        runButton.value = "Stop";
+        runButton.textContent = "Stop";
         statusInfo.textContent = "Running...";
         rangeDelay.disabled = true;
         

@@ -214,8 +214,6 @@ MarieSim.prototype.regAdd = function(target, source, subtract) {
         });
     }
     
-    this[target] &= 0xFFFF;
-    
     if (this.onRegWrite) {
         this.onRegWrite.call(this, {
             register: target,
