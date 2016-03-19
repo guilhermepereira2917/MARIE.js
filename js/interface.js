@@ -113,6 +113,7 @@ assembleButton.addEventListener("click", function() {
     stepButton.disabled = false;
     microStepButton.disabled = false;
     runButton.disabled = false;
+    runButton.textContent = "Run";
     restartButton.disabled = false;
 });
 
