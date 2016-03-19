@@ -15,7 +15,7 @@
                 <p>A <b>M</b>achine <b>I</b>nfrastructure that is <b>R</b>eally <b>I</b>ntuitive and <b>E</b>asy to use, implemented in JavaScript.</p>
             </div>
         </header>
-        <article>
+        <main>
             <div class="container">
                 <div id="action-bar">
                     <button id="assemble">Assemble</button>
@@ -51,6 +51,11 @@
                     </div>
                 </div>
                 <div id="status-info">MARIE.js</div>
+                <label for="register-checkbox" id="register-label">Click to toggle register transfer log</label>
+                <input type="checkbox" id="register-checkbox">
+                <div id="register-log-outer">
+                    <div id="register-log"></div>
+                </div>
                 <div>
                     <table id="memory-headers"></table>
                     <div id="memory-container">
@@ -58,7 +63,7 @@
                     </div>
                 </div>
             </div>
-        </article>
+        </main>
         <footer>
             <div class="container">
                 Created by Jason Nguyen and Saurabh Joshi.

@@ -11,11 +11,14 @@ var assembleButton = document.getElementById("assemble"),
     memoryContainer = document.getElementById("memory-container"),
     memoryHeaders = document.getElementById("memory-headers"),
     memory = document.getElementById("memory"),
-    statusInfo = document.getElementById("status-info");
+    statusInfo = document.getElementById("status-info"),
+    registerLabel = document.getElementById("register-label"),
+    registerLog = document.getElementById("register-log");
 
 var asm = null,
     sim = null,
     interval = null,
+    breaking = false,
     delay = 1;
     
 var programCodeMirror = CodeMirror.fromTextArea(textArea,
@@ -84,9 +87,56 @@ function resetRegisters() {
     document.getElementById("out").textContent = hex(sim.out);
 }
 
+function initializeRegisterLog() {
+    while (registerLog.firstChild) {
+        registerLog.removeChild(registerLog.firstChild);
+    }
+    registerLabel.style.display = "block";
+}
+
+function updateCurrentLine(clear) {    
+    var currentLine = document.getElementsByClassName("current-line");
+    while (currentLine.length > 0) {
+        currentLine[0].classList.remove("current-line");
+    }
+    
+    var activeBreakPoint = document.getElementsByClassName("active-break-point");
+    while (activeBreakPoint.length > 0) {
+        activeBreakPoint[0].classList.remove("active-break-point");
+    }
+    
+    if (clear) {
+        return;
+    }
+    
+    var line = sim.current().line;
+    if (line != null) {
+        var lineNumbers = document.getElementsByClassName("CodeMirror-linenumber");
+        for (var i = 0; i < lineNumbers.length; i++) {
+            if (lineNumbers[i].textContent == line) {
+                var node = lineNumbers[i].parentNode.parentNode;
+                if (lineNumbers[i].classList.contains("break-point")) {
+                    statusInfo.textContent = "Machine paused at break point.";
+                    node.classList.add("active-break-point");
+                    breaking = true;
+                }
+                
+                node.classList.add("current-line");
+                return;
+            }
+        }
+        
+    }
+}
+
 assembleButton.addEventListener("click", function() {
     window.clearInterval(interval);
     interval = null;
+    
+    var breakPoints = document.getElementsByClassName("break-point");
+    while (breakPoints.length > 0) {
+        breakPoints[0].classList.remove("break-point");
+    }
     
     var assembler = new MarieAsm(programCodeMirror.getValue());
     
@@ -98,6 +148,25 @@ assembleButton.addEventListener("click", function() {
         console.error(e);
         return;
     }
+    
+    asm.program.forEach(function(statement) {
+        var lineNumbers = document.getElementsByClassName("CodeMirror-linenumber");
+        for (var i = 0; i < lineNumbers.length; i++) {
+            if (lineNumbers[i].textContent == statement.line) {
+                lineNumbers[i].classList.add("can-break-point");
+                lineNumbers[i].addEventListener("click", function() {
+                    statement.breakPoint = !statement.breakPoint;
+                    
+                    if (statement.breakPoint) {
+                        this.classList.add("break-point");
+                    }
+                    else {
+                        this.classList.remove("break-point"); 
+                    }
+                });
+            }
+        }
+    });
     
     try {
         sim = new MarieSim(asm);
@@ -115,11 +184,16 @@ assembleButton.addEventListener("click", function() {
         document.getElementById(e.register).textContent = hex(e.newValue);
     })
     populateMemoryView(sim);
+    initializeRegisterLog();
     resetRegisters();
     sim.addEventListener("memwrite", function(e) {
         var cell = document.getElementById("cell" + e.address);
         cell.textContent = hex(e.newCell.contents);
         cell.style.color = 'red';
+    });
+    sim.addEventListener("reglog", function(message) {
+        registerLog.appendChild(document.createTextNode(message));
+        registerLog.appendChild(document.createElement("BR"));
     });
     
     stepButton.disabled = false;
@@ -127,18 +201,26 @@ assembleButton.addEventListener("click", function() {
     runButton.disabled = false;
     runButton.textContent = "Run";
     restartButton.disabled = false;
+    
+    updateCurrentLine(true);
 });
 
 stepButton.addEventListener("click", function() {
-    sim.step();
-    if (sim.halted) {
+    if (!sim.halted) {
+        sim.step();
+        updateCurrentLine();
+    }
+    else {
         statusInfo.textContent = "Machine halted normally.";
     }
 });
 
 microStepButton.addEventListener("click", function() {
-    sim.microStep();
-    if (sim.halted) {
+    if (!sim.halted) {
+        sim.microStep();
+        updateCurrentLine();
+    }
+    else {
         statusInfo.textContent = "Machine halted normally.";
     }
 });
@@ -155,13 +237,23 @@ runButton.addEventListener("click", function() {
         runButton.textContent = "Stop";
         statusInfo.textContent = "Running...";
         rangeDelay.disabled = true;
+        breaking = false;
         
         interval = window.setInterval(function() {
             sim.step();
+            updateCurrentLine();
             if (sim.halted) {
                 window.clearInterval(interval);
+                interval = null;
                 rangeDelay.disabled = false;
                 statusInfo.textContent = "Machine halted normally.";
+            }
+            else if (breaking) {
+                window.clearInterval(interval);
+                interval = null;
+                rangeDelay.disabled = false;
+                runButton.textContent = "Continue";
+                statusInfo.textContent = "Running...";
             }
         }, delay);
     }
@@ -173,8 +265,13 @@ rangeDelay.addEventListener("input", function() {
 });
 
 restartButton.addEventListener("click", function() {
+    window.clearInterval(interval);
+    interval = null;
     sim.restart();
     resetRegisters();
+    updateCurrentLine(true);
+    runButton.textContent = "Run";
+    rangeDelay.disabled = false;
     statusInfo.textContent = "Restarted simulator (memory contents are still preserved)";
 });
 

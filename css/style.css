@@ -19,7 +19,7 @@ footer {
     display: none;
     width: 824px;
     height: 250px;
-    overflow: scroll;
+    overflow-y: scroll;
 }
 
 #memory-headers, #memory {
@@ -27,7 +27,7 @@ footer {
     table-layout: fixed;
 }
 
-#registers, #memory-headers, #memory {
+#registers, #memory-headers, #memory, #register-log {
     font-family: Courier New, Courier, monospace;
 }
 
@@ -51,4 +51,46 @@ footer {
 
 #status-info.error {
     background: #ecc;
+}
+
+.current-line {
+    background-color: #0F0;
+}
+
+.break-point {
+    color: #07C;
+}
+
+.can-break-point:hover {
+    color: #A9E;
+}
+
+.active-break-point {
+    background-color: #ADF;
+}
+
+#register-label {
+    display: none;
+    padding: 0.5em 1em;
+    background-color: #F9F9F9;
+}
+
+#register-checkbox {
+    display: none;
+}
+
+#register-checkbox:checked + #register-log-outer {
+    display: inline-block;
+}
+
+#register-log-outer {
+    width: 824px;
+    display: none;
+    height: 250px;
+    overflow-y: scroll;
+    background-color: #FFF;
+}
+
+#register-log {
+    padding: 0.5em 1em;
 }

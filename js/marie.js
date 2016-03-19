@@ -76,7 +76,8 @@ MarieSim.prototype.removeEventListener = function(event) {
 };
 
 MarieSim.prototype.current = function() {
-    return this.memory[this.pc];
+    // This compensates for PC being incremented after fetch
+    return this.memory[this.pc - 1];
 };
 
 MarieSim.prototype.regSet = function(target, source, mask) {
@@ -237,9 +238,10 @@ MarieSim.prototype.restart = function() {
     this.microStepper = null;
 };
 
+// This method blocks until machine execution completes.
 MarieSim.prototype.run = function() {
     while (!this.halted) {
-        for (let _ of this.fetch()) {};
+        for (let _ of this.fetch());
         this.decode();
         for (let _ of this.execute());
     }
