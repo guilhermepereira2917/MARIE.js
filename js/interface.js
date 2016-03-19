@@ -21,6 +21,8 @@ var asm = null,
     breaking = false,
     delay = 1;
     
+textArea.value = localStorage.getItem("marie-program") || "";
+    
 var programCodeMirror = CodeMirror.fromTextArea(textArea,
     {
         lineNumbers: true,
@@ -275,8 +277,7 @@ restartButton.addEventListener("click", function() {
     statusInfo.textContent = "Restarted simulator (memory contents are still preserved)";
 });
 
-window.onbeforeunload = function() {
-    if(programCodeMirror.getValue().trim()) {
-        return "MARIE.js currently does not have the ability to save files. If you want to keep this file, please copy the program and paste it in a text editor.";
-    }
-}
+window.addEventListener("beforeunload", function() {
+    window.localStorage.setItem("marie-program", programCodeMirror.getValue());
+    return;
+});
