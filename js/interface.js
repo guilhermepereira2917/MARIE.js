@@ -23,13 +23,12 @@ var asm = null,
     
 textArea.value = localStorage.getItem("marie-program") || "";
     
-var programCodeMirror = CodeMirror.fromTextArea(textArea,
-    {
-        lineNumbers: true,
-        firstLineNumber: 0,
-        lineNumberFormatter: MarieAsm.prototype.lineFormatter
-    }
-);
+var programCodeMirror = CodeMirror.fromTextArea(textArea, {
+    mode: "marie",
+    lineNumbers: true,
+    firstLineNumber: 0,
+    lineNumberFormatter: MarieAsm.prototype.lineFormatter
+});
 
 programCodeMirror.setSize(800, 400);
 
