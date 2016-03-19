@@ -1,3 +1,5 @@
+"use strict";
+
 var assembleButton = document.getElementById("assemble"),
     stepButton = document.getElementById("step"),
     microStepButton = document.getElementById("microstep"),
@@ -15,6 +17,16 @@ var asm = null,
     sim = null,
     interval = null,
     delay = 1;
+    
+var programCodeMirror = CodeMirror.fromTextArea(textArea,
+    {
+        lineNumbers: true,
+        firstLineNumber: 0,
+        lineNumberFormatter: MarieAsm.prototype.lineFormatter
+    }
+);
+
+programCodeMirror.setSize(800, 400);
 
 function hex(num) {
     var s = "0000" + (num >>> 0).toString(16).toUpperCase();
@@ -76,7 +88,7 @@ assembleButton.addEventListener("click", function() {
     window.clearInterval(interval);
     interval = null;
     
-    var assembler = new MarieAsm(textArea.value);
+    var assembler = new MarieAsm(programCodeMirror.getValue());
     
     try {
         asm = assembler.assemble();
@@ -167,7 +179,7 @@ restartButton.addEventListener("click", function() {
 });
 
 window.onbeforeunload = function() {
-    if(textArea.value.trim()) {
+    if(programCodeMirror.getValue().trim()) {
         return "MARIE.js currently does not have the ability to save files. If you want to keep this file, please copy the program and paste it in a text editor.";
     }
 }
