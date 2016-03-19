@@ -518,6 +518,11 @@ MarieAsm.prototype.assemble = function() {
             symbols[label] = parsed.length + origin;
         }
         
+        // Special END keyword
+        if (operator == "end") {
+            break;
+        }
+        
         parsed.push({
             label: label,
             operator: operator,
