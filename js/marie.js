@@ -173,7 +173,7 @@ MarieSim.prototype.regSet = function(target, source, mask) {
             this.onRegWrite.call(this, {
                 register: target,
                 oldValue: oldValue,
-                newValue: this[source]
+                newValue: this[target]
             });
         }
     }
