@@ -307,7 +307,7 @@ MarieSim.prototype.operators = {
         fn: function*() {
             yield this.regSet("mar", "ir", 0xFFF);
             yield this.regSet("mbr", "m");
-            yield this.regSet("ac", "mbr");
+            yield this.regAdd("ac", "mbr");
         }
     },
     subt: {
