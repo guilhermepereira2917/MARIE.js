@@ -2,14 +2,14 @@ var assembleButton = document.getElementById("assemble"),
     stepButton = document.getElementById("step"),
     microStepButton = document.getElementById("microstep"),
     runButton = document.getElementById("run"),
-    range_delay = document.getElementById("range_delay"),
-    display_delay_ms = document.getElementById("display_delay_ms"),
+    rangeDelay = document.getElementById("range-delay"),
+    displayDelayMs = document.getElementById("display-delay-ms"),
     restartButton = document.getElementById("restart"),
     textArea = document.getElementById("program"),
     memoryContainer = document.getElementById("memory-container"),
     memoryHeaders = document.getElementById("memory-headers"),
     memory = document.getElementById("memory"),
-    status_info = document.getElementById("status_info");
+    statusInfo = document.getElementById("status-info");
 
 var asm = null,
     sim = null,
@@ -63,13 +63,13 @@ function populateMemoryView(sim) {
 }
 
 function resetRegisters() {
-    document.getElementById("ac").innerText = hex(sim.ac);
-    document.getElementById("ir").innerText = hex(sim.ir);
-    document.getElementById("mar").innerText = hex(sim.mar);
-    document.getElementById("mbr").innerText = hex(sim.mbr);
-    document.getElementById("pc").innerText = hex(sim.pc);
-    document.getElementById("in").innerText = hex(sim.in);
-    document.getElementById("out").innerText = hex(sim.out);
+    document.getElementById("ac").textContent = hex(sim.ac);
+    document.getElementById("ir").textContent = hex(sim.ir);
+    document.getElementById("mar").textContent = hex(sim.mar);
+    document.getElementById("mbr").textContent = hex(sim.mbr);
+    document.getElementById("pc").textContent = hex(sim.pc);
+    document.getElementById("in").textContent = hex(sim.in);
+    document.getElementById("out").textContent = hex(sim.out);
 }
 
 assembleButton.addEventListener("click", function() {
@@ -79,8 +79,8 @@ assembleButton.addEventListener("click", function() {
     try {
         asm = assembler.assemble();
     } catch(e) {
-        status_info.innerText = e.message;
-        status_info.className = "error";
+        statusInfo.textContent = e.message;
+        statusInfo.className = "error";
         console.error(e);
         return;
     }
@@ -88,23 +88,23 @@ assembleButton.addEventListener("click", function() {
     try {
         sim = new MarieSim(asm);
     } catch(e) {
-        status_info.innerText = e.message;
-        status_info.className = "error";
+        statusInfo.textContent = e.message;
+        statusInfo.className = "error";
         console.error(e);
         return;
     }
     
-    status_info.innerText = "Assembled successfully";
-    status_info.className = ""; 
+    statusInfo.textContent = "Assembled successfully";
+    statusInfo.className = ""; 
     
     sim.addEventListener("regwrite", function(e) {
-        document.getElementById(e.register).innerText = hex(e.newValue);
+        document.getElementById(e.register).textContent = hex(e.newValue);
     })
     populateMemoryView(sim);
     resetRegisters();
     sim.addEventListener("memwrite", function(e) {
         var cell = document.getElementById("cell" + e.address);
-        cell.innerText = hex(e.newCell.contents);
+        cell.textContent = hex(e.newCell.contents);
         cell.style.color = 'red';
     });
     
@@ -126,34 +126,34 @@ runButton.addEventListener("click", function() {
     if (interval) {
         window.clearInterval(interval);
         runButton.value = "Run";
-        range_delay.disabled = false;
-        status_info.innerText = "Halted at user request.";
+        rangeDelay.disabled = false;
+        statusInfo.textContent = "Halted at user request.";
     }
     else {
         runButton.value = "Stop";
-        status_info.innerText = "Running...";
-        range_delay.disabled = true;
+        statusInfo.textContent = "Running...";
+        rangeDelay.disabled = true;
         
         interval = window.setInterval(function() {
             sim.step();
-            if (sim.halted || sim.current().breakPoint) {
+            if (sim.halted) {
                 window.clearInterval(interval);
-                range_delay.disabled = false;
-                status_info.innerText = "Machine halted normally.";
+                rangeDelay.disabled = false;
+                statusInfo.textContent = "Machine halted normally.";
             }
         }, delay);
     }
 });
 
-range_delay.addEventListener("input", function() {
-    display_delay_ms.innerText = this.value + " ms";
+rangeDelay.addEventListener("input", function() {
+    displayDelayMs.textContent = this.value + " ms";
     delay = parseInt(this.value);
 });
 
 restartButton.addEventListener("click", function() {
     sim.restart();
     resetRegisters();
-    status_info.innerText = "Restarted simulator (memory contents are still preserved)";
+    statusInfo.textContent = "Restarted simulator (memory contents are still preserved)";
 });
 
 window.onbeforeunload = function() {

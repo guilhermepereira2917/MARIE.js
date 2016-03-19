@@ -214,11 +214,13 @@ MarieSim.prototype.regAdd = function(target, source, subtract) {
         });
     }
     
+    this[target] &= 0xFFFF;
+    
     if (this.onRegWrite) {
         this.onRegWrite.call(this, {
             register: target,
             oldValue: oldValue,
-            newValue: this[source]
+            newValue: this[target]
         });
     }
 };
@@ -502,6 +504,8 @@ MarieAsm.prototype.assemble = function() {
         
         // Record the symbol map
         if (label) {
+            if (label.match(/^\d.*$/))
+                throw new Error(["Syntax error on line ", i + 1, ". Labels cannot start with a number."].join(""));
             symbols[label] = parsed.length + origin;
         }
         
@@ -538,7 +542,10 @@ MarieAsm.prototype.assemble = function() {
             if (isNaN(constant)) {
                 throw new Error(["Syntax error on line ", instruction.line, ". Failed to parse operand."].join(""));
             }
-            instruction.contents = constant & 0xFFFF;
+            if (constant > 0xFFFF) {
+                throw new Error(["Syntax error on line ", instruction.line, ". Literal out of bounds."].join(""));
+            }
+            instruction.contents = constant;
             continue;
         }
         
@@ -559,9 +566,13 @@ MarieAsm.prototype.assemble = function() {
                 throw new Error(["Syntax error on line ", instruction.line, ". Unexpected operand ", instruction.operand, "."].join(""));
             }
             
-            if (operand.match(/^[0-9a-fA-F]{3}$/)) {
+            if (operand.match(/^\d[0-9a-fA-F]*$/)) {
                 // This is a literal address
                 operand = parseInt(operand, 16);
+                
+                if (operand > 0x0FFF) {
+                    throw new Error(["Syntax error on line ", i + 1, ". Address ", instruction.operand, " out of bounds."].join(""));
+                }
             }
             else {
                 // This must be a label
