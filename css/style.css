@@ -15,11 +15,6 @@ footer {
     text-align: center;
 }
 
-#program {
-    width: 800px;
-    height: 400px;
-}
-
 #memory-container {
     display: none;
     width: 824px;
@@ -40,7 +35,7 @@ footer {
     border-bottom: 0.1em solid black;
 }
 
-.row div {
+.inline-block {
     display: inline-block;
 }
 

@@ -7,7 +7,7 @@ function MarieSim(assembled, inputFunc, outputFunc) {
     this.restart();
     
     this.inputCallback = inputFunc || function() {
-        return parseInt(window.prompt("Input hexacdemical value.", 0), 16) & 0xFFFF;
+        return parseInt(window.prompt("Input hexadecimal value.", 0), 16) & 0xFFFF;
     };
     
     this.outputCallback = outputFunc || function(value) {
@@ -462,6 +462,15 @@ function MarieAsm(assembly) {
     this.assembly = assembly;
 }
 
+MarieAsm.prototype.lineFormatter = function(line) {
+    var n = 3;
+
+    var str = line.toString();
+    // http://stackoverflow.com/a/10073788/824294
+    // pads leading zeros if str is shorter than 3 characters.
+    return str.length >= n ? str : new Array(n - str.length + 1).join("0") + str;
+}
+
 MarieAsm.prototype.assemble = function() {
     var parsed = [],
         origin = 0,
@@ -480,7 +489,7 @@ MarieAsm.prototype.assemble = function() {
         
         if (originationDirective) {
             if (parsed.length != 0) {
-                throw new Error(["Syntax error on line ", i + 1, ". Unexpected origination directive."].join(""));
+                throw new Error(["Syntax error on line ", this.lineFormatter(i), ". Unexpected origination directive."].join(""));
             }
             
             origin = parseInt(originationDirective[1], 16);
@@ -493,7 +502,7 @@ MarieAsm.prototype.assemble = function() {
         
         if (!matches) {
             // Syntax error
-            throw new Error(["Syntax error on line ", i + 1, ". Incorrect form."].join(""));
+            throw new Error(["Syntax error on line ", this.lineFormatter(i), ". Incorrect form."].join(""));
         }
         
         var label = matches[1],
@@ -503,7 +512,7 @@ MarieAsm.prototype.assemble = function() {
         // Record the symbol map
         if (label) {
             if (label.match(/^\d.*$/))
-                throw new Error(["Syntax error on line ", i + 1, ". Labels cannot start with a number."].join(""));
+                throw new Error(["Syntax error on line ", this.lineFormatter(i), ". Labels cannot start with a number."].join(""));
             symbols[label] = parsed.length + origin;
         }
         
@@ -511,7 +520,7 @@ MarieAsm.prototype.assemble = function() {
             label: label,
             operator: operator,
             operand: operand,
-            line: i + 1
+            line: this.lineFormatter(i)
         });
     }
     
@@ -549,7 +558,7 @@ MarieAsm.prototype.assemble = function() {
         
         var operator = MarieSim.prototype.operators[instruction.operator],
             operand = instruction.operand;
-        console.log(instruction.operand);
+        
         if (!operator) {
             throw new Error(["Syntax error on line ", instruction.line, ". Unknown operator ", instruction.operator, "."].join(""));
         }
@@ -569,7 +578,7 @@ MarieAsm.prototype.assemble = function() {
                 operand = parseInt(operand, 16);
                 
                 if (operand > 0x0FFF) {
-                    throw new Error(["Syntax error on line ", i + 1, ". Address ", instruction.operand, " out of bounds."].join(""));
+                    throw new Error(["Syntax error on line ", instruction.line, ". Address ", instruction.operand, " out of bounds."].join(""));
                 }
             }
             else {
@@ -577,7 +586,7 @@ MarieAsm.prototype.assemble = function() {
                 operand = symbols[operand];
                 
                 if (operand == null) {
-                    throw new Error(["Syntax error on line ", i + 1, ". Unknown label ", instruction.operand, "."].join(""));
+                    throw new Error(["Syntax error on line ", instruction.line, ". Unknown label ", instruction.operand, "."].join(""));
                 }
             }
         }
