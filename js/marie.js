@@ -35,7 +35,7 @@ function MarieSim(assembled, inputFunc, outputFunc) {
     }
 }
 
-MarieSim.prototype.addEventListener = function(event, callback) {
+MarieSim.prototype.setEventListener = function(event, callback) {
     switch (event) {
         case "memread":
             this.onMemRead = callback;
@@ -51,26 +51,6 @@ MarieSim.prototype.addEventListener = function(event, callback) {
             break;
         case "reglog":
             this.onRegLog = callback;
-            break;
-    }
-};
-
-MarieSim.prototype.removeEventListener = function(event) {
-    switch (event) {
-        case "memread":
-            this.onMemRead = null;
-            break;
-        case "memwrite":
-            this.onMemWrite = null;
-            break;
-        case "regread":
-            this.onRegRead = null;
-            break;
-        case "regwrite":
-            this.onRegWrite = null;
-            break;
-        case "reglog":
-            this.onRegLog = null;
             break;
     }
 };
@@ -456,6 +436,12 @@ MarieSim.prototype.operators = {
         operand: false,
         fn: function*() {
             this.halted = true;
+            
+            if(this.onRegLog) {
+                this.onRegLog("----- halted -----");
+                this.onRegLog("");
+                this.onRegLog("");
+            }
         }
     }
 };
@@ -464,7 +450,7 @@ function MarieAsm(assembly) {
     this.assembly = assembly;
 }
 
-MarieAsm.prototype.lineFormatter = function(line) {
+MarieAsm.prototype.lineNumberFormatter = function(line) {
     var n = 3;
 
     var str = line.toString();
@@ -491,7 +477,7 @@ MarieAsm.prototype.assemble = function() {
         
         if (originationDirective) {
             if (parsed.length != 0) {
-                throw new Error(["Syntax error on line ", this.lineFormatter(i), ". Unexpected origination directive."].join(""));
+                throw new Error(["Syntax error on line ", this.lineNumberFormatter(i), ". Unexpected origination directive."].join(""));
             }
             
             origin = parseInt(originationDirective[1], 16);
@@ -504,7 +490,7 @@ MarieAsm.prototype.assemble = function() {
         
         if (!matches) {
             // Syntax error
-            throw new Error(["Syntax error on line ", this.lineFormatter(i), ". Incorrect form."].join(""));
+            throw new Error(["Syntax error on line ", this.lineNumberFormatter(i), ". Incorrect form."].join(""));
         }
         
         var label = matches[1],
@@ -514,7 +500,7 @@ MarieAsm.prototype.assemble = function() {
         // Record the symbol map
         if (label) {
             if (label.match(/^\d.*$/))
-                throw new Error(["Syntax error on line ", this.lineFormatter(i), ". Labels cannot start with a number."].join(""));
+                throw new Error(["Syntax error on line ", this.lineNumberFormatter(i), ". Labels cannot start with a number."].join(""));
             symbols[label] = parsed.length + origin;
         }
         
@@ -527,7 +513,7 @@ MarieAsm.prototype.assemble = function() {
             label: label,
             operator: operator,
             operand: operand,
-            line: this.lineFormatter(i)
+            line: this.lineNumberFormatter(i)
         });
     }
     

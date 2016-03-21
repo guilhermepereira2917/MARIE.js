@@ -28,7 +28,7 @@ var programCodeMirror = CodeMirror.fromTextArea(textArea, {
     mode: "marie",
     lineNumbers: true,
     firstLineNumber: 0,
-    lineNumberFormatter: MarieAsm.prototype.lineFormatter
+    lineNumberFormatter: MarieAsm.prototype.lineNumberFormatter
 });
 
 programCodeMirror.setSize(400, 400);
@@ -48,27 +48,44 @@ function populateMemoryView(sim) {
     }
     
     // Populate headers
-    var headers = document.createElement("TR");
-    headers.appendChild(document.createElement("TH"));
-    for (var i = 0; i < 16; i++) {
-        var th = document.createElement("TH");
+    var i, j, th, tr, cell, header, classAttributes;
+    var headers = document.createElement("tr");
+    headers.appendChild(document.createElement("th"));
+    for (i = 0; i < 16; i++) {
+        th = document.createElement("th");
         th.appendChild(document.createTextNode(hex(i)));
         headers.appendChild(th);
     }
     
     memoryHeaders.appendChild(headers);
-    
-    // Populate memory cells
-    for (var i = 0; i < 4096; i += 16) {
-        var tr = document.createElement("TR");
         
-        var header = document.createElement("TH");
+    // Populate memory cells
+    for (i = 0; i < 4096; i += 16) {
+        tr = document.createElement("tr");
+        
+        header = document.createElement("th");
         header.appendChild(document.createTextNode(hex(i)));
         tr.appendChild(header);
-        
-        for (var j = 0; j < 16; j++) {
-            var cell = document.createElement("TD");
+                
+        for (j = 0; j < 16; j++) {
+            cell = document.createElement("td");
             cell.id = "cell" + (i + j);
+            
+            if(i/16 % 2 == 0) {
+                if((i/16 + j) % 2 == 0) {
+                    classAttributes = "cell-light-grey";
+                } else {
+                    classAttributes = "cell-dark-grey";
+                }
+            } else {
+                if((i/16 + j) % 2 == 0) {
+                    classAttributes = "cell-white";
+                } else {
+                    classAttributes = "cell-dark-grey";
+                }
+            }
+            
+            cell.setAttribute("class", classAttributes);
             cell.appendChild(document.createTextNode(hex(sim.memory[i + j].contents)));
             tr.appendChild(cell);
         }
@@ -130,6 +147,24 @@ function updateCurrentLine(clear) {
     }
 }
 
+function runLoop() {
+    sim.step();
+    updateCurrentLine();
+    if (sim.halted) {
+        window.clearInterval(interval);
+        interval = null;
+        runButton.textContent = "Halted";
+        runButton.disabled = true;
+        statusInfo.textContent = "Machine halted normally.";
+        
+    }
+    else if (breaking) {
+        window.clearInterval(interval);
+        interval = null;
+        runButton.textContent = "Continue";
+    }
+}
+
 assembleButton.addEventListener("click", function() {
     window.clearInterval(interval);
     interval = null;
@@ -181,20 +216,23 @@ assembleButton.addEventListener("click", function() {
     statusInfo.textContent = "Assembled successfully";
     statusInfo.className = ""; 
     
-    sim.addEventListener("regwrite", function(e) {
+    sim.setEventListener("regwrite", function(e) {
         document.getElementById(e.register).textContent = hex(e.newValue);
     })
+    
     populateMemoryView(sim);
     initializeRegisterLog();
     resetRegisters();
-    sim.addEventListener("memwrite", function(e) {
+    
+    sim.setEventListener("memwrite", function(e) {
         var cell = document.getElementById("cell" + e.address);
         cell.textContent = hex(e.newCell.contents);
         cell.style.color = 'red';
     });
-    sim.addEventListener("reglog", function(message) {
+    
+    sim.setEventListener("reglog", function(message) {
         registerLog.appendChild(document.createTextNode(message));
-        registerLog.appendChild(document.createElement("BR"));
+        registerLog.appendChild(document.createElement("br"));
         registerLogOuter.scrollTop = registerLogOuter.scrollHeight;
     });
     
@@ -214,6 +252,8 @@ stepButton.addEventListener("click", function() {
     }
     else {
         statusInfo.textContent = "Machine halted normally.";
+        runButton.textContent = "Halted";
+        runButton.disabled = true;
     }
 });
 
@@ -224,6 +264,8 @@ microStepButton.addEventListener("click", function() {
     }
     else {
         statusInfo.textContent = "Machine halted normally.";
+        runButton.textContent = "Halted";
+        runButton.disabled = true;
     }
 });
 
@@ -232,38 +274,28 @@ runButton.addEventListener("click", function() {
         window.clearInterval(interval);
         interval = null;
         runButton.textContent = "Run";
-        rangeDelay.disabled = false;
         statusInfo.textContent = "Halted at user request.";
     }
     else {
         runButton.textContent = "Stop";
         statusInfo.textContent = "Running...";
-        rangeDelay.disabled = true;
         breaking = false;
         
-        interval = window.setInterval(function() {
-            sim.step();
-            updateCurrentLine();
-            if (sim.halted) {
-                window.clearInterval(interval);
-                interval = null;
-                rangeDelay.disabled = false;
-                statusInfo.textContent = "Machine halted normally.";
-            }
-            else if (breaking) {
-                window.clearInterval(interval);
-                interval = null;
-                rangeDelay.disabled = false;
-                runButton.textContent = "Continue";
-                statusInfo.textContent = "Running...";
-            }
-        }, delay);
+        interval = window.setInterval(runLoop, delay);
     }
 });
 
 rangeDelay.addEventListener("input", function() {
     displayDelayMs.textContent = this.value + " ms";
+});
+
+rangeDelay.addEventListener("change", function() {
     delay = parseInt(this.value);
+    
+    if(interval) {
+        window.clearInterval(interval);
+        interval = window.setInterval(runLoop, delay);
+    }
 });
 
 restartButton.addEventListener("click", function() {
@@ -273,7 +305,7 @@ restartButton.addEventListener("click", function() {
     resetRegisters();
     updateCurrentLine(true);
     runButton.textContent = "Run";
-    rangeDelay.disabled = false;
+    runButton.disabled = false;
     statusInfo.textContent = "Restarted simulator (memory contents are still preserved)";
 });
 
