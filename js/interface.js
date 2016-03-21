@@ -13,7 +13,8 @@ var assembleButton = document.getElementById("assemble"),
     memory = document.getElementById("memory"),
     statusInfo = document.getElementById("status-info"),
     registerLabel = document.getElementById("register-label"),
-    registerLog = document.getElementById("register-log");
+    registerLog = document.getElementById("register-log"),
+    registerLogOuter = document.getElementById("register-log-outer")
 
 var asm = null,
     sim = null,
@@ -30,7 +31,7 @@ var programCodeMirror = CodeMirror.fromTextArea(textArea, {
     lineNumberFormatter: MarieAsm.prototype.lineFormatter
 });
 
-programCodeMirror.setSize(800, 400);
+programCodeMirror.setSize(400, 400);
 
 function hex(num) {
     var s = "0000" + (num >>> 0).toString(16).toUpperCase();
@@ -92,7 +93,6 @@ function initializeRegisterLog() {
     while (registerLog.firstChild) {
         registerLog.removeChild(registerLog.firstChild);
     }
-    registerLabel.style.display = "block";
 }
 
 function updateCurrentLine(clear) {    
@@ -195,6 +195,7 @@ assembleButton.addEventListener("click", function() {
     sim.addEventListener("reglog", function(message) {
         registerLog.appendChild(document.createTextNode(message));
         registerLog.appendChild(document.createElement("BR"));
+        registerLogOuter.scrollTop = registerLogOuter.scrollHeight;
     });
     
     stepButton.disabled = false;
