@@ -31,17 +31,21 @@ footer {
     font-family: Courier New, Courier, monospace;
 }
 
-#registers td {
-    border-bottom: 0.1em solid black;
-}
-
 .inline-block {
     display: inline-block;
 }
 
 #action-bar {
-    padding: 0.5em 1em;
-    vertical-align: middle;
+    padding: 0 2em;
+    line-height: 2em;
+}
+
+#action-bar input {
+    height: 1em;
+}
+
+.CodeMirror {
+    border: 0.1em solid #ccc;
 }
 
 #status-info {
@@ -69,14 +73,22 @@ footer {
     background-color: #ADF;
 }
 
-#register-label {
-    display: none;
-    padding: 0.5em 1em;
-    background-color: #F9F9F9;
+#registers {
+    padding: 0 0.5em;
 }
 
-#register-checkbox {
-    display: none;
+#registers th {
+    padding-top: 0.5em;
+}
+
+#registers td {
+    border: 0.1em solid #ccc;
+}
+
+
+#register-label {
+    padding: 0.5em 1em;
+    background-color: #F9F9F9;
 }
 
 #register-checkbox:checked + #register-log-outer {
@@ -84,13 +96,15 @@ footer {
 }
 
 #register-log-outer {
-    width: 824px;
-    display: none;
-    height: 250px;
+    width: 400px;
+    height: 400px;
+    padding: 0 0.5em;
+    border: 0.1em solid #ccc;
     overflow-y: scroll;
     background-color: #FFF;
 }
 
 #register-log {
     padding: 0.5em 1em;
+    text-align: right;
 }
