@@ -25,6 +25,24 @@ footer {
 #memory-headers, #memory {
     width: 800px;
     table-layout: fixed;
+    text-align: center;
+}
+
+#memory-headers th, #memory th {
+    border: 0.1em solid #ccc;
+}
+
+
+.cell-white {
+    background: #fff;
+}
+
+.cell-light-grey {
+    background: #f2f2f2;
+}
+
+.cell-dark-grey {
+    background: #e0e0e0;
 }
 
 #registers, #memory-headers, #memory, #register-log {
@@ -78,7 +96,7 @@ footer {
 }
 
 #registers th {
-    padding-top: 0.5em;
+    padding-top: 1em;
 }
 
 #registers td {
