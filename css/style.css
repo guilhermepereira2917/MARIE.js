@@ -1,0 +1,239 @@
+html, body {
+    margin: 0;
+    padding: 0;
+    font-family: sans-serif;
+}
+
+.container {
+    width: 80%;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.container > * {
+    text-align: left;
+}
+
+#program-container {
+    display: inline-block;
+    width: calc(100% - 500px);
+}
+
+#register-container {
+    display: inline-block;
+    width: 75px;
+}
+
+article {
+    position: relative;
+    float: none;
+}
+/*
+    Credit:
+    http://codepen.io/wallaceerick/pen/ojtal?editors=1100
+*/
+#tab-container {
+    display: inline-block;
+    float: none;
+    list-style: none;
+    width: calc(370px);
+    position: relative;
+    vertical-align: top;
+    margin: 0;
+}
+
+#tab-container li {
+    float: left;
+    margin: 0;
+    display: block;
+}
+
+#tab-container input[type="radio"] {
+    position: absolute;
+    top: -9999px;
+    left: -9999px;
+}
+
+#tab-container label {
+    display: block;
+    background: #eee;
+    border-top-left-radius: 0.5em;
+    border-top-right-radius: 0.5em;
+    padding: 0 0.5em;
+    margin: 0;
+    position: relative;
+    top: 1em;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+}
+
+#tab-container label:hover {
+    background: #e5e5e5;
+}
+
+#tab-container .tab-content {
+    z-index: 2;
+    display: block;
+    visibility: hidden;
+    overflow: hidden;
+    width: 100%;
+    position: absolute;
+    top: 2.2em;
+    left: 0;
+}
+
+#tab-container [id^="tab"]:checked + label {
+    top: 0;
+    padding-top: 0.5em;
+    padding-bottom: 0.5em;
+    background: #ccc;
+}
+
+#tab-container [id^="tab"]:checked ~ [id^="tab-content"] {
+    visibility: visible;
+}
+
+footer {
+    margin-top: 1em;
+    padding: 1em 0;
+    text-align: center;
+}
+
+#memory-display {
+    margin: 0 auto;
+    display: inline-block;
+}
+
+#memory-container {
+    display: none;
+    width: 824px;
+    height: 250px;
+    overflow-y: scroll;
+}
+
+#memory-headers, #memory {
+    width: 800px;
+    table-layout: fixed;
+    text-align: center;
+}
+
+#memory-headers th, #memory th {
+    border: 0.1em solid #ccc;
+}
+
+#memory tr:nth-child(odd) .cell:nth-child(even) {
+    background: #f2f2f2;
+}
+
+#memory tr:nth-child(odd) .cell:nth-child(odd) {
+    background: #e0e0e0;
+}
+
+#memory tr:nth-child(even) .cell:nth-child(even) {
+    background: #e0e0e0;
+}
+
+#memory tr:nth-child(even) .cell:nth-child(odd) {
+    background: #ffffff;
+}
+
+#registers, #memory-headers, #memory, #register-log {
+    font-family: Courier New, Courier, monospace;
+}
+
+#action-bar {
+    padding: 0 2em;
+    line-height: 2em;
+}
+
+#action-bar input {
+    height: 1em;
+}
+
+.CodeMirror {
+    border: 0.1em solid #ccc;
+}
+
+.breakpoints {
+    width: 0.8em;
+}
+
+#status-info {
+    background: #eee;
+    padding: 0.5em 1em;
+}
+
+#status-info.error {
+    background: #ecc;
+}
+
+.current-line {
+    background-color: #0F0;
+}
+
+.active-break-point {
+    background-color: #ADF;
+}
+
+.current-pc {
+    background-color: #0F0 !important;
+}
+
+.current-mar {
+    background-color: #FF0 !important;
+}
+
+#registers {
+    padding: 0 0.5em;
+}
+
+#registers th {
+    padding-top: 1em;
+}
+
+#registers td {
+    border: 0.1em solid #ccc;
+}
+
+
+#register-label {
+    padding: 0.5em 1em;
+    background-color: #F9F9F9;
+}
+
+#register-checkbox:checked + #register-log-outer {
+    display: inline-block;
+}
+
+#output-log-outer, #register-log-outer {
+    width: 100%;
+    height: 400px;
+    padding: 0 0.5em;
+    box-sizing: border-box;
+    border: 0.1em solid #ccc;
+    overflow-y: scroll;
+    background-color: #FFF;
+}
+
+#output-log, #register-log {
+    padding: 0.5em 1em;
+    text-align: right;
+}
+
+@media (max-width: 1000px) {
+    #program-container {
+        width: calc(50% - 50px);
+    }
+    #tab-container {
+        width: calc(50% - 50px);
+    }
+    .container {
+        width: 90%;
+    }
+}
+
+@media (min-width: 1600px) {
+    .container {
+        width: 70%;
+    }
+}
