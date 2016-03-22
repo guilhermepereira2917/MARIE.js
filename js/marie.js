@@ -477,7 +477,11 @@ MarieAsm.prototype.assemble = function() {
         
         if (originationDirective) {
             if (parsed.length != 0) {
-                throw new Error(["Syntax error on line ", this.lineNumberFormatter(i), ". Unexpected origination directive."].join(""));
+                throw new Error([
+                    "Syntax error on line ", 
+                    this.lineNumberFormatter(i), 
+                    ". Unexpected origination directive."
+                ].join(""));
             }
             
             origin = parseInt(originationDirective[1], 16);
@@ -490,7 +494,11 @@ MarieAsm.prototype.assemble = function() {
         
         if (!matches) {
             // Syntax error
-            throw new Error(["Syntax error on line ", this.lineNumberFormatter(i), ". Incorrect form."].join(""));
+            throw new Error([
+                "Syntax error on line ", 
+                this.lineNumberFormatter(i), 
+                ". Incorrect form."
+            ].join(""));
         }
         
         var label = matches[1],
@@ -500,7 +508,11 @@ MarieAsm.prototype.assemble = function() {
         // Record the symbol map
         if (label) {
             if (label.match(/^\d.*$/))
-                throw new Error(["Syntax error on line ", this.lineNumberFormatter(i), ". Labels cannot start with a number."].join(""));
+                throw new Error([
+                    "Syntax error on line ", 
+                    this.lineNumberFormatter(i), 
+                    ". Labels cannot start with a number."
+                ].join(""));
             symbols[label] = parsed.length + origin;
         }
         
@@ -513,7 +525,7 @@ MarieAsm.prototype.assemble = function() {
             label: label,
             operator: operator,
             operand: operand,
-            line: this.lineNumberFormatter(i)
+            line: i
         });
     }
     
@@ -536,14 +548,26 @@ MarieAsm.prototype.assemble = function() {
         
         if (directiveBase) {
             if (instruction.operand == null) {
-                throw new Error(["Syntax error on line ", instruction.line, ". Expected operand."].join(""));
+                throw new Error([
+                    "Syntax error on line ",
+                    this.lineNumberFormatter(instruction.line),
+                    ". Expected operand."
+                ].join(""));
             }
             var constant = parseInt(instruction.operand, directiveBase);
             if (isNaN(constant)) {
-                throw new Error(["Syntax error on line ", instruction.line, ". Failed to parse operand."].join(""));
+                throw new Error([
+                    "Syntax error on line ", 
+                    this.lineNumberFormatter(instruction.line), 
+                    ". Failed to parse operand."
+                ].join(""));
             }
             if (constant > 0xFFFF) {
-                throw new Error(["Syntax error on line ", instruction.line, ". Literal out of bounds."].join(""));
+                throw new Error([
+                    "Syntax error on line ", 
+                    this.lineNumberFormatter(instruction.line), 
+                    ". Literal out of bounds."
+                ].join(""));
             }
             instruction.contents = constant;
             continue;
@@ -553,17 +577,32 @@ MarieAsm.prototype.assemble = function() {
             operand = instruction.operand;
         
         if (!operator) {
-            throw new Error(["Syntax error on line ", instruction.line, ". Unknown operator ", instruction.operator, "."].join(""));
+            throw new Error([
+                "Syntax error on line ", 
+                this.lineNumberFormatter(instruction.line), 
+                ". Unknown operator ", 
+                instruction.operator,
+                "."
+            ].join(""));
         }
         
         var needsOperand = operator.operand;
         if (needsOperand && !operand) {
-            throw new Error(["Syntax error on line ", instruction.line, ". Expected operand."].join(""));
+            throw new Error([
+                "Syntax error on line ", 
+                this.lineNumberFormatter(instruction.line), ". Expected operand."
+            ].join(""));
         }
         
         if (operand) {
             if (!needsOperand) {
-                throw new Error(["Syntax error on line ", instruction.line, ". Unexpected operand ", instruction.operand, "."].join(""));
+                throw new Error([
+                    "Syntax error on line ", 
+                    this.lineNumberFormatter(instruction.line), 
+                    ". Unexpected operand ", 
+                    instruction.operand, 
+                    "."
+                ].join(""));
             }
             
             if (operand.match(/^\d[0-9a-fA-F]*$/)) {
@@ -571,7 +610,13 @@ MarieAsm.prototype.assemble = function() {
                 operand = parseInt(operand, 16);
                 
                 if (operand > 0x0FFF) {
-                    throw new Error(["Syntax error on line ", instruction.line, ". Address ", instruction.operand, " out of bounds."].join(""));
+                    throw new Error([
+                        "Syntax error on line ", 
+                        this.lineNumberFormatter(instruction.line), 
+                        ". Address ", 
+                        instruction.operand, 
+                        " out of bounds."
+                    ].join(""));
                 }
             }
             else {
@@ -579,7 +624,13 @@ MarieAsm.prototype.assemble = function() {
                 operand = symbols[operand];
                 
                 if (operand == null) {
-                    throw new Error(["Syntax error on line ", instruction.line, ". Unknown label ", instruction.operand, "."].join(""));
+                    throw new Error([
+                        "Syntax error on line ", 
+                        this.lineNumberFormatter(instruction.line), 
+                        ". Unknown label ", 
+                        instruction.operand, 
+                        "."
+                   ].join(""));
                 }
             }
         }

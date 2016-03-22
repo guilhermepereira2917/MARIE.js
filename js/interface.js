@@ -19,6 +19,8 @@ var assembleButton = document.getElementById("assemble"),
 var asm = null,
     sim = null,
     interval = null,
+    lastCurrentLine = null,
+    lastBreakPointLine = null,
     breaking = false,
     delay = 1;
     
@@ -28,10 +30,23 @@ var programCodeMirror = CodeMirror.fromTextArea(textArea, {
     mode: "marie",
     lineNumbers: true,
     firstLineNumber: 0,
+    gutters: ["CodeMirror-linenumbers", "breakpoints"],
     lineNumberFormatter: MarieAsm.prototype.lineNumberFormatter
 });
 
 programCodeMirror.setSize(400, 400);
+
+programCodeMirror.on("gutterClick", function(cm, n) {
+    var info = cm.lineInfo(n);
+    cm.setGutterMarker(n, "breakpoints", info.gutterMarkers ? null : makeMarker());
+});
+
+function makeMarker() {
+    var marker = document.createElement("div");
+    marker.style.color = "#07C";
+    marker.innerHTML = "●";
+    return marker;
+}
 
 function hex(num) {
     var s = "0000" + (num >>> 0).toString(16).toUpperCase();
@@ -50,7 +65,7 @@ function populateMemoryView(sim) {
     // Populate headers
     var i, j, th, tr, cell, header, classAttributes;
     var headers = document.createElement("tr");
-    headers.appendChild(document.createElement("th"));
+    headers.appendChild(document.createElement("td"));
     for (i = 0; i < 16; i++) {
         th = document.createElement("th");
         th.appendChild(document.createTextNode(hex(i)));
@@ -70,22 +85,7 @@ function populateMemoryView(sim) {
         for (j = 0; j < 16; j++) {
             cell = document.createElement("td");
             cell.id = "cell" + (i + j);
-            
-            if(i/16 % 2 == 0) {
-                if((i/16 + j) % 2 == 0) {
-                    classAttributes = "cell-light-grey";
-                } else {
-                    classAttributes = "cell-dark-grey";
-                }
-            } else {
-                if((i/16 + j) % 2 == 0) {
-                    classAttributes = "cell-white";
-                } else {
-                    classAttributes = "cell-dark-grey";
-                }
-            }
-            
-            cell.setAttribute("class", classAttributes);
+            cell.className = "cell";
             cell.appendChild(document.createTextNode(hex(sim.memory[i + j].contents)));
             tr.appendChild(cell);
         }
@@ -113,37 +113,29 @@ function initializeRegisterLog() {
 }
 
 function updateCurrentLine(clear) {    
-    var currentLine = document.getElementsByClassName("current-line");
-    while (currentLine.length > 0) {
-        currentLine[0].classList.remove("current-line");
+    if (lastCurrentLine != null) {
+        programCodeMirror.removeLineClass(lastCurrentLine, "background", "current-line");
     }
-    
-    var activeBreakPoint = document.getElementsByClassName("active-break-point");
-    while (activeBreakPoint.length > 0) {
-        activeBreakPoint[0].classList.remove("active-break-point");
+
+    if (lastBreakPointLine != null) {
+        programCodeMirror.removeLineClass(lastBreakPointLine, "background", "active-break-point");
     }
-    
+
     if (clear) {
         return;
     }
     
     var line = sim.current().line;
     if (line != null) {
-        var lineNumbers = document.getElementsByClassName("CodeMirror-linenumber");
-        for (var i = 0; i < lineNumbers.length; i++) {
-            if (lineNumbers[i].textContent == line) {
-                var node = lineNumbers[i].parentNode.parentNode;
-                if (lineNumbers[i].classList.contains("break-point")) {
-                    statusInfo.textContent = "Machine paused at break point.";
-                    node.classList.add("active-break-point");
-                    breaking = true;
-                }
-                
-                node.classList.add("current-line");
-                return;
-            }
+        programCodeMirror.addLineClass(line, "background", "current-line");
+        lastCurrentLine = line;
+        var info = programCodeMirror.lineInfo(line)
+        if (info.gutterMarkers) {
+            statusInfo.textContent = "Machine paused at break point.";
+            programCodeMirror.addLineClass(line, "background", "active-break-point");
+            lastBreakPointLine = line;
+            breaking = true;
         }
-        
     }
 }
 
@@ -185,25 +177,6 @@ assembleButton.addEventListener("click", function() {
         return;
     }
     
-    asm.program.forEach(function(statement) {
-        var lineNumbers = document.getElementsByClassName("CodeMirror-linenumber");
-        for (var i = 0; i < lineNumbers.length; i++) {
-            if (lineNumbers[i].textContent == statement.line) {
-                lineNumbers[i].classList.add("can-break-point");
-                lineNumbers[i].addEventListener("click", function() {
-                    statement.breakPoint = !statement.breakPoint;
-                    
-                    if (statement.breakPoint) {
-                        this.classList.add("break-point");
-                    }
-                    else {
-                        this.classList.remove("break-point"); 
-                    }
-                });
-            }
-        }
-    });
-    
     try {
         sim = new MarieSim(asm);
     } catch(e) {
@@ -218,6 +191,16 @@ assembleButton.addEventListener("click", function() {
     
     sim.setEventListener("regwrite", function(e) {
         document.getElementById(e.register).textContent = hex(e.newValue);
+        
+        if (e.register == "pc") {
+            document.getElementById("cell" + e.oldValue).classList.remove("current-pc");
+            document.getElementById("cell" + e.newValue).classList.add("current-pc");
+        }
+        
+        if (e.register == "mar") {
+            document.getElementById("cell" + e.oldValue).classList.remove("current-mar");
+            document.getElementById("cell" + e.newValue).classList.add("current-mar");
+        }
     })
     
     populateMemoryView(sim);
@@ -248,25 +231,25 @@ assembleButton.addEventListener("click", function() {
 stepButton.addEventListener("click", function() {
     if (!sim.halted) {
         sim.step();
-        updateCurrentLine();
     }
     else {
         statusInfo.textContent = "Machine halted normally.";
         runButton.textContent = "Halted";
         runButton.disabled = true;
     }
+    updateCurrentLine();
 });
 
 microStepButton.addEventListener("click", function() {
     if (!sim.halted) {
         sim.microStep();
-        updateCurrentLine();
     }
     else {
         statusInfo.textContent = "Machine halted normally.";
         runButton.textContent = "Halted";
         runButton.disabled = true;
     }
+    updateCurrentLine();
 });
 
 runButton.addEventListener("click", function() {
