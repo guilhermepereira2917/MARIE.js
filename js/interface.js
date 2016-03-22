@@ -13,8 +13,15 @@ var assembleButton = document.getElementById("assemble"),
     memory = document.getElementById("memory"),
     statusInfo = document.getElementById("status-info"),
     registerLabel = document.getElementById("register-label"),
+    tabHeader = document.getElementById('tab-header'),
+    tabOutputLog = document.getElementById('tab-output-log'),
+    tabRegisterLog = document.getElementById('tab-register-log'),
+    outputLog = document.getElementById("output-log"),
+    outputLogOuter = document.getElementById("output-log-outer"),
+    outputLogContainer = document.getElementById("output-log-container"),
     registerLog = document.getElementById("register-log"),
-    registerLogOuter = document.getElementById("register-log-outer")
+    registerLogOuter = document.getElementById("register-log-outer"),
+    registerLogContainer = document.getElementById("register-log-container");
 
 var asm = null,
     sim = null,
@@ -63,7 +70,7 @@ function populateMemoryView(sim) {
     }
     
     // Populate headers
-    var i, j, th, tr, cell, header, classAttributes;
+    var i, j, th, tr, cell, header;
     var headers = document.createElement("tr");
     headers.appendChild(document.createElement("td"));
     for (i = 0; i < 16; i++) {
@@ -139,6 +146,12 @@ function updateCurrentLine(clear) {
     }
 }
 
+function outputFunc(value) {
+    outputLog.appendChild(document.createTextNode((value >>> 0).toString(16)));
+    outputLog.appendChild(document.createElement("br"));
+    outputLogOuter.scrollTop = outputLogOuter.scrollHeight;
+}
+
 function runLoop() {
     sim.step();
     updateCurrentLine();
@@ -178,7 +191,7 @@ assembleButton.addEventListener("click", function() {
     }
     
     try {
-        sim = new MarieSim(asm);
+        sim = new MarieSim(asm, null, outputFunc);
     } catch(e) {
         statusInfo.textContent = e.message;
         statusInfo.className = "error";
@@ -290,6 +303,22 @@ restartButton.addEventListener("click", function() {
     runButton.textContent = "Run";
     runButton.disabled = false;
     statusInfo.textContent = "Restarted simulator (memory contents are still preserved)";
+});
+
+tabHeader.addEventListener("click", function(e) {
+    if(e.target.id == "tab-output-log") {
+        tabOutputLog.setAttribute("class", "selected");
+        tabRegisterLog.setAttribute("class", "");
+        
+        outputLogContainer.style.display = "inline-block";
+        registerLogContainer.style.display = "none";
+    } else if(e.target.id == "tab-register-log") {
+        tabRegisterLog.setAttribute("class", "selected");
+        tabOutputLog.setAttribute("class", "");
+        
+        registerLogContainer.style.display = "inline-block";
+        outputLogContainer.style.display = "none";
+    }
 });
 
 window.addEventListener("beforeunload", function() {
