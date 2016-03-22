@@ -13,15 +13,12 @@ var assembleButton = document.getElementById("assemble"),
     memory = document.getElementById("memory"),
     statusInfo = document.getElementById("status-info"),
     registerLabel = document.getElementById("register-label"),
-    tabHeader = document.getElementById('tab-header'),
-    tabOutputLog = document.getElementById('tab-output-log'),
-    tabRegisterLog = document.getElementById('tab-register-log'),
     outputLog = document.getElementById("output-log"),
     outputLogOuter = document.getElementById("output-log-outer"),
-    outputLogContainer = document.getElementById("output-log-container"),
+    outputLogContainer = document.getElementById("tab-content1"),
     registerLog = document.getElementById("register-log"),
     registerLogOuter = document.getElementById("register-log-outer"),
-    registerLogContainer = document.getElementById("register-log-container");
+    registerLogContainer = document.getElementById("tab-content2");
 
 var asm = null,
     sim = null,
@@ -146,10 +143,21 @@ function updateCurrentLine(clear) {
     }
 }
 
+function initializeOutputLog() {
+    while (outputLog.firstChild) {
+        outputLog.removeChild(outputLog.firstChild);
+    }
+}
+
 function outputFunc(value) {
+    var shouldScrollToBottomOutputLog = outputLogOuter.clientHeight === (outputLogOuter.scrollHeight - outputLogOuter.scrollTop);
+    
     outputLog.appendChild(document.createTextNode((value >>> 0).toString(16)));
     outputLog.appendChild(document.createElement("br"));
-    outputLogOuter.scrollTop = outputLogOuter.scrollHeight;
+    
+    if(shouldScrollToBottomOutputLog) {
+        outputLogOuter.scrollTop = outputLogOuter.scrollHeight;
+    }
 }
 
 function runLoop() {
@@ -217,6 +225,7 @@ assembleButton.addEventListener("click", function() {
     })
     
     populateMemoryView(sim);
+    initializeOutputLog();
     initializeRegisterLog();
     resetRegisters();
     
@@ -227,9 +236,14 @@ assembleButton.addEventListener("click", function() {
     });
     
     sim.setEventListener("reglog", function(message) {
+        var shouldScrollToBottomRegisterLog = registerLogOuter.clientHeight === (registerLogOuter.scrollHeight - registerLogOuter.scrollTop);
+        
         registerLog.appendChild(document.createTextNode(message));
         registerLog.appendChild(document.createElement("br"));
-        registerLogOuter.scrollTop = registerLogOuter.scrollHeight;
+        
+        if(shouldScrollToBottomRegisterLog) {
+            registerLogOuter.scrollTop = registerLogOuter.scrollHeight;
+        }
     });
     
     stepButton.disabled = false;
@@ -303,22 +317,6 @@ restartButton.addEventListener("click", function() {
     runButton.textContent = "Run";
     runButton.disabled = false;
     statusInfo.textContent = "Restarted simulator (memory contents are still preserved)";
-});
-
-tabHeader.addEventListener("click", function(e) {
-    if(e.target.id == "tab-output-log") {
-        tabOutputLog.setAttribute("class", "selected");
-        tabRegisterLog.setAttribute("class", "");
-        
-        outputLogContainer.style.display = "inline-block";
-        registerLogContainer.style.display = "none";
-    } else if(e.target.id == "tab-register-log") {
-        tabRegisterLog.setAttribute("class", "selected");
-        tabOutputLog.setAttribute("class", "");
-        
-        registerLogContainer.style.display = "inline-block";
-        outputLogContainer.style.display = "none";
-    }
 });
 
 window.addEventListener("beforeunload", function() {

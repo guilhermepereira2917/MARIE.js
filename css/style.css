@@ -24,31 +24,73 @@ html, body {
     width: 75px;
 }
 
+article {
+    position: relative;
+    float: none;
+}
+/*
+    Credit:
+    http://codepen.io/wallaceerick/pen/ojtal?editors=1100
+*/
 #tab-container {
     display: inline-block;
+    float: none;
+    list-style: none;
+    width: calc(370px);
+    position: relative;
+    vertical-align: top;
+    margin: 0;
 }
 
+#tab-container li {
+    float: left;
+    margin: 0;
+    display: block;
+}
 
-#tab-header li {
-    list-style-type: none;
-    display: inline-block;
-    padding: 0.5em 1em;
+#tab-container input[type="radio"] {
+    position: absolute;
+    top: -9999px;
+    left: -9999px;
+}
+
+#tab-container label {
+    display: block;
+    background: #eee;
+    border-top-left-radius: 0.5em;
+    border-top-right-radius: 0.5em;
+    padding: 0 0.5em;
+    margin: 0;
+    position: relative;
+    top: 1em;
     cursor: pointer;
-    border-radius: 0.5em;
+    transition: all 0.2s ease-in-out;
 }
 
-#tab-header li.selected {
+#tab-container label:hover {
+    background: #e5e5e5;
+}
+
+#tab-container .tab-content {
+    z-index: 2;
+    display: block;
+    visibility: hidden;
+    overflow: hidden;
+    width: 100%;
+    position: absolute;
+    top: 2.2em;
+    left: 0;
+}
+
+#tab-container [id^="tab"]:checked + label {
+    top: 0;
+    padding-top: 0.5em;
+    padding-bottom: 0.5em;
     background: #ccc;
 }
 
-#output-log-container {
-    display: inline-block;
-    width: calc(400px);
-}
-
-#register-log-container {
-    display: none;
-    width: calc(400px);
+#tab-container [id^="tab"]:checked ~ [id^="tab-content"] {
+    visibility: visible;
 }
 
 footer {

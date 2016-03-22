@@ -2,6 +2,7 @@
 <html>
     <head>
         <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>MARIE.js</title>
         <script src="js/codemirror.js"></script>
         <script src="js/simple.js"></script>
@@ -30,7 +31,7 @@
                     <input id="range-delay" type="range" min="1" max="3000" value="1" />
                     <span id="display-delay-ms">1 ms</span>
                 </div>
-                <div>
+                <article>
                     <div id="program-container">
                         Assembly code:
                         <textarea id="program"></textarea>
@@ -53,25 +54,27 @@
                             <tr><td id="out">0000</td></tr>
                         </table>
                     </div>
-                    <div id="tab-container">
-                        <ul id="tab-header">
-                            <li id="tab-output-log" class="selected">Output log</li>
-                            <li id="tab-register-log">Register log</li>
-                        </ul>
-                        <div id="tab-contents">
-                            <div id="output-log-container">
+                    <ul id="tab-container">
+                        <li>
+                            <input type="radio" name="tabs" id="tab1" checked />
+                            <label for="tab1">Output log</label>
+                            <div id="tab-content1" class="tab-content">
                                 <div id="output-log-outer">
                                     <div id="output-log"></div>
                                 </div>
                             </div>
-                            <div id="register-log-container">
+                        </li>
+                        <li>
+                            <input type="radio" name="tabs" id="tab2" />
+                            <label for="tab2">Register log</label>
+                            <div id="tab-content2" class="tab-content">
                                 <div id="register-log-outer">
                                     <div id="register-log"></div>
                                 </div>
                             </div>
-                        </div>
-                    </div>
-                </div>
+                        </li>
+                    </ul>
+                </article>
                 <div id="status-info">MARIE.js</div>
                 <div id="memory-display">
                     <table id="memory-headers"></table>
