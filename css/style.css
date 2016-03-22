@@ -32,17 +32,20 @@ footer {
     border: 0.1em solid #ccc;
 }
 
-
-.cell-white {
-    background: #fff;
-}
-
-.cell-light-grey {
+#memory tr:nth-child(odd) .cell:nth-child(even) {
     background: #f2f2f2;
 }
 
-.cell-dark-grey {
+#memory tr:nth-child(odd) .cell:nth-child(odd) {
     background: #e0e0e0;
+}
+
+#memory tr:nth-child(even) .cell:nth-child(even) {
+    background: #e0e0e0;
+}
+
+#memory tr:nth-child(even) .cell:nth-child(odd) {
+    background: #ffffff;
 }
 
 #registers, #memory-headers, #memory, #register-log {
@@ -66,6 +69,10 @@ footer {
     border: 0.1em solid #ccc;
 }
 
+.breakpoints {
+    width: 0.8em;
+}
+
 #status-info {
     background: #eee;
     padding: 0.5em 1em;
@@ -79,16 +86,16 @@ footer {
     background-color: #0F0;
 }
 
-.break-point {
-    color: #07C;
-}
-
-.can-break-point:hover {
-    color: #A9E;
-}
-
 .active-break-point {
     background-color: #ADF;
+}
+
+.current-pc {
+    background-color: #0F0 !important;
+}
+
+.current-mar {
+    background-color: #FF0 !important;
 }
 
 #registers {
