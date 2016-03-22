@@ -26,6 +26,7 @@ html, body {
 
 #tab-container {
     display: inline-block;
+    width: 400px;
 }
 
 
@@ -43,12 +44,12 @@ html, body {
 
 #output-log-container {
     display: inline-block;
-    width: calc(400px);
+    width: calc(100%);
 }
 
 #register-log-container {
     display: none;
-    width: calc(400px);
+    width: calc(100%);
 }
 
 footer {
@@ -180,15 +181,9 @@ footer {
 
 @media (max-width: 1000px) {
     #program-container {
-        display: inline-block;
         width: calc(50% - 50px);
     }
-    #register-log-container {
-        display: none;
-        width: calc(50% - 50px);
-    }
-    #output-log-container {
-        display: inline-block;
+    #tab-container {
         width: calc(50% - 50px);
     }
     .container {
