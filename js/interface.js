@@ -34,7 +34,7 @@ var programCodeMirror = CodeMirror.fromTextArea(textArea, {
     lineNumberFormatter: MarieAsm.prototype.lineNumberFormatter
 });
 
-programCodeMirror.setSize(400, 400);
+programCodeMirror.setSize(null, 400);
 
 programCodeMirror.on("gutterClick", function(cm, n) {
     var info = cm.lineInfo(n);

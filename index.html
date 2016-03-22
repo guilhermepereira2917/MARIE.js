@@ -16,6 +16,7 @@
                 <h1>MARIE.js</h1>
                 <p>A <b>M</b>achine <b>I</b>nfrastructure that is <b>R</b>eally <b>I</b>ntuitive and <b>E</b>asy to use, implemented in JavaScript.</p>
             </div>
+            <a href="https://github.com/cyderize/MARIE.js"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/38ef81f8aca64bb9a64448d0d70f1308ef5341ab/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f6461726b626c75655f3132313632312e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png"></a>
         </header>
         <main>
             <div class="container">
@@ -30,11 +31,11 @@
                     <span id="display-delay-ms">1 ms</span>
                 </div>
                 <div>
-                    <div class="inline-block">
+                    <div id="program-container">
                         Assembly code:
                         <textarea id="program"></textarea>
                     </div>
-                    <div class="inline-block">
+                    <div id="register-container">
                         <table id="registers">
                             <tr><th>AC</th></tr>
                             <tr><td id="ac">0000</td></tr>
@@ -52,7 +53,7 @@
                             <tr><td id="out">0000</td></tr>
                         </table>
                     </div>
-                    <div class="inline-block">
+                    <div id="register-log-container">
                         Register log:
                         <div id="register-log-outer">
                             <div id="register-log"></div>
@@ -60,7 +61,7 @@
                     </div>
                 </div>
                 <div id="status-info">MARIE.js</div>
-                <div>
+                <div id="memory-display">
                     <table id="memory-headers"></table>
                     <div id="memory-container">
                         <table id="memory"></table>
@@ -70,7 +71,7 @@
         </main>
         <footer>
             <div class="container">
-                Created by Jason Nguyen and Saurabh Joshi.
+                Created by <a href="https://github.com/cyderize">Jason Nguyen</a> and <a href="https://github.com/jos0003">Saurabh Joshi</a>.
             </div>
         </footer>
         <script src="js/interface.js"></script>
