@@ -31,32 +31,32 @@
                     <input id="range-delay" type="range" min="1" max="3000" value="1" />
                     <span id="display-delay-ms">1 ms</span>
                 </div>
-                <article>
-                    <div id="program-container">
-                        Assembly code:
-                        <textarea id="program"></textarea>
-                    </div>
-                    <div id="register-container">
-                        <table id="registers">
-                            <tr><th>AC</th></tr>
-                            <tr><td id="ac">0000</td></tr>
-                            <tr><th>IR</th></tr>
-                            <tr><td id="ir">0000</td></tr>
-                            <tr><th>MAR</th></tr>
-                            <tr><td id="mar">0000</td></tr>
-                            <tr><th>MBR</th></tr>
-                            <tr><td id="mbr">0000</td></tr>
-                            <tr><th>PC</th></tr>
-                            <tr><td id="pc">0000</td></tr>
-                            <tr><th>IN</th></tr>
-                            <tr><td id="in">0000</td></tr>
-                            <tr><th>OUT</th></tr>
-                            <tr><td id="out">0000</td></tr>
-                        </table>
-                    </div>
-                    <ul id="tab-container">
+                <div id="program-container">
+                    Assembly code:
+                    <textarea id="program"></textarea>
+                </div>
+                <div id="register-container">
+                    <table id="registers">
+                        <tr><th>AC</th></tr>
+                        <tr><td id="ac">0000</td></tr>
+                        <tr><th>IR</th></tr>
+                        <tr><td id="ir">0000</td></tr>
+                        <tr><th>MAR</th></tr>
+                        <tr><td id="mar">0000</td></tr>
+                        <tr><th>MBR</th></tr>
+                        <tr><td id="mbr">0000</td></tr>
+                        <tr><th>PC</th></tr>
+                        <tr><td id="pc">0000</td></tr>
+                        <tr><th>IN</th></tr>
+                        <tr><td id="in">0000</td></tr>
+                        <tr><th>OUT</th></tr>
+                        <tr><td id="out">0000</td></tr>
+                    </table>
+                </div>
+                <div id="tab-container">
+                    <ul id="tabs">
                         <li>
-                            <input type="radio" name="tabs" id="tab1" checked />
+                            <input type="radio" name="tabs" id="tab1" checked>
                             <label for="tab1">Output log</label>
                             <div id="tab-content1" class="tab-content">
                                 <div id="output-log-outer">
@@ -65,7 +65,7 @@
                             </div>
                         </li>
                         <li>
-                            <input type="radio" name="tabs" id="tab2" />
+                            <input type="radio" name="tabs" id="tab2">
                             <label for="tab2">Register log</label>
                             <div id="tab-content2" class="tab-content">
                                 <div id="register-log-outer">
@@ -74,7 +74,7 @@
                             </div>
                         </li>
                     </ul>
-                </article>
+                </div>
                 <div id="status-info">MARIE.js</div>
                 <div id="memory-display">
                     <table id="memory-headers"></table>
