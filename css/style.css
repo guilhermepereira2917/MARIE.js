@@ -24,37 +24,38 @@ html, body {
     width: 75px;
 }
 
-article {
-    position: relative;
-    float: none;
+#tab-container {
+    float: right;
+    width: 375px;
+    height: 400px;
+    padding: 0;
+    margin: 0;
 }
+
 /*
     Credit:
     http://codepen.io/wallaceerick/pen/ojtal?editors=1100
 */
-#tab-container {
+#tabs {
     display: inline-block;
-    float: none;
     list-style: none;
-    width: calc(370px);
+    width: 100%;
     position: relative;
     vertical-align: top;
     margin: 0;
 }
 
-#tab-container li {
+#tabs li {
     float: left;
     margin: 0;
     display: block;
 }
 
-#tab-container input[type="radio"] {
-    position: absolute;
-    top: -9999px;
-    left: -9999px;
+#tabs input[type="radio"] {
+    display: none;
 }
 
-#tab-container label {
+#tabs label {
     display: block;
     background: #eee;
     border-top-left-radius: 0.5em;
@@ -67,29 +68,29 @@ article {
     transition: all 0.2s ease-in-out;
 }
 
-#tab-container label:hover {
+#tabs label:hover {
     background: #e5e5e5;
 }
 
-#tab-container .tab-content {
+#tabs .tab-content {
     z-index: 2;
     display: block;
     visibility: hidden;
     overflow: hidden;
-    width: 100%;
+    width: 80%;
     position: absolute;
     top: 2.2em;
     left: 0;
 }
 
-#tab-container [id^="tab"]:checked + label {
+#tabs [id^="tab"]:checked + label {
     top: 0;
     padding-top: 0.5em;
     padding-bottom: 0.5em;
     background: #ccc;
 }
 
-#tab-container [id^="tab"]:checked ~ [id^="tab-content"] {
+#tabs [id^="tab"]:checked ~ [id^="tab-content"] {
     visibility: visible;
 }
 
@@ -222,10 +223,10 @@ footer {
 
 @media (max-width: 1000px) {
     #program-container {
-        width: calc(50% - 50px);
+        width: calc(50% - 60px);
     }
     #tab-container {
-        width: calc(50% - 50px);
+        width: calc(50% - 60px);
     }
     .container {
         width: 90%;
