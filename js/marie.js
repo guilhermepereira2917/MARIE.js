@@ -208,7 +208,7 @@ MarieSim.prototype.restart = function() {
     this.pc = this.origin;
     this.ac = 0x0000;
     this.ir = 0x0000;
-    this.mar = 0x0000;
+    this.mar = 0x000;
     this.mbr = 0x0000;
     this.in = 0x0000;
     this.out = 0x0000;
@@ -450,7 +450,7 @@ function MarieAsm(assembly) {
     this.assembly = assembly;
 }
 
-MarieAsm.prototype.lineNumberFormatter = function(line) {
+MarieAsm.prototype.addressNumberFormatter = function(line) {
     var n = 3;
 
     var str = line.toString();
@@ -479,12 +479,12 @@ MarieAsm.prototype.assemble = function() {
             if (parsed.length != 0) {
                 throw new Error([
                     "Syntax error on line ", 
-                    this.lineNumberFormatter(i), 
+                    (i + 1), 
                     ". Unexpected origination directive."
                 ].join(""));
             }
             
-            origin = parseInt(originationDirective[1], 16);
+            origin = parseInt(originationDirective[1], 16) ^ 0xFFF;
             
             continue;
         }
@@ -496,7 +496,7 @@ MarieAsm.prototype.assemble = function() {
             // Syntax error
             throw new Error([
                 "Syntax error on line ", 
-                this.lineNumberFormatter(i), 
+                (i + 1), 
                 ". Incorrect form."
             ].join(""));
         }
@@ -510,7 +510,7 @@ MarieAsm.prototype.assemble = function() {
             if (label.match(/^\d.*$/))
                 throw new Error([
                     "Syntax error on line ", 
-                    this.lineNumberFormatter(i), 
+                    (i + 1), 
                     ". Labels cannot start with a number."
                 ].join(""));
             symbols[label] = parsed.length + origin;
@@ -525,7 +525,7 @@ MarieAsm.prototype.assemble = function() {
             label: label,
             operator: operator,
             operand: operand,
-            line: i
+            line: (i + 1)
         });
     }
     
@@ -550,7 +550,7 @@ MarieAsm.prototype.assemble = function() {
             if (instruction.operand == null) {
                 throw new Error([
                     "Syntax error on line ",
-                    this.lineNumberFormatter(instruction.line),
+                    instruction.line,
                     ". Expected operand."
                 ].join(""));
             }
@@ -558,14 +558,14 @@ MarieAsm.prototype.assemble = function() {
             if (isNaN(constant)) {
                 throw new Error([
                     "Syntax error on line ", 
-                    this.lineNumberFormatter(instruction.line), 
+                    instruction.line, 
                     ". Failed to parse operand."
                 ].join(""));
             }
             if (constant > 0xFFFF) {
                 throw new Error([
                     "Syntax error on line ", 
-                    this.lineNumberFormatter(instruction.line), 
+                    instruction.line, 
                     ". Literal out of bounds."
                 ].join(""));
             }
@@ -579,7 +579,7 @@ MarieAsm.prototype.assemble = function() {
         if (!operator) {
             throw new Error([
                 "Syntax error on line ", 
-                this.lineNumberFormatter(instruction.line), 
+                instruction.line, 
                 ". Unknown operator ", 
                 instruction.operator,
                 "."
@@ -590,7 +590,7 @@ MarieAsm.prototype.assemble = function() {
         if (needsOperand && !operand) {
             throw new Error([
                 "Syntax error on line ", 
-                this.lineNumberFormatter(instruction.line), ". Expected operand."
+                instruction.line, ". Expected operand."
             ].join(""));
         }
         
@@ -598,7 +598,7 @@ MarieAsm.prototype.assemble = function() {
             if (!needsOperand) {
                 throw new Error([
                     "Syntax error on line ", 
-                    this.lineNumberFormatter(instruction.line), 
+                    instruction.line, 
                     ". Unexpected operand ", 
                     instruction.operand, 
                     "."
@@ -612,7 +612,7 @@ MarieAsm.prototype.assemble = function() {
                 if (operand > 0x0FFF) {
                     throw new Error([
                         "Syntax error on line ", 
-                        this.lineNumberFormatter(instruction.line), 
+                        instruction.line, 
                         ". Address ", 
                         instruction.operand, 
                         " out of bounds."
@@ -626,7 +626,7 @@ MarieAsm.prototype.assemble = function() {
                 if (operand == null) {
                     throw new Error([
                         "Syntax error on line ", 
-                        this.lineNumberFormatter(instruction.line), 
+                        instruction.line, 
                         ". Unknown label ", 
                         instruction.operand, 
                         "."

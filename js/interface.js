@@ -33,9 +33,7 @@ textArea.value = localStorage.getItem("marie-program") || "";
 var programCodeMirror = CodeMirror.fromTextArea(textArea, {
     mode: "marie",
     lineNumbers: true,
-    firstLineNumber: 0,
-    gutters: ["CodeMirror-linenumbers", "breakpoints"],
-    lineNumberFormatter: MarieAsm.prototype.lineNumberFormatter
+    gutters: ["CodeMirror-linenumbers", "breakpoints"]
 });
 
 programCodeMirror.setSize(null, 400);
