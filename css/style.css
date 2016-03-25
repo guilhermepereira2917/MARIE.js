@@ -194,6 +194,7 @@ footer {
 
 #registers td {
     border: 0.1em solid #ccc;
+    text-align: center;
 }
 
 

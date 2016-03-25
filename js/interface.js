@@ -50,9 +50,10 @@ function makeMarker() {
     return marker;
 }
 
-function hex(num) {
+function hex(num, isAddress) {
+    isAddress = isAddress | 0;
     var s = "0000" + (num >>> 0).toString(16).toUpperCase();
-    return s.substr(s.length - 4);
+    return s.substr(s.length - 4 + isAddress);
 }
 
 function populateMemoryView(sim) {
@@ -67,10 +68,12 @@ function populateMemoryView(sim) {
     // Populate headers
     var i, j, th, tr, cell, header;
     var headers = document.createElement("tr");
-    headers.appendChild(document.createElement("td"));
+    th = document.createElement("th");
+    th.appendChild(document.createTextNode("+"));
+    headers.appendChild(th);
     for (i = 0; i < 16; i++) {
         th = document.createElement("th");
-        th.appendChild(document.createTextNode(hex(i)));
+        th.appendChild(document.createTextNode(hex(i, true)));
         headers.appendChild(th);
     }
     
@@ -81,7 +84,7 @@ function populateMemoryView(sim) {
         tr = document.createElement("tr");
         
         header = document.createElement("th");
-        header.appendChild(document.createTextNode(hex(i)));
+        header.appendChild(document.createTextNode(hex(i, true)));
         tr.appendChild(header);
                 
         for (j = 0; j < 16; j++) {
@@ -101,9 +104,9 @@ function populateMemoryView(sim) {
 function resetRegisters() {
     document.getElementById("ac").textContent = hex(sim.ac);
     document.getElementById("ir").textContent = hex(sim.ir);
-    document.getElementById("mar").textContent = hex(sim.mar);
+    document.getElementById("mar").textContent = hex(sim.mar, true);
     document.getElementById("mbr").textContent = hex(sim.mbr);
-    document.getElementById("pc").textContent = hex(sim.pc);
+    document.getElementById("pc").textContent = hex(sim.pc, true);
     document.getElementById("in").textContent = hex(sim.in);
     document.getElementById("out").textContent = hex(sim.out);
 }
@@ -209,7 +212,7 @@ assembleButton.addEventListener("click", function() {
     statusInfo.className = ""; 
     
     sim.setEventListener("regwrite", function(e) {
-        document.getElementById(e.register).textContent = hex(e.newValue);
+        document.getElementById(e.register).textContent = hex(e.newValue, e.register == "mar" || e.register == "pc");
         
         if (e.register == "pc") {
             document.getElementById("cell" + e.oldValue).classList.remove("current-pc");
@@ -229,7 +232,7 @@ assembleButton.addEventListener("click", function() {
     
     sim.setEventListener("memwrite", function(e) {
         var cell = document.getElementById("cell" + e.address);
-        cell.textContent = hex(e.newCell.contents);
+        cell.textContent = hex(e.newCell.contents, false);
         cell.style.color = 'red';
     });
     
