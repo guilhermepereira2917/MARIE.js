@@ -168,8 +168,12 @@ footer {
     background: #ecc;
 }
 
+.error-line {
+    background-color: #ECC;
+}
+
 .current-line {
-    background-color: #0F0;
+    background-color: #5E5;
 }
 
 .active-break-point {

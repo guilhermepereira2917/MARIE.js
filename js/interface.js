@@ -23,6 +23,7 @@ var assembleButton = document.getElementById("assemble"),
 var asm = null,
     sim = null,
     interval = null,
+    lastErrorLine = null,
     lastCurrentLine = null,
     lastBreakPointLine = null,
     breaking = false,
@@ -117,7 +118,7 @@ function initializeRegisterLog() {
     }
 }
 
-function updateCurrentLine(clear) {    
+function updateCurrentLine(clear) {
     if (lastCurrentLine != null) {
         programCodeMirror.removeLineClass(lastCurrentLine, "background", "current-line");
     }
@@ -125,8 +126,8 @@ function updateCurrentLine(clear) {
     if (lastBreakPointLine != null) {
         programCodeMirror.removeLineClass(lastBreakPointLine, "background", "active-break-point");
     }
-
-    if (clear) {
+    
+    if(clear) {
         return;
     }
     
@@ -183,6 +184,10 @@ assembleButton.addEventListener("click", function() {
     window.clearInterval(interval);
     interval = null;
     
+    if (lastErrorLine != null) {
+        programCodeMirror.removeLineClass(lastErrorLine, "background", "error-line");
+    }
+    
     var breakPoints = document.getElementsByClassName("break-point");
     while (breakPoints.length > 0) {
         breakPoints[0].classList.remove("break-point");
@@ -193,8 +198,10 @@ assembleButton.addEventListener("click", function() {
     try {
         asm = assembler.assemble();
     } catch(e) {
-        statusInfo.textContent = e.message;
+        statusInfo.textContent = e.toString();
         statusInfo.className = "error";
+        lastErrorLine = e.lineNumber - 1;
+        programCodeMirror.addLineClass(lastErrorLine, "background", "error-line");
         console.error(e);
         return;
     }
