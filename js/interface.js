@@ -23,6 +23,7 @@ var assembleButton = document.getElementById("assemble"),
 var asm = null,
     sim = null,
     interval = null,
+    lastErrorLine = null,
     lastCurrentLine = null,
     lastBreakPointLine = null,
     breaking = false,
@@ -33,9 +34,7 @@ textArea.value = localStorage.getItem("marie-program") || "";
 var programCodeMirror = CodeMirror.fromTextArea(textArea, {
     mode: "marie",
     lineNumbers: true,
-    firstLineNumber: 0,
-    gutters: ["CodeMirror-linenumbers", "breakpoints"],
-    lineNumberFormatter: MarieAsm.prototype.lineNumberFormatter
+    gutters: ["CodeMirror-linenumbers", "breakpoints"]
 });
 
 programCodeMirror.setSize(null, 400);
@@ -52,9 +51,10 @@ function makeMarker() {
     return marker;
 }
 
-function hex(num) {
+function hex(num, isAddress) {
+    isAddress = isAddress | 0;
     var s = "0000" + (num >>> 0).toString(16).toUpperCase();
-    return s.substr(s.length - 4);
+    return s.substr(s.length - 4 + isAddress);
 }
 
 function populateMemoryView(sim) {
@@ -69,10 +69,12 @@ function populateMemoryView(sim) {
     // Populate headers
     var i, j, th, tr, cell, header;
     var headers = document.createElement("tr");
-    headers.appendChild(document.createElement("td"));
+    th = document.createElement("th");
+    th.appendChild(document.createTextNode("+"));
+    headers.appendChild(th);
     for (i = 0; i < 16; i++) {
         th = document.createElement("th");
-        th.appendChild(document.createTextNode(hex(i)));
+        th.appendChild(document.createTextNode(hex(i, true)));
         headers.appendChild(th);
     }
     
@@ -83,7 +85,7 @@ function populateMemoryView(sim) {
         tr = document.createElement("tr");
         
         header = document.createElement("th");
-        header.appendChild(document.createTextNode(hex(i)));
+        header.appendChild(document.createTextNode(hex(i, true)));
         tr.appendChild(header);
                 
         for (j = 0; j < 16; j++) {
@@ -103,9 +105,9 @@ function populateMemoryView(sim) {
 function resetRegisters() {
     document.getElementById("ac").textContent = hex(sim.ac);
     document.getElementById("ir").textContent = hex(sim.ir);
-    document.getElementById("mar").textContent = hex(sim.mar);
+    document.getElementById("mar").textContent = hex(sim.mar, true);
     document.getElementById("mbr").textContent = hex(sim.mbr);
-    document.getElementById("pc").textContent = hex(sim.pc);
+    document.getElementById("pc").textContent = hex(sim.pc, true);
     document.getElementById("in").textContent = hex(sim.in);
     document.getElementById("out").textContent = hex(sim.out);
 }
@@ -116,7 +118,7 @@ function initializeRegisterLog() {
     }
 }
 
-function updateCurrentLine(clear) {    
+function updateCurrentLine(clear) {
     if (lastCurrentLine != null) {
         programCodeMirror.removeLineClass(lastCurrentLine, "background", "current-line");
     }
@@ -124,8 +126,8 @@ function updateCurrentLine(clear) {
     if (lastBreakPointLine != null) {
         programCodeMirror.removeLineClass(lastBreakPointLine, "background", "active-break-point");
     }
-
-    if (clear) {
+    
+    if(clear) {
         return;
     }
     
@@ -182,6 +184,10 @@ assembleButton.addEventListener("click", function() {
     window.clearInterval(interval);
     interval = null;
     
+    if (lastErrorLine != null) {
+        programCodeMirror.removeLineClass(lastErrorLine, "background", "error-line");
+    }
+    
     var breakPoints = document.getElementsByClassName("break-point");
     while (breakPoints.length > 0) {
         breakPoints[0].classList.remove("break-point");
@@ -192,8 +198,10 @@ assembleButton.addEventListener("click", function() {
     try {
         asm = assembler.assemble();
     } catch(e) {
-        statusInfo.textContent = e.message;
+        statusInfo.textContent = e.toString();
         statusInfo.className = "error";
+        lastErrorLine = e.lineNumber - 1;
+        programCodeMirror.addLineClass(lastErrorLine, "background", "error-line");
         console.error(e);
         return;
     }
@@ -211,7 +219,7 @@ assembleButton.addEventListener("click", function() {
     statusInfo.className = ""; 
     
     sim.setEventListener("regwrite", function(e) {
-        document.getElementById(e.register).textContent = hex(e.newValue);
+        document.getElementById(e.register).textContent = hex(e.newValue, e.register == "mar" || e.register == "pc");
         
         if (e.register == "pc") {
             document.getElementById("cell" + e.oldValue).classList.remove("current-pc");
@@ -231,7 +239,7 @@ assembleButton.addEventListener("click", function() {
     
     sim.setEventListener("memwrite", function(e) {
         var cell = document.getElementById("cell" + e.address);
-        cell.textContent = hex(e.newCell.contents);
+        cell.textContent = hex(e.newCell.contents, false);
         cell.style.color = 'red';
     });
     
