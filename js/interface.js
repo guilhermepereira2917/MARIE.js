@@ -1,4 +1,4 @@
-﻿"use strict";
+"use strict";
 
 var assembleButton = document.getElementById("assemble"),
     stepButton = document.getElementById("step"),

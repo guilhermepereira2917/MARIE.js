@@ -6,22 +6,14 @@ html, body {
 
 .container {
     width: 80%;
-    margin: 75px auto 0;
+    margin: 0 auto;
     text-align: center;
 }
-.container-code {
-    width: 80%;
-    margin: 75px auto 0;
-    text-align: left;
-}
+
 .container > * {
     text-align: left;
 }
-#file{
-	width: 80%;
-    margin: 10px auto;
-    text-align: center;
-}
+
 #program-container {
     display: inline-block;
     width: calc(100% - 500px);
@@ -250,119 +242,4 @@ footer {
     .container {
         width: 70%;
     }
-}
-
-#file-io {
-    padding: 10px;
-	height: 60px
-}
-
-/*
-NAVBAR TEST CODE
-*/
-#custom-bootstrap-menu.navbar-default .navbar-brand {
-    color: rgba(255, 255, 255, 1);
-}
-#custom-bootstrap-menu.navbar-default {
-    font-size: 14px;
-    background-color: rgba(46, 46, 46, 1);
-    border-width: 1px;
-    border-radius: 4px;
-}
-#custom-bootstrap-menu.navbar-default .navbar-nav>li>a {
-    color: rgba(255, 255, 255, 1);
-    background-color: rgba(248, 248, 248, 0);
-}
-#custom-bootstrap-menu.navbar-default .navbar-nav>li>a:hover,
-#custom-bootstrap-menu.navbar-default .navbar-nav>li>a:focus {
-    color: rgba(255, 255, 255, 1);
-    background-color: rgba(69, 69, 69, 1);
-}
-#custom-bootstrap-menu.navbar-default .navbar-nav>.active>a,
-#custom-bootstrap-menu.navbar-default .navbar-nav>.active>a:hover,
-#custom-bootstrap-menu.navbar-default .navbar-nav>.active>a:focus {
-    color: rgba(255, 255, 255, 1);
-    background-color: rgba(0, 138, 0, 1);
-}
-#custom-bootstrap-menu.navbar-default .navbar-toggle {
-    border-color: #008a00;
-}
-#custom-bootstrap-menu.navbar-default .navbar-toggle:hover,
-#custom-bootstrap-menu.navbar-default .navbar-toggle:focus {
-    background-color: #008a00;
-}
-#custom-bootstrap-menu.navbar-default .navbar-toggle .icon-bar {
-    background-color: #008a00;
-}
-#custom-bootstrap-menu.navbar-default .navbar-toggle:hover .icon-bar,
-#custom-bootstrap-menu.navbar-default .navbar-toggle:focus .icon-bar {
-    background-color: #2e2e2e;
-}
-
-#forkme_banner {
-    display: block;
-    position: absolute;
-    top: 5px;
-    right: 10px;
-    z-index: 10;
-    padding: 10px 50px 10px 10px;
-    color: #fff;
-    background: url('../images/blacktocat.png') #0090ff no-repeat 95% 50%;
-    font-weight: 700;
-    box-shadow: 0 0 10px rgba(0,0,0,.5);
-    border-bottom-left-radius: 2px;
-    border-bottom-right-radius: 2px;
-}
-button {
-    background-color: #008a00;
-	border: #008a00;
-	color: #fff;
-	height: 3em;
-	padding-left: 10px;
-	padding-right: 10px;
-}
-button:hover {
-    background-color: #0AC92B;
-	border: #0AC92B;
-	color: #fff;
-	height: 3em;
-	padding-left: 10px;
-	padding-right: 10px;
-}
-button[disabled=disabled], button:disabled {
-    background-color: #2e2e2e;
-	border: #2e2e2e;
-	color: #fff;
-	height: 3em;
-	padding-left: 10px;
-	padding-right: 10px;
-}
-
-codeblock {
-	text-align: left;
-	width: 50%;
-	font-size: 95%;
-	white-space: pre;
-	white-space: pre-wrap;
-	white-space: -moz-pre-wrap;
-	white-space: -o-pre-wrap;
-	background: #faf8f0;
-}
-    
-#content codeblock {
-	display: block;
-	border: 1px solid #bebab0;
-}
-
-.inputfile + label {
-    font-size: 1.25em;
-    font-weight: 700;
-    color: white;
-    background-color: black;
-    display: inline-block;
-}
-
-.inputfile:focus + label,
-.inputfile + label:hover {
-    background-color: red;
 }
