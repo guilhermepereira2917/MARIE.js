@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>MARIE.js | Documentation</title>
+        <script src="js/codemirror.js"></script>
+        <script src="js/simple.js"></script>
+        <script src="js/syntax.js"></script>
+        <script src="js/marie.js"></script>
+		<link rel="stylesheet" href="css/bootstrap.css">
+        <link rel="stylesheet" href="css/codemirror.css">
+		<link rel="stylesheet" href="css/style.css">
+		
+    </head>
+    <body>
+        <header>
+			<nav id="custom-bootstrap-menu" class="navbar navbar-default navbar-fixed-top">
+					<div class="container-fluid">
+						<div class="navbar-brand">
+							MARIE.js <font size="1px">Beta</font>
+						</div>
+						<ul class="nav navbar-nav">
+						  <li><a href="index.html">Home</a></li>
+						  <li class="active"><a href="docs.html">Documentation</a></li>
+						  <li><a href="about.html">About</a></li>
+						</ul>
+					</div>
+					<a id="forkme_banner" href="https://github.com/cyderize/MARIE.js" target="_blank">View on GitHub</a>
+			</nav>
+        </header>
+        <main>
+            <div id="command" class="container">
+                <h2>Command Line</h2>
+				<table class="table">
+				  <tr>
+					<th></th>
+					<th>Command</th>
+					<th>Hex Opcode (Optional)</th>
+					<th>Summary</th>
+				  </tr>
+				  <tr>
+					<td rowspan="4">Arithmetic</td>
+					<td>ADD X</td>
+					<td>3</td>
+					<td>AC &lt;- AC + X</td>
+				  </tr>
+				  <tr>
+					<td>SUBT X</td>
+					<td>4</td>
+					<td>AC &lt;- AC - X</td>
+				  </tr>
+				  <tr>
+					<td>ADDI X</td>
+					<td>B</td>
+					<td>Add Indirect: Use the value at X as the actual address of the<br>data operand to add to AC</td>
+				  </tr>
+				  <tr>
+					<td>CLEAR</td>
+					<td>A</td>
+					<td>AC = 0</td>
+				  </tr>
+				  <tr>
+					<td rowspan="2">Data Transfer</td>
+					<td>LOAD X</td>
+					<td>1</td>
+					<td>Loads Contents of Address X into AC</td>
+				  </tr>
+				  <tr>
+					<td>STORE X</td>
+					<td>2</td>
+					<td>Stores Contents of AC into Address X</td>
+				  </tr>
+				  <tr>
+					<td rowspan="2">I/O</td>
+					<td>INPUT</td>
+					<td>5</td>
+					<td>Request user to input a value</td>
+				  </tr>
+				  <tr>
+					<td>OUTPUT</td>
+					<td>6</td>
+					<td>Prints value from AC</td>
+				  </tr>
+				  <tr>
+					<td rowspan="2">Branch</td>
+					<td>JUMP X</td>
+					<td>9</td>
+					<td>Jumps to Address X</td>
+				  </tr>
+				  <tr>
+					<td>SKIPCOND (C)</td>
+					<td>8</td>
+					<td>Skips next based on instruction (C), if (C) = <br>
+						<ul>
+							<li>000: Skips if AC &lt; 0</li>
+							<li>400: Skips if AC = 0</li>
+							<li>800: Skips if AC &gt; 0</li>
+						</ul></td>
+				  </tr>
+				  <tr>
+					<td rowspan="2">Subroutine</td>
+					<td>JNS X</td>
+					<td>0</td>
+					<td>Jumps and Store: Stores PC at address X and jump to X+1</td>
+				  </tr>
+				  <tr>
+					<td>JUMPI X</td>
+					<td>C</td>
+					<td>Use the value at X as the address to jump to</td>
+				  </tr>
+				  <tr>
+					<td></td>
+					<td>HALT</td>
+					<td>7</td>
+					<td>Exit</td>
+				  </tr>
+				</table>
+            </div>
+			<div id="usage" class="container" style="padding: 0px">
+			<h2>MARIE.js Usage</h2>
+			
+			</div>
+        </main>
+        <footer>
+            <div class="container">
+            </div>
+				Created by <a href="https://github.com/cyderize">Jason Nguyen</a> ,<a href="https://github.com/jos0003">Saurabh Joshi</a> and <a href="https://github.com/lorderikir">Eric Jiang</a>.
+        </footer>
+		
+        <script src="js/interface.js"></script>
+		<script src="js/text.js"></script>
+    </body>
+</html>

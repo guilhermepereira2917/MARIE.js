@@ -3,27 +3,37 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>MARIE.js</title>
+        <title>MARIE.js | Home</title>
         <script src="js/codemirror.js"></script>
         <script src="js/simple.js"></script>
         <script src="js/syntax.js"></script>
         <script src="js/marie.js"></script>
+		<link rel="stylesheet" href="css/bootstrap.css">
         <link rel="stylesheet" href="css/codemirror.css">
-        <link rel="stylesheet" href="css/style.css">
+		<link rel="stylesheet" href="css/style.css">
+		
     </head>
     <body>
         <header>
-            <div class="container">
-                <h1>MARIE.js</h1>
-                <p>A <b>M</b>achine <b>I</b>nfrastructure that is <b>R</b>eally <b>I</b>ntuitive and <b>E</b>asy to use, implemented in JavaScript.</p>
-            </div>
-            <a href="https://github.com/cyderize/MARIE.js"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/38ef81f8aca64bb9a64448d0d70f1308ef5341ab/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f6461726b626c75655f3132313632312e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png"></a>
+			<nav id="custom-bootstrap-menu" class="navbar navbar-default navbar-fixed-top">
+					<div class="container-fluid">
+						<div class="navbar-brand">
+							MARIE.js <font size="1px">Beta</font>
+						</div>
+						<ul class="nav navbar-nav">
+						  <li class="active"><a href="index.html">Home</a></li>
+						  <li><a href="docs.html">Documentation</a></li>
+						  <li><a href="about.html">About</a></li>
+						</ul>
+					</div>
+					<a id="forkme_banner" href="https://github.com/cyderize/MARIE.js" target="_blank">View on GitHub</a>
+			</nav>
         </header>
         <main>
             <div class="container">
                 <div id="action-bar">
-                    <button id="assemble">Assemble</button>
-                    <button id="step" disabled>Step</button>
+                    <button id="assemble" class="btn-interface">Assemble</button>
+                    <button id="step" class="btn-interface" disabled >Step</button>
                     <button id="microstep" disabled>Microstep</button>
                     <button id="run" disabled>Run</button>
                     <button id="restart" disabled>Restart</button>
@@ -31,6 +41,9 @@
                     <input id="range-delay" type="range" min="1" max="3000" value="1" />
                     <span id="display-delay-ms">1 ms</span>
                 </div>
+				<div id="file">
+					Import Source File (*.txt/*.mas):	<input type="file" id="fileInput">
+				</div>
                 <div id="program-container">
                     Assembly code:
                     <textarea id="program"></textarea>
@@ -86,9 +99,11 @@
         </main>
         <footer>
             <div class="container">
-                Created by <a href="https://github.com/cyderize">Jason Nguyen</a> and <a href="https://github.com/jos0003">Saurabh Joshi</a>.
+				Created by <a href="https://github.com/cyderize">Jason Nguyen</a> ,<a href="https://github.com/jos0003">Saurabh Joshi</a> and <a href="https://github.com/lorderikir">Eric Jiang</a>.
             </div>
         </footer>
+		
         <script src="js/interface.js"></script>
+		<script src="js/text.js"></script>
     </body>
 </html>
