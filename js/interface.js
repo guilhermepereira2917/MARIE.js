@@ -196,7 +196,7 @@ function initializeOutputLog() {
 function outputFunc(value) {
     var shouldScrollToBottomOutputLog = outputLogOuter.clientHeight === (outputLogOuter.scrollHeight - outputLogOuter.scrollTop);
     
-    outputLog.appendChild(document.createTextNode((value >>> 0 & 0xFFFF).toString(16).toUpperCase()));
+    outputLog.appendChild(document.createTextNode(hex(value & 0xFFFF)));
     outputLog.appendChild(document.createElement("br"));
     
     if(shouldScrollToBottomOutputLog) {
