@@ -31,7 +31,13 @@ html, body {
     flex-direction: row;
 }
 
+#flex > * {
+    height: 400px;
+}
+
 #program-container {
+    display: flex;
+    flex-direction: column;
     flex: 2 0 0;
     width: 50%;
     min-width: 500px;
@@ -52,6 +58,7 @@ html, body {
 .tab-content {
     flex: 1 0 0;
     display: flex;
+    min-height: 0;
 }
 
 footer {
@@ -114,7 +121,7 @@ footer {
 
 .CodeMirror {
     border: 0.1em solid #ccc;
-    height: 400px;
+    flex: 1 0 0;
 }
 
 .breakpoints {
