@@ -9,97 +9,41 @@ html, body {
     margin: 75px auto 0;
     text-align: center;
 }
+
 .container-code {
     width: 80%;
     margin: 75px auto 0;
     text-align: left;
 }
+
 .container > * {
     text-align: left;
 }
-#file{
+
+#file {
 	width: 80%;
     margin: 10px auto;
     text-align: center;
 }
+
+#flex {
+    display: flex;
+    flex-direction: row;
+}
+
 #program-container {
-    display: inline-block;
-    width: calc(100% - 500px);
+    flex: 2 0 0;
+    width: 50%;
+    min-width: 500px;
 }
 
 #register-container {
-    display: inline-block;
-    width: 75px;
+    width: 60px;
 }
 
 #tab-container {
-    float: right;
-    width: 375px;
-    height: 400px;
-    padding: 0;
-    margin: 0;
-}
-
-/*
-    Credit:
-    http://codepen.io/wallaceerick/pen/ojtal?editors=1100
-*/
-#tabs {
-    display: inline-block;
-    list-style: none;
-    width: 100%;
-    position: relative;
-    vertical-align: top;
-    margin: 0;
-}
-
-#tabs li {
-    float: left;
-    margin: 0;
-    display: block;
-}
-
-#tabs input[type="radio"] {
-    display: none;
-}
-
-#tabs label {
-    display: block;
-    background: #eee;
-    border-top-left-radius: 0.5em;
-    border-top-right-radius: 0.5em;
-    padding: 0 0.5em;
-    margin: 0;
-    position: relative;
-    top: 1em;
-    cursor: pointer;
-    transition: all 0.2s ease-in-out;
-}
-
-#tabs label:hover {
-    background: #e5e5e5;
-}
-
-#tabs .tab-content {
-    z-index: 2;
-    display: block;
-    visibility: hidden;
-    overflow: hidden;
-    width: 80%;
-    position: absolute;
-    top: 2.2em;
-    left: 0;
-}
-
-#tabs [id^="tab"]:checked + label {
-    top: 0;
-    padding-top: 0.5em;
-    padding-bottom: 0.5em;
-    background: #ccc;
-}
-
-#tabs [id^="tab"]:checked ~ [id^="tab-content"] {
-    visibility: visible;
+    flex: 1 0 0;
+    min-width: 320px;
 }
 
 footer {
@@ -109,7 +53,8 @@ footer {
 }
 
 #memory-display {
-    margin: 0 auto;
+    overflow: auto;
+    max-width: 100%;
     display: inline-block;
 }
 
@@ -161,6 +106,7 @@ footer {
 
 .CodeMirror {
     border: 0.1em solid #ccc;
+    height: 400px;
 }
 
 .breakpoints {
@@ -198,6 +144,7 @@ footer {
 
 #registers {
     padding: 0 0.5em;
+    margin: 0 10px;
 }
 
 #registers th {
@@ -209,19 +156,14 @@ footer {
     text-align: center;
 }
 
-
 #register-label {
     padding: 0.5em 1em;
     background-color: #F9F9F9;
 }
 
-#register-checkbox:checked + #register-log-outer {
-    display: inline-block;
-}
-
-#output-log-outer, #register-log-outer {
+#output-log-outer, #register-log-outer, #watch-list-outer {
     width: 100%;
-    height: 400px;
+    height: 360px;
     padding: 0 0.5em;
     box-sizing: border-box;
     border: 0.1em solid #ccc;
@@ -235,12 +177,20 @@ footer {
 }
 
 @media (max-width: 1000px) {
+    .container {
+        width: 95%;
+    }
+    
+    #flex {
+        flex-wrap: wrap;
+    }
+    
     #program-container {
-        width: calc(50% - 60px);
+        width: 100%;
     }
-    #tab-container {
-        width: calc(50% - 60px);
-    }
+}
+
+@media (max-width: 1300px) {
     .container {
         width: 90%;
     }
@@ -248,7 +198,7 @@ footer {
 
 @media (min-width: 1600px) {
     .container {
-        width: 70%;
+        width: 80%;
     }
 }
 
@@ -365,4 +315,32 @@ codeblock {
 .inputfile:focus + label,
 .inputfile + label:hover {
     background-color: red;
+}
+
+@media screen and (max-width: 767px) {
+    .container {
+        margin-top: 150px;
+    }
+}
+
+#watch-list-outer {
+    padding: 10px;
+}
+
+#watch-list-headers, #watch-list {
+    width: 100%;
+    table-layout: fixed;
+}
+
+#watch-list-headers {
+    border-bottom: solid 1px #CCC;
+}
+
+.watch-list-label {
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+.watch-list-address, .watch-list-value {
+    width: 70px;
 }
