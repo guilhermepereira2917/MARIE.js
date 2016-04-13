@@ -18,7 +18,8 @@ var assembleButton = document.getElementById("assemble"),
     outputLogContainer = document.getElementById("tab-content1"),
     registerLog = document.getElementById("register-log"),
     registerLogOuter = document.getElementById("register-log-outer"),
-    registerLogContainer = document.getElementById("tab-content2");
+    registerLogContainer = document.getElementById("tab-content2"),
+    watchList = document.getElementById("watch-list");
 
 var asm = null,
     sim = null,
@@ -37,8 +38,6 @@ var programCodeMirror = CodeMirror.fromTextArea(textArea, {
     gutters: ["CodeMirror-linenumbers", "breakpoints"]
 });
 
-programCodeMirror.setSize(null, 400);
-
 programCodeMirror.on("gutterClick", function(cm, n) {
     var info = cm.lineInfo(n);
     cm.setGutterMarker(n, "breakpoints", info.gutterMarkers ? null : makeMarker());
@@ -49,6 +48,14 @@ function makeMarker() {
     marker.style.color = "#07C";
     marker.innerHTML = "●";
     return marker;
+}
+
+var initialBreakpoints = localStorage.getItem("marie-breakpoints");
+if (initialBreakpoints) {
+    JSON.parse(initialBreakpoints).forEach(function(line) {
+        var info = programCodeMirror.lineInfo(line);
+        programCodeMirror.setGutterMarker(line, "breakpoints", info.gutterMarkers ? null : makeMarker());
+    });
 }
 
 function hex(num, isAddress) {
@@ -102,6 +109,41 @@ function populateMemoryView(sim) {
     memoryContainer.style.display = "inline-block";
 }
 
+function populateWatchList(asm, sim) {
+    while (watchList.firstChild) {
+        watchList.removeChild(watchList.firstChild);
+    }
+    
+    var symbolCells = {};
+   
+    for (var symbol in asm.symbols) {
+        var address = asm.symbols[symbol];
+        
+        var tr = document.createElement("tr");
+        var labelCell = document.createElement("td");
+        labelCell.classList.add("watch-list-label");
+        labelCell.appendChild(document.createTextNode(symbol));
+        
+        var addressCell = document.createElement("td");
+        addressCell.classList.add("watch-list-address");
+        addressCell.appendChild(document.createTextNode(hex(address, true)));
+        
+        var valueCell = document.createElement("td");
+        valueCell.classList.add("watch-list-value");
+        valueCell.appendChild(document.createTextNode(hex(sim.memory[address].contents)));
+        
+        tr.appendChild(labelCell);
+        tr.appendChild(addressCell);
+        tr.appendChild(valueCell);
+        
+        watchList.appendChild(tr);
+        
+        symbolCells[address] = valueCell;
+    }
+    
+    return symbolCells;
+}
+
 function resetRegisters() {
     document.getElementById("ac").textContent = hex(sim.ac);
     document.getElementById("ir").textContent = hex(sim.ir);
@@ -131,7 +173,7 @@ function updateCurrentLine(clear) {
         return;
     }
     
-    var line = sim.current().line;
+    var line = sim.current().line - 1;
     if (line != null) {
         programCodeMirror.addLineClass(line, "background", "current-line");
         lastCurrentLine = line;
@@ -154,7 +196,7 @@ function initializeOutputLog() {
 function outputFunc(value) {
     var shouldScrollToBottomOutputLog = outputLogOuter.clientHeight === (outputLogOuter.scrollHeight - outputLogOuter.scrollTop);
     
-    outputLog.appendChild(document.createTextNode((value >>> 0).toString(16)));
+    outputLog.appendChild(document.createTextNode(hex(value & 0xFFFF)));
     outputLog.appendChild(document.createElement("br"));
     
     if(shouldScrollToBottomOutputLog) {
@@ -186,11 +228,6 @@ assembleButton.addEventListener("click", function() {
     
     if (lastErrorLine != null) {
         programCodeMirror.removeLineClass(lastErrorLine, "background", "error-line");
-    }
-    
-    var breakPoints = document.getElementsByClassName("break-point");
-    while (breakPoints.length > 0) {
-        breakPoints[0].classList.remove("break-point");
     }
     
     var assembler = new MarieAsm(programCodeMirror.getValue());
@@ -233,6 +270,7 @@ assembleButton.addEventListener("click", function() {
     })
     
     populateMemoryView(sim);
+    var symbolCells = populateWatchList(asm, sim);
     initializeOutputLog();
     initializeRegisterLog();
     resetRegisters();
@@ -241,6 +279,12 @@ assembleButton.addEventListener("click", function() {
         var cell = document.getElementById("cell" + e.address);
         cell.textContent = hex(e.newCell.contents, false);
         cell.style.color = 'red';
+        
+        for (var address in symbolCells) {
+            if (address == e.address) {
+                symbolCells[address].textContent = hex(e.newCell.contents);
+            }
+        }
     });
     
     sim.setEventListener("reglog", function(message) {
@@ -329,5 +373,15 @@ restartButton.addEventListener("click", function() {
 
 window.addEventListener("beforeunload", function() {
     window.localStorage.setItem("marie-program", programCodeMirror.getValue());
+    
+    var breakpoints = [];
+    var count = programCodeMirror.lineCount(), i;
+    for (var i = 0; i < count; i++) {
+        var info = programCodeMirror.lineInfo(i)
+        if (info.gutterMarkers) {
+            breakpoints.push(i);
+        }
+    }
+    window.localStorage.setItem("marie-breakpoints", JSON.stringify(breakpoints));
     return;
 });

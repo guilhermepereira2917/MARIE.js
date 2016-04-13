@@ -6,6 +6,7 @@
         <title>MARIE.js | Home</title>
         <script src="js/codemirror.js"></script>
 		<script src="js/jquery-1.12.3.js"></script>
+        <script src="js/bootstrap.min.js"></script>
 		<script src="js/filesaver.js"></script>
         <script src="js/simple.js"></script>
         <script src="js/syntax.js"></script>
@@ -53,49 +54,50 @@
 						</table>
 					</center>
 				</div>
-                <div id="program-container">
-                    Assembly code:
-                    <textarea id="program"></textarea>
-                </div>
-                <div id="register-container">
-                    <table id="registers">
-                        <tr><th>AC</th></tr>
-                        <tr><td id="ac">0000</td></tr>
-                        <tr><th>IR</th></tr>
-                        <tr><td id="ir">0000</td></tr>
-                        <tr><th>MAR</th></tr>
-                        <tr><td id="mar">000</td></tr>
-                        <tr><th>MBR</th></tr>
-                        <tr><td id="mbr">0000</td></tr>
-                        <tr><th>PC</th></tr>
-                        <tr><td id="pc">000</td></tr>
-                        <tr><th>IN</th></tr>
-                        <tr><td id="in">0000</td></tr>
-                        <tr><th>OUT</th></tr>
-                        <tr><td id="out">0000</td></tr>
-                    </table>
-                </div>
-                <div id="tab-container">
-                    <ul id="tabs">
-                        <li>
-                            <input type="radio" name="tabs" id="tab1" checked>
-                            <label for="tab1">Output log</label>
-                            <div id="tab-content1" class="tab-content">
-                                <div id="output-log-outer">
-                                    <div id="output-log"></div>
-                                </div>
+                <div id="flex">
+                    <div id="program-container">
+                        Assembly code:
+                        <textarea id="program"></textarea>
+                    </div>
+                    <div id="register-container">
+                        <table id="registers">
+                            <tr><th>AC</th></tr>
+                            <tr><td id="ac">0000</td></tr>
+                            <tr><th>IR</th></tr>
+                            <tr><td id="ir">0000</td></tr>
+                            <tr><th>MAR</th></tr>
+                            <tr><td id="mar">000</td></tr>
+                            <tr><th>MBR</th></tr>
+                            <tr><td id="mbr">0000</td></tr>
+                            <tr><th>PC</th></tr>
+                            <tr><td id="pc">000</td></tr>
+                            <tr><th>IN</th></tr>
+                            <tr><td id="in">0000</td></tr>
+                            <tr><th>OUT</th></tr>
+                            <tr><td id="out">0000</td></tr>
+                        </table>
+                    </div>
+                    <div id="tab-container">
+                        <ul class="nav nav-tabs">
+                            <li class="active"><a data-toggle="tab" href="#output-log-outer">Output log</a></li>
+                            <li><a data-toggle="tab" href="#register-log-outer">Register log</a></li>
+                            <li><a data-toggle="tab" href="#watch-list-outer">Watch list</a></li>
+                        </ul>
+                        <div class="tab-content">
+                            <div id="output-log-outer" class="tab-pane fade in active">
+                                <div id="output-log"></div>
                             </div>
-                        </li>
-                        <li>
-                            <input type="radio" name="tabs" id="tab2">
-                            <label for="tab2">Register log</label>
-                            <div id="tab-content2" class="tab-content">
-                                <div id="register-log-outer">
-                                    <div id="register-log"></div>
-                                </div>
+                            <div id="register-log-outer" class="tab-pane fade">
+                                <div id="register-log"></div>
                             </div>
-                        </li>
-                    </ul>
+                            <div id="watch-list-outer" class="tab-pane fade">
+                                <table id="watch-list-headers">
+                                    <tr><th class="watch-list-label">Label</th><th class="watch-list-address">Address</th><th class="watch-list-value">Value</th></tr>
+                                </table>
+                                <table id="watch-list"></table>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <div id="status-info">MARIE.js</div>
                 <div id="memory-display">

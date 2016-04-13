@@ -19,7 +19,7 @@ function MarieSim(assembled, inputFunc, outputFunc) {
     this.restart();
     
     this.inputCallback = inputFunc || function() {
-        return parseInt(window.prompt("Input hexadecimal value.", 0), 16) & 0xFFFF;
+        return uintToInt(parseInt(window.prompt("Input hexadecimal value.", 0), 16) & 0xFFFF);
     };
     
     this.outputCallback = outputFunc || function(value) {
@@ -68,14 +68,13 @@ MarieSim.prototype.setEventListener = function(event, callback) {
 };
 
 MarieSim.prototype.current = function() {
-    // This compensates for PC being incremented after fetch
     return this.memory[this.pc - 1];
 };
 
 MarieSim.prototype.regSet = function(target, source, mask) {
     if (source == "m") {
         var oldValue = this[target];
-        this[target] = this.memory[this.mar].contents;
+        this[target] = uintToInt(this.memory[this.mar].contents);
         if (this.onRegLog) {
             this.onRegLog([
                 target.toUpperCase(),
@@ -134,7 +133,7 @@ MarieSim.prototype.regSet = function(target, source, mask) {
         
         var oldValue = this[target];
         
-        this[target] = src & msk;
+        this[target] = uintToInt(src & msk);
         
         if (this.onRegLog) {
             if (mask === undefined) {
@@ -273,7 +272,7 @@ MarieSim.prototype.fetch = function*() {
 };
 
 MarieSim.prototype.decode = function() {
-    var opcode = this.ir >> 12;
+    var opcode = intToUint(this.ir) >> 12;
     
     for (var op in MarieSim.prototype.operators) {
         if (MarieSim.prototype.operators[op].opcode == opcode) {
@@ -539,6 +538,18 @@ MarieAsm.prototype.assemble = function() {
                     (i + 1), 
                     "Labels cannot start with a number."
                 );
+            if (symbols[label] != null)
+                throw new MarieAsmError(
+                    "Label error",
+                    (i + 1),
+                    [
+                        "Labels must be unique. The label '",
+                        label,
+                        "' was already defined on line ",
+                        symbols[label] - origin + 1,
+                        "."
+                    ].join("")
+                );
             symbols[label] = parsed.length + origin;
         }
         
@@ -663,3 +674,25 @@ MarieAsm.prototype.assemble = function() {
         symbols: symbols
     };
 };
+
+
+function uintToInt(uint, nbit) {
+    nbit = +nbit || 16;
+    if (nbit > 32) throw new RangeError('uintToInt only supports ints up to 32 bits');
+    uint <<= 32 - nbit;
+    uint >>= 32 - nbit;
+    return uint;
+}
+
+function intToUint(int, nbit) {
+    var u = new Uint32Array(1);
+    nbit = +nbit || 16;
+    if (nbit > 32) throw new RangeError('intToUint only supports ints up to 32 bits');
+    u[0] = int;
+    if (nbit < 32) { // don't accidentally sign again
+        int = Math.pow(2, nbit) - 1;
+        return u[0] & int;
+    } else {
+        return u[0];
+    }
+}
