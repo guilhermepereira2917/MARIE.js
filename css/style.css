@@ -88,6 +88,7 @@ footer {
 
 #memory-headers th, #memory th {
     border: 0.1em solid #ccc;
+    text-align: center;
 }
 
 #memory tr:nth-child(odd) .cell:nth-child(even) {

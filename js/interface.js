@@ -58,10 +58,10 @@ if (initialBreakpoints) {
     });
 }
 
-function hex(num, isAddress) {
-    isAddress = isAddress | 0;
+function hex(num, digits) {
+    digits = digits || 4;
     var s = "0000" + (num >>> 0).toString(16).toUpperCase();
-    return s.substr(s.length - 4 + isAddress);
+    return s.substr(s.length - digits);
 }
 
 function populateMemoryView(sim) {
@@ -77,11 +77,10 @@ function populateMemoryView(sim) {
     var i, j, th, tr, cell, header;
     var headers = document.createElement("tr");
     th = document.createElement("th");
-    th.appendChild(document.createTextNode("+"));
     headers.appendChild(th);
     for (i = 0; i < 16; i++) {
         th = document.createElement("th");
-        th.appendChild(document.createTextNode(hex(i, true)));
+        th.appendChild(document.createTextNode("+" + hex(i, 1)));
         headers.appendChild(th);
     }
     
@@ -92,7 +91,7 @@ function populateMemoryView(sim) {
         tr = document.createElement("tr");
         
         header = document.createElement("th");
-        header.appendChild(document.createTextNode(hex(i, true)));
+        header.appendChild(document.createTextNode(hex(i, 3)));
         tr.appendChild(header);
                 
         for (j = 0; j < 16; j++) {
@@ -126,7 +125,7 @@ function populateWatchList(asm, sim) {
         
         var addressCell = document.createElement("td");
         addressCell.classList.add("watch-list-address");
-        addressCell.appendChild(document.createTextNode(hex(address, true)));
+        addressCell.appendChild(document.createTextNode(hex(address, 3)));
         
         var valueCell = document.createElement("td");
         valueCell.classList.add("watch-list-value");
@@ -147,9 +146,9 @@ function populateWatchList(asm, sim) {
 function resetRegisters() {
     document.getElementById("ac").textContent = hex(sim.ac);
     document.getElementById("ir").textContent = hex(sim.ir);
-    document.getElementById("mar").textContent = hex(sim.mar, true);
+    document.getElementById("mar").textContent = hex(sim.mar, 3);
     document.getElementById("mbr").textContent = hex(sim.mbr);
-    document.getElementById("pc").textContent = hex(sim.pc, true);
+    document.getElementById("pc").textContent = hex(sim.pc, 3);
     document.getElementById("in").textContent = hex(sim.in);
     document.getElementById("out").textContent = hex(sim.out);
 }
@@ -245,7 +244,7 @@ function inputFunc(output) {
 function outputFunc(value) {
     var shouldScrollToBottomOutputLog = outputLogOuter.clientHeight === (outputLogOuter.scrollHeight - outputLogOuter.scrollTop);
     
-    outputLog.appendChild(document.createTextNode(hex(value & 0xFFFF)));
+    outputLog.appendChild(document.createTextNode(hex(value)));
     outputLog.appendChild(document.createElement("br"));
     
     if(shouldScrollToBottomOutputLog) {
@@ -321,7 +320,7 @@ assembleButton.addEventListener("click", function() {
     statusInfo.className = ""; 
     
     sim.setEventListener("regwrite", function(e) {
-        document.getElementById(e.register).textContent = hex(e.newValue, e.register == "mar" || e.register == "pc");
+        document.getElementById(e.register).textContent = hex(e.newValue, e.register == "mar" || e.register == "pc" ? 3 : 4);
         
         if (e.register == "pc") {
             document.getElementById("cell" + e.oldValue).classList.remove("current-pc");
