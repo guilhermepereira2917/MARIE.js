@@ -36,7 +36,7 @@
             <div class="container">
                 <div id="action-bar">
                     <button id="assemble" class="btn-interface">Assemble</button>
-                    <button id="step" class="btn-interface" disabled >Step</button>
+                    <button id="step" class="btn-interface" disabled>Step</button>
                     <button id="microstep" disabled>Microstep</button>
                     <button id="run" disabled>Run</button>
                     <button id="restart" disabled>Restart</button>
@@ -48,7 +48,7 @@
 					<center>
 						<table>
 							<tr>
-								<td>Import Source File (*.txt/*.mas):	<input type="file" id="fileInput"></td>
+								<td>Import Source File (*.txt/*.mas):	<input type="file" accept=".txt,.mas" id="fileInput"></td>
 								<td><button id="download">Download Source</button></td>
 							</tr>
 						</table>
@@ -114,6 +114,39 @@
             </div>
         </footer>
 		
+        
+        <div id="input-dialog" class="modal fade" role="dialog" data-backdrop="static" data-keyboard="false">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title">Input Value</h4>
+                    </div>
+                    <div class="modal-body">
+                        <p>Please input a value.</p>
+                        <div id="input-error" class="alert alert-danger">
+                            <strong>Error:</strong> Invalid input. Please try again.
+                        </div>
+                        <div class="form-group">
+                            <label for="input-value">Value:</label>
+                            <input type="text" class="form-control" id="input-value">
+                            <label for="input-type">Type:</label>
+                            <select class="form-control" id="input-type">
+                                <option value="hex">Hexadecimal</option>
+                                <option value="dec">Decimal</option>
+                                <option value="ascii">ASCII</option>
+                            </select>
+                            <div class="checkbox" id="input-pause-box">
+                                <label><input type="checkbox" id="input-pause">Pause machine after value input.</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button id="input-button" type="button" class="btn btn-primary">Accept</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
         <script src="js/interface.js"></script>
 		<script src="js/text.js"></script>
 		<script src="js/savetext.js"></script>
