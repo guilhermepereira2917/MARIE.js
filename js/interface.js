@@ -28,7 +28,10 @@ var asm = null,
     lastCurrentLine = null,
     lastBreakPointLine = null,
     breaking = false,
-    delay = 1;
+    delay = 1,
+    microStepping = false,
+    running = false,
+    waiting = false;
     
 textArea.value = localStorage.getItem("marie-program") || "";
     
@@ -162,23 +165,25 @@ function initializeRegisterLog() {
 function updateCurrentLine(clear) {
     if (lastCurrentLine != null) {
         programCodeMirror.removeLineClass(lastCurrentLine, "background", "current-line");
+        lastCurrentLine = null;
     }
 
     if (lastBreakPointLine != null) {
         programCodeMirror.removeLineClass(lastBreakPointLine, "background", "active-break-point");
+        lastBreakPointLine = null;
     }
     
-    if(clear) {
+    if (clear) {
         return;
     }
     
-    var line = sim.current().line - 1;
+    var line = sim.current().line;
     if (line != null) {
+        line--; // Compensate for zero-based lines
         programCodeMirror.addLineClass(line, "background", "current-line");
         lastCurrentLine = line;
         var info = programCodeMirror.lineInfo(line)
         if (info.gutterMarkers) {
-            statusInfo.textContent = "Machine paused at break point.";
             programCodeMirror.addLineClass(line, "background", "active-break-point");
             lastBreakPointLine = line;
             breaking = true;
@@ -197,13 +202,10 @@ $('#input-dialog').on('shown.bs.modal', function () {
 });
 
 function inputFunc(output) {
+    startWaiting();
+    
     $('#input-error').hide();
     $('#input-dialog').modal('show');
-    
-    $('#input-pause-box').hide();
-    if (interval) {
-        $('#input-pause-box').show();
-    }
     
     $('#input-dialog').off('hidden.bs.modal');
     $('#input-button').off('click');
@@ -228,10 +230,8 @@ function inputFunc(output) {
         if (!isNaN(value)) {
             $('#input-dialog').on('hidden.bs.modal', function () {
                 output(value);
-                if (interval && $('#input-pause').prop('checked')) {
-                    runLoop(); // Make sure we get to the next line
-                    runButton.click();
-                }
+                runLoop(microStepping);
+                stopWaiting();
             });
             $('#input-dialog').modal('hide');
         }
@@ -252,44 +252,100 @@ function outputFunc(value) {
     }
 }
 
-function runLoop() {
-    try {
-        sim.step();
-    }
-    catch (e) {
-	// prevents catastrophic failure if an error occurs (whether it is MARIE or some other JavaScript error)
-        statusInfo.textContent = e.toString();
-        statusInfo.className = "error";
-        lastErrorLine = e.lineNumber - 1;
-        programCodeMirror.addLineClass(lastErrorLine, "background", "error-line");
-        console.error(e);
-        sim.halted = true;
+function startWaiting() {
+    if (interval) {
         window.clearInterval(interval);
         interval = null;
-        runButton.textContent = "Halted";
+    }
+    waiting = true;
+    assembleButton.disabled = true;
+    stepButton.disabled = true;
+    microStepButton.disabled = true;
+    restartButton.disabled = true;
+}
+
+function stopWaiting() {
+    waiting = false;
+    assembleButton.disabled = false;
+    restartButton.disabled = false;
+    stepButton.disabled = false;
+    microStepButton.disabled = false;
+    if (running) {
+        run();
+    }
+}
+
+function stop(pause) {
+    if (waiting)
+        return;
+        
+    if (interval) {
+        window.clearInterval(interval);
+        interval = null;
+    }
+    if (pause) {
+        stepButton.disabled = false;
+        microStepButton.disabled = false;
+    }
+    else {
         runButton.disabled = true;
-       
+        stepButton.disabled = true;
+        microStepButton.disabled = true;
+    }
+}
+
+function run() {
+    if (waiting)
+        return;
+    
+    if (interval)
+        window.clearInterval(interval);
+    interval = window.setInterval(runLoop, delay);
+    runButton.textContent = "Pause";
+    runButton.disabled = false;
+    stepButton.disabled = true;
+    microStepButton.disabled = true;
+    statusInfo.textContent = "Running...";
+}
+
+function runLoop(micro) {    
+    microStepping = micro;
+    
+    try {
+        if (micro)
+            sim.microStep();
+        else
+            sim.step();
+    }
+    catch (e) {
+	    // prevents catastrophic failure if an error occurs (whether it is MARIE or some other JavaScript error)
+        statusInfo.textContent = e.toString();
+        statusInfo.className = "error";
+        lastErrorLine = e.lineNumber;
+        if (lastErrorLine) {
+            lastErrorLine--;
+            programCodeMirror.addLineClass(lastErrorLine, "background", "error-line");
+        }
+        console.error(e);
+        stop();
+        runButton.textContent = "Halted";
         return;
     }
     updateCurrentLine();
     if (sim.halted) {
-        window.clearInterval(interval);
-        interval = null;
+        stop();
         runButton.textContent = "Halted";
-        runButton.disabled = true;
         statusInfo.textContent = "Machine halted normally.";
-        
     }
     else if (breaking) {
-        window.clearInterval(interval);
-        interval = null;
-        runButton.textContent = "Continue";
+        stop(true);
+        statusInfo.textContent = "Machine paused at break point.";
     }
 }
 
 assembleButton.addEventListener("click", function() {
-    window.clearInterval(interval);
-    interval = null;
+    stop();
+    running = false;
     
     if (lastErrorLine != null) {
         programCodeMirror.removeLineClass(lastErrorLine, "background", "error-line");
@@ -373,42 +429,25 @@ assembleButton.addEventListener("click", function() {
 });
 
 stepButton.addEventListener("click", function() {
-    if (!sim.halted) {
-        sim.step();
-    }
-    else {
-        statusInfo.textContent = "Machine halted normally.";
-        runButton.textContent = "Halted";
-        runButton.disabled = true;
-    }
-    updateCurrentLine();
+    runLoop();
 });
 
 microStepButton.addEventListener("click", function() {
-    if (!sim.halted) {
-        sim.microStep();
-    }
-    else {
-        statusInfo.textContent = "Machine halted normally.";
-        runButton.textContent = "Halted";
-        runButton.disabled = true;
-    }
-    updateCurrentLine();
+    runLoop(true);
 });
 
 runButton.addEventListener("click", function() {
-    if (interval) {
-        window.clearInterval(interval);
-        interval = null;
-        runButton.textContent = "Run";
+    if (running) {
+        stop(true);
         statusInfo.textContent = "Halted at user request.";
+        runButton.textContent = "Continue";
+        running = false;
     }
     else {
-        runButton.textContent = "Stop";
-        statusInfo.textContent = "Running...";
         breaking = false;
-        
-        interval = window.setInterval(runLoop, delay);
+        run();
+        runButton.textContent = "Pause";
+        running = true;
     }
 });
 
@@ -419,20 +458,21 @@ rangeDelay.addEventListener("input", function() {
 rangeDelay.addEventListener("change", function() {
     delay = parseInt(this.value);
     
-    if(interval) {
-        window.clearInterval(interval);
-        interval = window.setInterval(runLoop, delay);
+    if (interval) {
+        run();
     }
 });
 
 restartButton.addEventListener("click", function() {
-    window.clearInterval(interval);
-    interval = null;
+    stop();
+    running = false;
     sim.restart();
     resetRegisters();
     updateCurrentLine(true);
     runButton.textContent = "Run";
     runButton.disabled = false;
+    stepButton.disabled = false;
+    microStepButton.disabled = false;
     statusInfo.textContent = "Restarted simulator (memory contents are still preserved)";
 });
 
