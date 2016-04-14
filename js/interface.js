@@ -58,10 +58,10 @@ if (initialBreakpoints) {
     });
 }
 
-function hex(num, isAddress) {
-    isAddress = isAddress | 0;
+function hex(num, digits) {
+    digits = digits || 4;
     var s = "0000" + (num >>> 0).toString(16).toUpperCase();
-    return s.substr(s.length - 4 + isAddress);
+    return s.substr(s.length - digits);
 }
 
 function populateMemoryView(sim) {
@@ -77,11 +77,10 @@ function populateMemoryView(sim) {
     var i, j, th, tr, cell, header;
     var headers = document.createElement("tr");
     th = document.createElement("th");
-    th.appendChild(document.createTextNode("+"));
     headers.appendChild(th);
     for (i = 0; i < 16; i++) {
         th = document.createElement("th");
-        th.appendChild(document.createTextNode(hex(i, true)));
+        th.appendChild(document.createTextNode("+" + hex(i, 1)));
         headers.appendChild(th);
     }
     
@@ -92,7 +91,7 @@ function populateMemoryView(sim) {
         tr = document.createElement("tr");
         
         header = document.createElement("th");
-        header.appendChild(document.createTextNode(hex(i, true)));
+        header.appendChild(document.createTextNode(hex(i, 3)));
         tr.appendChild(header);
                 
         for (j = 0; j < 16; j++) {
@@ -126,7 +125,7 @@ function populateWatchList(asm, sim) {
         
         var addressCell = document.createElement("td");
         addressCell.classList.add("watch-list-address");
-        addressCell.appendChild(document.createTextNode(hex(address, true)));
+        addressCell.appendChild(document.createTextNode(hex(address, 3)));
         
         var valueCell = document.createElement("td");
         valueCell.classList.add("watch-list-value");
@@ -147,9 +146,9 @@ function populateWatchList(asm, sim) {
 function resetRegisters() {
     document.getElementById("ac").textContent = hex(sim.ac);
     document.getElementById("ir").textContent = hex(sim.ir);
-    document.getElementById("mar").textContent = hex(sim.mar, true);
+    document.getElementById("mar").textContent = hex(sim.mar, 3);
     document.getElementById("mbr").textContent = hex(sim.mbr);
-    document.getElementById("pc").textContent = hex(sim.pc, true);
+    document.getElementById("pc").textContent = hex(sim.pc, 3);
     document.getElementById("in").textContent = hex(sim.in);
     document.getElementById("out").textContent = hex(sim.out);
 }
@@ -193,10 +192,59 @@ function initializeOutputLog() {
     }
 }
 
+$('#input-dialog').on('shown.bs.modal', function () {
+    $('#input-value').focus();
+});
+
+function inputFunc(output) {
+    $('#input-error').hide();
+    $('#input-dialog').modal('show');
+    
+    $('#input-pause-box').hide();
+    if (interval) {
+        $('#input-pause-box').show();
+    }
+    
+    $('#input-dialog').off('hidden.bs.modal');
+    $('#input-button').off('click');
+    $('#input-button').on('click', function() {
+        var type = $('#input-type').val(),
+            value = $('#input-value').val();
+        switch (type) {
+            case ("hex"):
+                value = parseInt(value, 16);
+                break;
+            case ("dec"):
+                value = parseInt(value, 10);
+                break;
+            case ("oct"):
+                value = parseInt(value, 8);
+                break;
+            case ("ascii"):
+                value = value.charCodeAt(0);
+                break;
+        }
+        
+        if (!isNaN(value)) {
+            $('#input-dialog').on('hidden.bs.modal', function () {
+                output(value);
+                if (interval && $('#input-pause').prop('checked')) {
+                    runLoop(); // Make sure we get to the next line
+                    runButton.click();
+                }
+            });
+            $('#input-dialog').modal('hide');
+        }
+        else {
+            $('#input-error').show({});
+        }
+    });
+}
+
 function outputFunc(value) {
     var shouldScrollToBottomOutputLog = outputLogOuter.clientHeight === (outputLogOuter.scrollHeight - outputLogOuter.scrollTop);
     
-    outputLog.appendChild(document.createTextNode(hex(value & 0xFFFF)));
+    outputLog.appendChild(document.createTextNode(hex(value)));
     outputLog.appendChild(document.createElement("br"));
     
     if(shouldScrollToBottomOutputLog) {
@@ -205,7 +253,23 @@ function outputFunc(value) {
 }
 
 function runLoop() {
-    sim.step();
+    try {
+        sim.step();
+    }
+    catch (e if e instanceof MarieSimError) {
+        statusInfo.textContent = e.toString();
+        statusInfo.className = "error";
+        lastErrorLine = e.lineNumber - 1;
+        programCodeMirror.addLineClass(lastErrorLine, "background", "error-line");
+        console.error(e);
+        sim.halted = true;
+        window.clearInterval(interval);
+        interval = null;
+        runButton.textContent = "Halted";
+        runButton.disabled = true;
+        
+        return;
+    }
     updateCurrentLine();
     if (sim.halted) {
         window.clearInterval(interval);
@@ -244,7 +308,7 @@ assembleButton.addEventListener("click", function() {
     }
     
     try {
-        sim = new MarieSim(asm, null, outputFunc);
+        sim = new MarieSim(asm, inputFunc, outputFunc);
     } catch(e) {
         statusInfo.textContent = e.message;
         statusInfo.className = "error";
@@ -256,7 +320,7 @@ assembleButton.addEventListener("click", function() {
     statusInfo.className = ""; 
     
     sim.setEventListener("regwrite", function(e) {
-        document.getElementById(e.register).textContent = hex(e.newValue, e.register == "mar" || e.register == "pc");
+        document.getElementById(e.register).textContent = hex(e.newValue, e.register == "mar" || e.register == "pc" ? 3 : 4);
         
         if (e.register == "pc") {
             document.getElementById("cell" + e.oldValue).classList.remove("current-pc");
