@@ -256,19 +256,21 @@ function runLoop() {
     try {
         sim.step();
     }
-    catch (e if e instanceof MarieSimError) {
-        statusInfo.textContent = e.toString();
-        statusInfo.className = "error";
-        lastErrorLine = e.lineNumber - 1;
-        programCodeMirror.addLineClass(lastErrorLine, "background", "error-line");
-        console.error(e);
-        sim.halted = true;
-        window.clearInterval(interval);
-        interval = null;
-        runButton.textContent = "Halted";
-        runButton.disabled = true;
+    catch (e) {
+        if (e instanceof MarieSimError) {
+            statusInfo.textContent = e.toString();
+            statusInfo.className = "error";
+            lastErrorLine = e.lineNumber - 1;
+            programCodeMirror.addLineClass(lastErrorLine, "background", "error-line");
+            console.error(e);
+            sim.halted = true;
+            window.clearInterval(interval);
+            interval = null;
+            runButton.textContent = "Halted";
+            runButton.disabled = true;
         
-        return;
+            return;
+        }
     }
     updateCurrentLine();
     if (sim.halted) {
@@ -298,7 +300,7 @@ assembleButton.addEventListener("click", function() {
     
     try {
         asm = assembler.assemble();
-    } catch(e) {
+    } catch (e) {
         statusInfo.textContent = e.toString();
         statusInfo.className = "error";
         lastErrorLine = e.lineNumber - 1;
@@ -309,7 +311,7 @@ assembleButton.addEventListener("click", function() {
     
     try {
         sim = new MarieSim(asm, inputFunc, outputFunc);
-    } catch(e) {
+    } catch (e) {
         statusInfo.textContent = e.message;
         statusInfo.className = "error";
         console.error(e);
