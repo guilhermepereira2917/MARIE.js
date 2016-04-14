@@ -18,8 +18,10 @@ function MarieSim(assembled, inputFunc, outputFunc) {
     
     this.restart();
     
-    this.inputCallback = inputFunc || function() {
-        return uintToInt(parseInt(window.prompt("Input hexadecimal value.", 0), 16) & 0xFFFF);
+    var myself = this;
+    
+    this.inputCallback = inputFunc || function(output) {
+        output(uintToInt(parseInt(window.prompt("Input hexadecimal value.", 0), 16) & 0xFFFF));
     };
     
     this.outputCallback = outputFunc || function(value) {
@@ -372,7 +374,36 @@ MarieSim.prototype.operators = {
         opcode: 0x5,
         operand: false,
         fn: function*() {
-            yield this.regSet("in", this.inputCallback.call(null));
+            var myself = this,
+                value = null;
+            
+            this.paused = true;
+            
+            yield this.inputCallback.call(null, function(v) {
+                myself.paused = false;
+                value = v;
+            });
+            
+            if (value == null)
+                yield;
+            
+            // For some reason the simulator deals with these numbers in this way
+            if (value > 0x8000 && value <= 0xFFFF) {
+                value = uintToInt(value);
+            }
+            
+            if (value < -0x8000 && value >= -0xFFFF) {
+                value = intToUint(value);
+            }
+            
+            if (value > 0x8000 || value < -0x8000) {
+                throw new MarieSimError(
+                    "Input is out of bounds",
+                    value
+                );
+            }
+            
+            yield this.regSet("in", value);
             yield this.regSet("ac", "in");
         }
     },
@@ -599,7 +630,18 @@ MarieAsm.prototype.assemble = function() {
                     "Failed to parse operand."
                 );
             }
-            if (constant > 0xFFFF) {
+            
+            // For some reason the simulator deals with these numbers in this way
+            
+            if (constant > 0x8000 && constant <= 0xFFFF) {
+                constant = uintToInt(constant);
+            }
+            
+            if (constant < -0x8000 && constant >= -0xFFFF) {
+                constant = intToUint(constant);
+            }
+            
+            if (constant > 0x8000 || constant < -0x8000) {
                 throw new MarieAsmError(
                     "Syntax error", 
                     instruction.line,

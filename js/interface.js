@@ -193,6 +193,55 @@ function initializeOutputLog() {
     }
 }
 
+$('#input-dialog').on('shown.bs.modal', function () {
+    $('#input-value').focus();
+});
+
+function inputFunc(output) {
+    $('#input-error').hide();
+    $('#input-dialog').modal('show');
+    
+    $('#input-pause-box').hide();
+    if (interval) {
+        $('#input-pause-box').show();
+    }
+    
+    $('#input-dialog').off('hidden.bs.modal');
+    $('#input-button').off('click');
+    $('#input-button').on('click', function() {
+        var type = $('#input-type').val(),
+            value = $('#input-value').val();
+        switch (type) {
+            case ("hex"):
+                value = parseInt(value, 16);
+                break;
+            case ("dec"):
+                value = parseInt(value, 10);
+                break;
+            case ("oct"):
+                value = parseInt(value, 8);
+                break;
+            case ("ascii"):
+                value = value.charCodeAt(0);
+                break;
+        }
+        
+        if (!isNaN(value)) {
+            $('#input-dialog').on('hidden.bs.modal', function () {
+                output(value);
+                if (interval && $('#input-pause').prop('checked')) {
+                    runLoop(); // Make sure we get to the next line
+                    runButton.click();
+                }
+            });
+            $('#input-dialog').modal('hide');
+        }
+        else {
+            $('#input-error').show({});
+        }
+    });
+}
+
 function outputFunc(value) {
     var shouldScrollToBottomOutputLog = outputLogOuter.clientHeight === (outputLogOuter.scrollHeight - outputLogOuter.scrollTop);
     
@@ -205,7 +254,23 @@ function outputFunc(value) {
 }
 
 function runLoop() {
-    sim.step();
+    try {
+        sim.step();
+    }
+    catch (e if e instanceof MarieSimError) {
+        statusInfo.textContent = e.toString();
+        statusInfo.className = "error";
+        lastErrorLine = e.lineNumber - 1;
+        programCodeMirror.addLineClass(lastErrorLine, "background", "error-line");
+        console.error(e);
+        sim.halted = true;
+        window.clearInterval(interval);
+        interval = null;
+        runButton.textContent = "Halted";
+        runButton.disabled = true;
+        
+        return;
+    }
     updateCurrentLine();
     if (sim.halted) {
         window.clearInterval(interval);
@@ -244,7 +309,7 @@ assembleButton.addEventListener("click", function() {
     }
     
     try {
-        sim = new MarieSim(asm, null, outputFunc);
+        sim = new MarieSim(asm, inputFunc, outputFunc);
     } catch(e) {
         statusInfo.textContent = e.message;
         statusInfo.className = "error";
