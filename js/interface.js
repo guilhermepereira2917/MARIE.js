@@ -257,20 +257,19 @@ function runLoop() {
         sim.step();
     }
     catch (e) {
-        if (e instanceof MarieSimError) {
-            statusInfo.textContent = e.toString();
-            statusInfo.className = "error";
-            lastErrorLine = e.lineNumber - 1;
-            programCodeMirror.addLineClass(lastErrorLine, "background", "error-line");
-            console.error(e);
-            sim.halted = true;
-            window.clearInterval(interval);
-            interval = null;
-            runButton.textContent = "Halted";
-            runButton.disabled = true;
-        
-            return;
-        }
+	// prevents catastrophic failure if an error occurs (whether it is MARIE or some other JavaScript error)
+        statusInfo.textContent = e.toString();
+        statusInfo.className = "error";
+        lastErrorLine = e.lineNumber - 1;
+        programCodeMirror.addLineClass(lastErrorLine, "background", "error-line");
+        console.error(e);
+        sim.halted = true;
+        window.clearInterval(interval);
+        interval = null;
+        runButton.textContent = "Halted";
+        runButton.disabled = true;
+       
+        return;
     }
     updateCurrentLine();
     if (sim.halted) {
