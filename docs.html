@@ -4,10 +4,12 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>MARIE.js | Documentation</title>
-        <script src="js/codemirror.js"></script>
+		<script src="js/jquery-1.12.3.js"></script>
+		<script src="js/filesaver.js"></script>
         <script src="js/simple.js"></script>
         <script src="js/syntax.js"></script>
         <script src="js/marie.js"></script>
+		<script src="js/bootstrap.js"></script>
 		<link rel="stylesheet" href="css/bootstrap.css">
         <link rel="stylesheet" href="css/codemirror.css">
 		<link rel="stylesheet" href="css/style.css">
@@ -18,12 +20,20 @@
 			<nav id="custom-bootstrap-menu" class="navbar navbar-default navbar-fixed-top">
 					<div class="container-fluid">
 						<div class="navbar-brand">
-							MARIE.js <font size="1px">Beta v2</font>
+							MARIE.js <font size="1px">Beta v3.1</font>
 						</div>
 						<ul class="nav navbar-nav">
-						  <li><a href="index.html">Home</a></li>
-						  <li class="active"><a href="docs.html">Documentation</a></li>
-						  <li><a href="about.html">About</a></li>
+						  <li><a href="index.html"><span class="glyphicon glyphicon-home"></span> Home</a></li>
+						  <li class="dropdown">
+							<a class="dropdown-toggle" data-toggle="dropdown">Help
+							<span class="caret"></span></a>
+							<ul class="dropdown-menu">
+								<li><a href="docs.html"><span class="glyphicon glyphicon-book"></span> MARIE Documentation </a></li>
+								<li><a href="about.html"><span class="glyphicon glyphicon-info-sign"></span> About </a></li>
+								<li class="divider"></li>
+								<li><a href="https://mariejs.myjetbrains.com/youtrack/newissue?project=mariejs" target="_blank"><span class="glyphicon glyphicon-alert"></span> Report an Issue</a></li>
+							</ul>
+						 </li>
 						</ul>
 					</div>
 					<a id="forkme_banner" href="https://github.com/cyderize/MARIE.js" target="_blank">View on GitHub</a>
@@ -32,7 +42,7 @@
         <main>
             <div id="command" class="container">
                 <h2>Command Line</h2>
-				<table class="table">
+				<table class="table"> 
 				  <tr>
 					<th></th>
 					<th>Command</th>
@@ -91,12 +101,7 @@
 				  <tr>
 					<td>SKIPCOND (C)</td>
 					<td>8</td>
-					<td>Skips next based on instruction (C), if (C) = <br>
-						<ul>
-							<li>000: Skips if AC &lt; 0</li>
-							<li>400: Skips if AC = 0</li>
-							<li>800: Skips if AC &gt; 0</li>
-						</ul></td>
+					<td>Skips next based on instruction (C), if (C) = <br><br>- 000: Skips if AC &lt; 0<br>- 400: Skips if AC = 0<br>- 800: Skips if AC &gt; 0</td>
 				  </tr>
 				  <tr>
 					<td rowspan="2">Subroutine</td>
@@ -110,6 +115,17 @@
 					<td>Use the value at X as the address to jump to</td>
 				  </tr>
 				  <tr>
+					<td rowspan="2">Indirect Addressing</td>
+					<td>StoreI</td>
+					<td></td>
+					<td>Stores value in AC at the indirect address.<br>e.g. StoreI addresspointer<br>Gets value from addresspointer, stores the AC value into the address</td>
+				  </tr>
+				  <tr>
+					<td>LoadI</td>
+					<td></td>
+					<td>Loads value from indirect address into AC<br>e.g. LoadI addresspointer<br>Gets address value from addresspointer, loads value at the address into AC</td>
+				  </tr>
+				  <tr>
 					<td></td>
 					<td>HALT</td>
 					<td>7</td>
@@ -117,10 +133,6 @@
 				  </tr>
 				</table>
             </div>
-			<div id="usage" class="container" style="padding: 0px">
-			<h2>MARIE.js Usage</h2>
-			Note: All values is currently input/output as <b>HEXADECIMALS</b>.
-			</div>
         </main>
         <footer>
             <div class="container">
