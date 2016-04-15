@@ -4,10 +4,12 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>MARIE.js | About</title>
-        <script src="js/codemirror.js"></script>
+		<script src="js/jquery-1.12.3.js"></script>
+		<script src="js/filesaver.js"></script>
         <script src="js/simple.js"></script>
         <script src="js/syntax.js"></script>
         <script src="js/marie.js"></script>
+		<script src="js/bootstrap.js"></script>
 		<link rel="stylesheet" href="css/bootstrap.css">
         <link rel="stylesheet" href="css/codemirror.css">
 		<link rel="stylesheet" href="css/style.css">
@@ -18,12 +20,20 @@
 			<nav id="custom-bootstrap-menu" class="navbar navbar-default navbar-fixed-top">
 					<div class="container-fluid">
 						<div class="navbar-brand">
-							MARIE.js <font size="1px">Beta v2</font>
+							MARIE.js <font size="1px">Beta v3.1</font>
 						</div>
 						<ul class="nav navbar-nav">
-						  <li><a href="index.html">Home</a></li>
-						  <li><a href="docs.html">Documentation</a></li>
-						  <li class="active"><a href="about.html">About</a></li>
+						  <li><a href="index.html"><span class="glyphicon glyphicon-home"></span> Home</a></li>
+						  <li class="dropdown">
+							<a class="dropdown-toggle" data-toggle="dropdown">Help
+							<span class="caret"></span></a>
+							<ul class="dropdown-menu">
+								<li><a href="docs.html"><span class="glyphicon glyphicon-book"></span> MARIE Documentation </a></li>
+								<li><a href="about.html"><span class="glyphicon glyphicon-info-sign"></span> About </a></li>
+								<li class="divider"></li>
+								<li><a href="https://mariejs.myjetbrains.com/youtrack/newissue?project=mariejs" target="_blank"><span class="glyphicon glyphicon-alert"></span> Report an Issue</a></li>
+							</ul>
+						 </li>
 						</ul>
 					</div>
 					<a id="forkme_banner" href="https://github.com/cyderize/MARIE.js" target="_blank">View on GitHub</a>
@@ -31,7 +41,7 @@
         </header>
         <main>
             <div class="container">
-				<font size="6px">MARIE.js</font> <font size="2px">Beta v2</font>
+				<font size="6px">MARIE.js</font> <font size="2px">Beta Version 3.1</font>
 				<h2>About MARIE</h2>
 				<p>MARIE ('Machine Architecture that is Really Intuitive and Easy') is an assembly language, the original code is programmed in Java</p>
                 <h2>About MARIE.js</h2>
@@ -44,11 +54,14 @@
 					<li>Applied changes of bootstrap styled navbar and buttons</li>
 					<li>File-Uploading Changes (*.mas upload support)</li>
 					<li>File-Downloading Changes (*.mas download support)</li>
+					<li>Bootstrap Implementation across entire site</li>
+					<li>Testing modals through News Button</li>
+					<li>Input and Output Type Implementation</li>
 				</ul>
 			</div>
         </main>
         <footer>
-            <div class="container">
+            <div class="container" style="padding: 0 0">
             </div>
 				Created by <a href="https://github.com/cyderize">Jason Nguyen</a>, <a href="https://github.com/jos0003">Saurabh Joshi</a> and <a href="https://github.com/lorderikir">Eric Jiang</a>.
         </footer>
