@@ -359,3 +359,12 @@ codeblock {
 .watch-list-address, .watch-list-value {
     width: 70px;
 }
+
+#input-dialog {
+    pointer-events: none;
+    top: 150px;
+}
+
+#input-dialog * {
+    pointer-events: all;
+}

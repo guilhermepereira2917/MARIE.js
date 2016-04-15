@@ -8,8 +8,8 @@ CodeMirror.defineSimpleMode("marie", {
         {regex: /end\b/i, token: "comment", next: "end"},
     ],
     operator: [
-        {regex: /(?:add|subt|addi|clear|load|loadi|store|storei|input|output|jump|skipcond|jns|jumpi|halt)\b/i, token: "keyword", next: "operand"}, // Operator
-        {regex: /(?:add|subt|addi|clear|load|loadi|store|storei|input|output|jump|skipcond|jns|jumpi|halt)\b/i, token: "keyword", next: "start"}, // Operator
+        {regex: /(?:add|subt|addi|load|loadi|store|storei|jump|skipcond|jns|jumpi)\b/i, token: "keyword", next: "operand"}, // Operator
+        {regex: /(?:clear|input|output|halt)\b/i, token: "keyword", next: "start"}, // Operator
         {regex: /(?:org|dec|oct|hex)\b/i, token: "atom", next: "literal"}, // Literal
     ],
     operand: [
