@@ -201,11 +201,20 @@ $('#input-dialog').on('shown.bs.modal', function () {
     $('#input-value').focus();
 });
 
+$('#input-dialog').popoverX({
+    show: false,
+    $target: $("#in"),
+    placement: "left",
+    closeOtherPopovers: false,
+    useOffsetForPos: false
+});
+
 function inputFunc(output) {
     startWaiting();
     
     $('#input-error').hide();
-    $('#input-dialog').modal('show');
+
+    $('#input-dialog').popoverX('show');
     
     $('#input-dialog').off('hidden.bs.modal');
     $('#input-button').off('click');
@@ -233,7 +242,7 @@ function inputFunc(output) {
                 runLoop(microStepping);
                 stopWaiting();
             });
-            $('#input-dialog').modal('hide');
+            $('#input-dialog').popoverX('hide');
         }
         else {
             $('#input-error').show({});
@@ -326,10 +335,10 @@ function runLoop(micro) {
             lastErrorLine--;
             programCodeMirror.addLineClass(lastErrorLine, "background", "error-line");
         }
-        console.error(e);
+        
         stop();
         runButton.textContent = "Halted";
-        return;
+        throw e;
     }
     updateCurrentLine();
     if (sim.halted) {
