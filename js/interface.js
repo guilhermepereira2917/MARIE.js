@@ -203,11 +203,49 @@ $('#input-dialog').on('shown.bs.modal', function () {
 
 $('#input-dialog').popoverX({
     show: false,
+    keyboard: false,
     $target: $("#in"),
     placement: "left",
     closeOtherPopovers: false,
     useOffsetForPos: false
 });
+
+$('#input-value').keypress(function(e) {
+    if(e.which == 13) {
+        $('#input-dialog').popoverX('hide');
+    }
+});
+
+function finishInput(output) {
+    var type = $('#input-type').val(),
+        value = $('#input-value').val();
+    switch (type) {
+        case ("hex"):
+            value = parseInt(value, 16);
+            break;
+        case ("dec"):
+            value = parseInt(value, 10);
+            break;
+        case ("oct"):
+            value = parseInt(value, 8);
+            break;
+        case ("ascii"):
+            value = value.charCodeAt(0);
+            break;
+    }
+    
+    if (!isNaN(value)) {
+        $('#input-dialog').on('hidden.bs.modal', function () {
+            output(value);
+            runLoop(microStepping);
+            stopWaiting();
+        });
+        $('#input-dialog').popoverX('hide');
+    }
+    else {
+        $('#input-error').show({});
+    }
+}
 
 function inputFunc(output) {
     startWaiting();
@@ -218,35 +256,16 @@ function inputFunc(output) {
     
     $('#input-dialog').off('hidden.bs.modal');
     $('#input-button').off('click');
-    $('#input-button').on('click', function() {
-        var type = $('#input-type').val(),
-            value = $('#input-value').val();
-        switch (type) {
-            case ("hex"):
-                value = parseInt(value, 16);
-                break;
-            case ("dec"):
-                value = parseInt(value, 10);
-                break;
-            case ("oct"):
-                value = parseInt(value, 8);
-                break;
-            case ("ascii"):
-                value = value.charCodeAt(0);
-                break;
+    $('#input-value').off('keypress');
+
+    $('#input-value').on('keypress', function(e) {
+        if(e.which == 13) {
+            finishInput(output);
         }
-        
-        if (!isNaN(value)) {
-            $('#input-dialog').on('hidden.bs.modal', function () {
-                output(value);
-                runLoop(microStepping);
-                stopWaiting();
-            });
-            $('#input-dialog').popoverX('hide');
-        }
-        else {
-            $('#input-error').show({});
-        }
+    });
+
+    $('#input-button').on('click', function(e) {
+        finishInput(output);
     });
 }
 
