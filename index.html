@@ -4,17 +4,17 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>MARIE.js | Home</title>
-        <script src="js/codemirror.js"></script>
-		<script src="js/jquery-1.12.3.js"></script>
-        <script src="js/bootstrap.min.js"></script>
-		<script src="js/filesaver.js"></script>
-        <script src="js/simple.js"></script>
-        <script src="js/syntax.js"></script>
-        <script src="js/marie.js"></script>
-		<link rel="stylesheet" href="css/bootstrap.css">
-        <link rel="stylesheet" href="css/codemirror.css">
-		<link rel="stylesheet" href="css/style.css">
-		
+        <script src="js/codemirror.js" type="text/javascript"></script>
+	<script src="js/jquery-1.12.3.js" type="text/javascript"></script>
+        <script src="js/bootstrap.min.js" type="text/javascript"></script>
+       	<script src="js/filesaver.js" type="text/javascript"></script>
+        <script src="js/simple.js" type="text/javascript"></script>
+        <script src="js/syntax.js" type="text/javascript"></script>
+        <script src="js/marie.js" type="text/javascript"></script>
+	<link rel="stylesheet" href="css/bootstrap.css" rel="stylesheet" type="text/css">
+        <link href="css/bootstrap-popover-x.css" media="all" rel="stylesheet" type="text/css" />
+        <link rel="stylesheet" href="css/codemirror.css" rel="stylesheet" type="text/css">
+	<link rel="stylesheet" href="css/style.css" rel="stylesheet" type="text/css">	
     </head>
     <body>
         <header>
@@ -133,38 +133,34 @@
         </footer>
 		
         
-        <div id="input-dialog" class="modal fade" role="dialog" data-backdrop="false" data-keyboard="false">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h4 class="modal-title">Input Value</h4>
-                    </div>
-                    <div class="modal-body">
-                        <p>Please input a value.</p>
-                        <div id="input-error" class="alert alert-danger">
-                            <strong>Error:</strong> Invalid input. Please try again.
-                        </div>
-                        <div class="form-group">
-                            <label for="input-value">Value:</label>
-                            <input type="text" class="form-control" id="input-value">
-                            <label for="input-type">Type:</label>
-                            <select class="form-control" id="input-type">
-                                <option value="hex">Hexadecimal</option>
-                                <option value="dec">Decimal</option>
-                                <option value="ascii">ASCII</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button id="input-button" type="button" class="btn btn-primary">Accept</button>
-                    </div>
+        <div id="input-dialog" class="popover popover-default popover-md">
+            <div class="arrow"></div> 
+            <div class="popover-title"><h4>Input Value</h4></div>
+            <div class="popover-content">
+                <p>Please input a value.</p>
+                <div id="input-error" class="alert alert-danger">
+                    <strong>Error:</strong> Invalid input. Please try again.
+                </div>
+                <div class="form-group">
+                    <label for="input-value">Value:</label>
+                    <input type="text" class="form-control" id="input-value">
+                    <label for="input-type">Type:</label>
+                    <select class="form-control" id="input-type">
+                        <option value="hex">Hexadecimal</option>
+                        <option value="dec">Decimal</option>
+                        <option value="ascii">ASCII</option>
+                    </select>
                 </div>
             </div>
+            <div class="popover-footer">
+                <button id="input-button" type="button" class="btn btn-primary">Accept</button>
+            </div>
         </div>
-        
+       
+        <script src="js/bootstrap-popover-x.js" type="text/javascript"></script>
         <script src="js/interface.js"></script>
-		<script src="js/text.js"></script>
-		<script src="js/savetext.js"></script>
-		<script src="js/menucmd.js"></script>
+        <script src="js/text.js"></script>
+	<script src="js/savetext.js"></script>
+	<script src="js/menucmd.js"></script>
     </body>
 </html>
