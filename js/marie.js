@@ -39,7 +39,7 @@ function MarieSim(assembled, inputFunc, outputFunc) {
     Array.prototype.push.apply(this.memory, assembled.program);
    
     if (this.memory.length > 0xFFF) {
-        throw new MarieSimError("Insufficent memory error", "Failed to load program.");
+        throw new MarieSimError("Insufficent memory error", "Failed to load program. Insufficent memory.");
     }
     
     while (this.memory.length <= 0xFFF) {
@@ -540,7 +540,7 @@ MarieAsm.prototype.assemble = function() {
                 );
             }
             
-            origin = parseInt(originationDirective[1], 16) ^ 0xFFF;
+            origin = parseInt(originationDirective[1], 16);
             
             continue;
         }
