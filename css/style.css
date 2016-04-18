@@ -292,6 +292,7 @@ button {
 	border: #008a00;
 	color: #fff;
 	height: 2.5em;
+	padding: 10 auto 10 auto;
 }
 button:hover {
     background-color: #0AC92B;
