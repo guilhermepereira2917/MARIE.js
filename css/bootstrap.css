@@ -5867,6 +5867,13 @@ button.close {
   border: 0;
   -webkit-appearance: none;
 }
+button.closenew {
+  padding: 0;
+  cursor: pointer;
+  background: transparent;
+  border: 0;
+  -webkit-appearance: none;
+}
 .modal-open {
   overflow: hidden;
 }
