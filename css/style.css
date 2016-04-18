@@ -291,25 +291,19 @@ button {
     background-color: #008a00;
 	border: #008a00;
 	color: #fff;
-	height: 3em;
-	padding-left: 10px;
-	padding-right: 10px;
+	height: 2.5em;
 }
 button:hover {
     background-color: #0AC92B;
 	border: #0AC92B;
 	color: #fff;
-	height: 3em;
-	padding-left: 10px;
-	padding-right: 10px;
+	height: 2.5em;
 }
 button[disabled=disabled], button:disabled {
     background-color: #2e2e2e;
 	border: #2e2e2e;
 	color: #fff;
-	height: 3em;
-	padding-left: 10px;
-	padding-right: 10px;
+	height: 2.5em;
 }
 
 codeblock {
@@ -379,6 +373,10 @@ codeblock {
 }
 
 #bottom-menu{
+    font-size: 14px;
+    border-width: 1px;
+    border-radius: 4px;
 	background-color: #2e2e2e;
 	color: #fff;
+    padding: 10px 10px 10px 10px;
 }
