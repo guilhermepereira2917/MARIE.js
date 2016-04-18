@@ -191,6 +191,14 @@ footer {
     text-align: right;
 }
 
+#output-log {
+    border-top: 0.1em solid #ccc;
+}
+
+#output-select {
+    margin: 0.5em 0;
+}
+
 @media (max-width: 1000px) {
     .container {
         width: 95%;
