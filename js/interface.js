@@ -51,6 +51,14 @@ programCodeMirror.on("gutterClick", function(cm, n) {
     cm.setGutterMarker(n, "breakpoints", info.gutterMarkers ? null : makeMarker());
 });
 
+programCodeMirror.on("change", function(cm) {
+    cm.showHint({
+        hint: getCompletions,
+        alignWithWord: false,
+        completeSingle: false
+    })
+});
+
 function makeMarker() {
     var marker = document.createElement("div");
     marker.style.color = "#07C";
