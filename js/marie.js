@@ -569,7 +569,11 @@ MarieAsm.prototype.assemble = function() {
                     (i + 1), 
                     "Labels cannot start with a number."
                 );
-            if (symbols[label] != null)
+            if (symbols[label] != null) {
+                var entry = parsed.filter(function(p) {
+                    return p.label == label;
+                })
+                
                 throw new MarieAsmError(
                     "Label error",
                     (i + 1),
@@ -577,10 +581,11 @@ MarieAsm.prototype.assemble = function() {
                         "Labels must be unique. The label '",
                         label,
                         "' was already defined on line ",
-                        symbols[label] - origin + 1,
+                        entry[0].line,
                         "."
                     ].join("")
                 );
+            }
             symbols[label] = parsed.length + origin;
         }
         
