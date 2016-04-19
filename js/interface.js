@@ -13,6 +13,7 @@ var assembleButton = document.getElementById("assemble"),
     memory = document.getElementById("memory"),
     statusInfo = document.getElementById("status-info"),
     registerLabel = document.getElementById("register-label"),
+    outputSelect = document.getElementById("output-select"),
     outputLog = document.getElementById("output-log"),
     outputLogOuter = document.getElementById("output-log-outer"),
     outputLogContainer = document.getElementById("tab-content1"),
@@ -20,6 +21,8 @@ var assembleButton = document.getElementById("assemble"),
     registerLogOuter = document.getElementById("register-log-outer"),
     registerLogContainer = document.getElementById("tab-content2"),
     watchList = document.getElementById("watch-list");
+
+const HEX = 0, DEC = 1, ASCII = 2;
 
 var asm = null,
     sim = null,
@@ -31,7 +34,9 @@ var asm = null,
     delay = 1,
     microStepping = false,
     running = false,
-    waiting = false;
+    waiting = false,
+    outputType = HEX,
+    outputList = [];
     
 textArea.value = localStorage.getItem("marie-program") || "";
     
@@ -146,6 +151,30 @@ function populateWatchList(asm, sim) {
     return symbolCells;
 }
 
+function convertOutput(value) {
+    switch(outputType) {
+        case HEX:
+            return hex(value);
+        case DEC:
+            return value;
+        case ASCII:
+            return String.fromCharCode(value);
+        default:
+            return "Invalid output type.";
+    }
+}
+
+function repopulateOutputLog() {
+    while (outputLog.firstChild) {
+        outputLog.removeChild(outputLog.firstChild);
+    }
+
+    for(var i = 0; i < outputList.length; i++) {
+        outputLog.appendChild(document.createTextNode(convertOutput(outputList[i])));
+        outputLog.appendChild(document.createElement("br"));
+    }
+}
+
 function resetRegisters() {
     document.getElementById("ac").textContent = hex(sim.ac);
     document.getElementById("ir").textContent = hex(sim.ir);
@@ -195,6 +224,7 @@ function initializeOutputLog() {
     while (outputLog.firstChild) {
         outputLog.removeChild(outputLog.firstChild);
     }
+    outputList = [];
 }
 
 $('#input-dialog').on('shown.bs.modal', function () {
@@ -271,8 +301,10 @@ function inputFunc(output) {
 
 function outputFunc(value) {
     var shouldScrollToBottomOutputLog = outputLogOuter.clientHeight === (outputLogOuter.scrollHeight - outputLogOuter.scrollTop);
+
+    outputList.push(value);
     
-    outputLog.appendChild(document.createTextNode(hex(value)));
+    outputLog.appendChild(document.createTextNode(convertOutput(value)));
     outputLog.appendChild(document.createElement("br"));
     
     if(shouldScrollToBottomOutputLog) {
@@ -417,7 +449,7 @@ assembleButton.addEventListener("click", function() {
             document.getElementById("cell" + e.newValue).classList.add("current-mar");
         }
     })
-    
+   
     populateMemoryView(sim);
     var symbolCells = populateWatchList(asm, sim);
     initializeOutputLog();
@@ -502,6 +534,11 @@ restartButton.addEventListener("click", function() {
     stepButton.disabled = false;
     microStepButton.disabled = false;
     statusInfo.textContent = "Restarted simulator (memory contents are still preserved)";
+});
+
+outputSelect.addEventListener("change", function() {
+    outputType = this.selectedIndex;
+    repopulateOutputLog();
 });
 
 window.addEventListener("beforeunload", function() {
