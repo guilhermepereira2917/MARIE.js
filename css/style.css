@@ -389,3 +389,11 @@ codeblock {
 	color: #fff;
     padding: 10px 10px 10px 10px;
 }
+
+.output-type {
+	height:50%;
+	width:100px;
+	text-align: right;
+	background-color: #2e2e2e;
+	color: white;
+}
