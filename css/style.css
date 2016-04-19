@@ -397,3 +397,16 @@ codeblock {
 	background-color: #2e2e2e;
 	color: white;
 }
+
+.completion-origination.CodeMirror-hint,
+.completion-operand.CodeMirror-hint {
+    color: #219;
+}
+
+.completion-operator.CodeMirror-hint {
+    color: #708;
+}
+
+.completion-label.CodeMirror-hint {
+    color: #A11;
+}

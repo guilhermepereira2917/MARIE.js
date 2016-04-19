@@ -28,15 +28,43 @@ function getCompletions(editor, options) {
     
     switch (state) {
         case ("start"):
-            Array.prototype.push.apply(list, completions.origination);
+            Array.prototype.push.apply(list, completions.origination.map(function(x) {
+                return {
+                    text: x,
+                    className: "completion-origination"
+                };
+            }));
         case ("operator"):
-            Array.prototype.push.apply(list, completions.operators);
+            Array.prototype.push.apply(list, completions.operators.map(function(x) {
+                return {
+                    text: x,
+                    className: "completion-operator"
+                }
+            }));
         case ("operand"):
-            Array.prototype.push.apply(list, completions.operand);
+            Array.prototype.push.apply(list, completions.operand.map(function(x) {
+                return {
+                    text: x,
+                    className: "completion-operand"
+                }
+            }));
+    }
+    
+    if (state == "operand") {
+        // Also find labels for completion
+        for (var i = 0; i < editor.lineCount(); i++) {
+            var label = editor.getLine(i).match(/^(?:([^,\/]+),)/)
+            if (label) {
+                list.push({
+                    text: label[1],
+                    className: "completion-label"
+                });
+            }
+        }
     }
     
     list = list.filter(function(completion) {
-        var x = completion.toLowerCase();
+        var x = completion.text.toLowerCase();
         var y = line.substring(start, end).toLowerCase();
         return x != y && x.indexOf(y) == 0;
     });
