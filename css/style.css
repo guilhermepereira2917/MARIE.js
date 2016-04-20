@@ -123,6 +123,7 @@ footer {
 .CodeMirror {
     border: 0.1em solid #ccc;
     flex: 1 0 0;
+    height: 100%;
 }
 
 .breakpoints {
