@@ -20,7 +20,9 @@ var assembleButton = document.getElementById("assemble"),
     registerLog = document.getElementById("register-log"),
     registerLogOuter = document.getElementById("register-log-outer"),
     registerLogContainer = document.getElementById("tab-content2"),
-    watchList = document.getElementById("watch-list");
+    watchList = document.getElementById("watch-list"),
+    uploadButton = document.getElementById("upload"),
+    fileInput = document.getElementById("fileInput");
 
 const HEX = 0, DEC = 1, ASCII = 2;
 
@@ -562,4 +564,8 @@ window.addEventListener("beforeunload", function() {
     }
     window.localStorage.setItem("marie-breakpoints", JSON.stringify(breakpoints));
     return;
+});
+
+uploadButton.addEventListener("click", function() {
+    fileInput.click();
 });

@@ -419,3 +419,9 @@ codeblock {
 #version {
     font-size: 10px;
 }
+
+#fileInput {
+    position: absolute;
+    visibility: hidden;
+    pointer-events: none;
+}
