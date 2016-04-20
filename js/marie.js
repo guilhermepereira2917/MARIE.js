@@ -234,9 +234,9 @@ MarieSim.prototype.restart = function() {
 // This method blocks until machine execution completes.
 MarieSim.prototype.run = function() {
     while (!this.halted) {
-        for (let _ of this.fetch());
+        for (var _ of this.fetch());
         this.decode();
-        for (let _ of this.execute());
+        for (var _ of this.execute());
     }
 };
 
