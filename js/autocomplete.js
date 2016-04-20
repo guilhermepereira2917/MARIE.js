@@ -21,7 +21,7 @@ function getCompletions(editor, options) {
     var state = editor.getTokenAt(from).state.state;
     
     var completions = {
-        operators: ["Add", "Subt", "Addi", "Load", "Loadi", "Store", "Storei", "Jump", "Skipcond", "Jns", "Jumpi", "Clear", "Input", "Output", "Halt"],
+        operators: ["Add", "Subt", "AddI", "Load", "LoadI", "Store", "StoreI", "Jump", "Skipcond", "JnS", "JumpI", "Clear", "Input", "Output", "Halt"],
         origination: ["ORG"],
         operand: ["DEC", "OCT", "HEX"]
     };
