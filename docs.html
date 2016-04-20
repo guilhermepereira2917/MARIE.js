@@ -31,7 +31,7 @@
                         <li><a href="https://mariejssite.wordpress.com/" target="_blank">Blog</a></li>
                     </ul>
                 </div>
-                <a id="forkme_banner" href="https://github.com/cyderize/MARIE.js" target="_blank">View on GitHub</a>
+                <a id="forkme_banner" href="https://github.com/MARIE-js/MARIE.js" target="_blank">View on GitHub</a>
             </nav>
         </header>
         <main>
@@ -46,66 +46,66 @@
                     </tr>
                     <tr>
                         <td rowspan="4">Arithmetic</td>
-                        <td>ADD X</td>
+                        <td>Add X</td>
                         <td>3</td>
                         <td>AC ← AC + X</td>
                     </tr>
                     <tr>
-                        <td>SUBT X</td>
+                        <td>Subt X</td>
                         <td>4</td>
                         <td>AC ← AC - X</td>
                     </tr>
                     <tr>
-                        <td>ADDI X</td>
+                        <td>AddI X</td>
                         <td>B</td>
                         <td>Add Indirect: Use the value at X as the actual address of the<br>data operand to add to AC</td>
                     </tr>
                     <tr>
-                        <td>CLEAR</td>
+                        <td>Clear</td>
                         <td>A</td>
                         <td>AC ← 0</td>
                     </tr>
                     <tr>
                         <td rowspan="2">Data Transfer</td>
-                        <td>LOAD X</td>
+                        <td>Load X</td>
                         <td>1</td>
                         <td>Loads Contents of Address X into AC</td>
                     </tr>
                     <tr>
-                        <td>STORE X</td>
+                        <td>Store X</td>
                         <td>2</td>
                         <td>Stores Contents of AC into Address X</td>
                     </tr>
                     <tr>
                         <td rowspan="2">I/O</td>
-                        <td>INPUT</td>
+                        <td>Input</td>
                         <td>5</td>
                         <td>Request user to input a value</td>
                     </tr>
                     <tr>
-                        <td>OUTPUT</td>
+                        <td>Output</td>
                         <td>6</td>
                         <td>Prints value from AC</td>
                     </tr>
                     <tr>
                         <td rowspan="2">Branch</td>
-                        <td>JUMP X</td>
+                        <td>Jump X</td>
                         <td>9</td>
                         <td>Jumps to Address X</td>
                     </tr>
                     <tr>
-                        <td>SKIPCOND (C)</td>
+                        <td>Skipcond (C)</td>
                         <td>8</td>
                         <td>Skips the next instruction based on C: if (C) = <br><br>- 000: Skips if AC &lt; 0<br>- 400: Skips if AC = 0<br>- 800: Skips if AC &gt; 0</td>
                     </tr>
                     <tr>
                         <td rowspan="2">Subroutine</td>
-                        <td>JNS X</td>
+                        <td>JnS X</td>
                         <td>0</td>
                         <td>Jumps and Store: Stores PC at address X and jumps to X+1</td>
                     </tr>
                     <tr>
-                        <td>JUMPI X</td>
+                        <td>JumpI X</td>
                         <td>C</td>
                         <td>Uses the value at X as the address to jump to</td>
                     </tr>
@@ -122,7 +122,7 @@
                     </tr>
                     <tr>
                         <td></td>
-                        <td>HALT</td>
+                        <td>Halt</td>
                         <td>7</td>
                         <td>End the program</td>
                     </tr>

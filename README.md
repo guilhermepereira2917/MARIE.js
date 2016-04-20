@@ -1,9 +1,16 @@
 MARIE.js
 ==============
-Current version: `Beta v4-preview`
+Current version: `0.4.0`
 
 MARIE.js is an implementation of a simulator for a 'Machine Architecture that is Really Intuitive and Easy'
 from [The Essentials of Computer Organization and Architecture](https://books.google.com.au/books/about/The_Essentials_of_Computer_Organization.html?id=3kQoAwAAQBAJ&redir_esc=y) (Linda Null, Julia Lobur) in JavaScript.
+
+## Setup
+
+    # Install npm and grunt, then run these commands:
+    cd /path/to/repo/MARIE.js
+    npm install
+    grunt
 
 ## License
 
