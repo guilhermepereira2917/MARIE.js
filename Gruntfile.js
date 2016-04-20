@@ -22,9 +22,7 @@ module.exports = function(grunt) {
         pkg: grunt.file.readJSON('package.json')
     });
 
-    grunt.loadNpmTasks('grunt-contrib-jshint');
     grunt.loadNpmTasks('grunt-open');
-    grunt.loadNpmTasks('grunt-ejs');
     grunt.loadNpmTasks('grunt-contrib-copy');
     grunt.loadNpmTasks('grunt-contrib-clean');
 
