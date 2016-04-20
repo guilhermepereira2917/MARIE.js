@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html>
     <head>
@@ -6,88 +8,84 @@
         <title>MARIE.js | Home</title>
         <script src="js/codemirror.js" type="text/javascript"></script>
         <script src="js/show-hint.js" type="text/javascript"></script>
-	    <script src="js/jquery-1.12.3.js" type="text/javascript"></script>
+        <script src="js/jquery-1.12.3.js" type="text/javascript"></script>
         <script src="js/bootstrap.min.js" type="text/javascript"></script>
-       	<script src="js/filesaver.js" type="text/javascript"></script>
+        <script src="js/filesaver.js" type="text/javascript"></script>
         <script src="js/simple.js" type="text/javascript"></script>
         <script src="js/syntax.js" type="text/javascript"></script>
         <script src="js/autocomplete.js" type="text/javascript"></script>
         <script src="js/marie.js" type="text/javascript"></script>
-        <link rel="stylesheet" href="css/bootstrap.css" rel="stylesheet" type="text/css">
+        <link href="css/bootstrap.css" rel="stylesheet" type="text/css">
         <link href="css/bootstrap-popover-x.css" media="all" rel="stylesheet" type="text/css" />
-        <link rel="stylesheet" href="css/codemirror.css" rel="stylesheet" type="text/css">
-        <link rel="stylesheet" href="css/show-hint.css" rel="stylesheet" type="text/css">
-	<link rel="stylesheet" href="css/style.css" rel="stylesheet" type="text/css">	
+        <link href="css/codemirror.css" rel="stylesheet" type="text/css">
+        <link href="css/show-hint.css" rel="stylesheet" type="text/css">
+        <link href="css/style.css" rel="stylesheet" type="text/css">
     </head>
     <body>
-		<!-- newFile Modal -->
-		  <div class="modal fade" id="newfoldermodal" role="dialog">
-			<div class="modal-dialog">
-			
-			  <!-- Modal content-->
-			  <div class="modal-content">
-				<div class="modal-header">
-				  <button type="button" class="close" data-dismiss="modal">&times;</button>
-				  <h4 class="modal-title">MARIE.js | New File</h4>
-				</div>
-				<div class="alert alert-danger">
-				  <span class="glyphicon glyphicon-alert"></span> <strong>Warning!</strong> This will create clear all history as well as clearing the codearea.
-				</div>
-				<div class="modal-body">
-				  <p>This will create a new file, are you sure you want to proceed.</p>
-				</div>
-				<div class="modal-footer">
-				  <button id="newfilebtn" type="button" class="btn btn-danger" data-dismiss="modal">Yes</button>
-				  <button id="cnclnewfile" type="button" class="btn btn-primary" data-dismiss="modal">Cancel</button>
-				</div>
-			  </div>
-			  
-			</div>
-		  </div>
+        <!-- newFile Modal -->
+        <div class="modal fade" id="newfoldermodal" role="dialog">
+            <div class="modal-dialog">
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <h4 class="modal-title">MARIE.js | New File</h4>
+                    </div>
+                    <div class="alert alert-danger">
+                        <span class="glyphicon glyphicon-alert"></span> <strong>Warning!</strong> This will create clear all history as well as clearing the codearea.
+                    </div>
+                    <div class="modal-body">
+                        <p>This will create a new file, are you sure you want to proceed.</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button id="newfilebtn" type="button" class="btn btn-danger" data-dismiss="modal">Yes</button>
+                        <button id="cnclnewfile" type="button" class="btn btn-primary" data-dismiss="modal">Cancel</button>
+                    </div>
+                </div>
+            </div>
+        </div>
         <header>
-			<nav id="custom-bootstrap-menu" class="navbar navbar-default navbar-fixed-top">
-					<div class="container-fluid">
-						<div class="navbar-brand">
-							MARIE.js <font size="1px">Beta v4-preview</font>
-						</div>
-						<ul class="nav navbar-nav">
-						  <li><a href="index.html"><span class="glyphicon glyphicon-home"></span> Home</a></li>
-						  <li class="dropdown">
-							<a class="dropdown-toggle" data-toggle="dropdown">File
-							<span class="caret"></span></a>
-							<ul class="dropdown-menu">
-								<li><a id="clear">New...</a></li>
-								<li class="divider"></li>
-							  <li><a><span class="glyphicon glyphicon-folder-open"></span>  Upload: <input type="file" id="fileInput"></a></li>
-							  <li><a id="download"><span class="glyphicon glyphicon-export"></span> Export</a></li>
-							</ul>
-						  </li>
-						  <li class="dropdown">
-							<a class="dropdown-toggle" data-toggle="dropdown">Edit
-							<span class="caret"></span></a>
-							<ul class="dropdown-menu">
-							  <li><a id="undo"><span class="glyphicon glyphicon-chevron-left"></span> Undo  | Ctrl+Z</a></li>
-							  <li><a id="redo"><span class="glyphicon glyphicon-repeat"></span> Redo   | Ctrl+Y </a></li>
-							</ul>
-						  </li>
-						 <li class="dropdown">
-							<a class="dropdown-toggle" data-toggle="dropdown">Help
-							<span class="caret"></span></a>
-							<ul class="dropdown-menu">
-								<li><a href="docs.html"><span class="glyphicon glyphicon-book"></span> MARIE Documentation </a></li>
-								<li><a href="about.html"><span class="glyphicon glyphicon-info-sign"></span> About </a></li>
-								<li class="divider"></li>
-								<li><a href="https://mariejs.myjetbrains.com/youtrack/newissue?project=mariejs" target="_blank"><span class="glyphicon glyphicon-alert"></span> Report an Issue</a></li>
-							</ul>
-						 </li>
-						 <li><a href="https://mariejssite.wordpress.com/" target="_blank">Blog</a></li>
-						</ul>
-						 <a id="forkme_banner" href="https://github.com/cyderize/MARIE.js" target="_blank">View on GitHub</a>
-						 
-					</ul>
-					</div>
-					
-			</nav>
+            <nav id="custom-bootstrap-menu" class="navbar navbar-default navbar-fixed-top">
+                <div class="container-fluid">
+                    <div class="navbar-brand">
+                        MARIE.js <font size="1px">Beta v4-preview</font>
+                    </div>
+                    <ul class="nav navbar-nav">
+                        <li><a href="index.html"><span class="glyphicon glyphicon-home"></span> Home</a></li>
+                        <li class="dropdown">
+                            <a class="dropdown-toggle" data-toggle="dropdown">File
+                            <span class="caret"></span></a>
+                            <ul class="dropdown-menu">
+                                <li><a id="clear">New...</a></li>
+                                <li class="divider"></li>
+                                <li><a><span class="glyphicon glyphicon-folder-open"></span>  Upload: <input type="file" id="fileInput"></a></li>
+                                <li><a id="download"><span class="glyphicon glyphicon-export"></span> Export</a></li>
+                            </ul>
+                        </li>
+                        <li class="dropdown">
+                            <a class="dropdown-toggle" data-toggle="dropdown">Edit
+                            <span class="caret"></span></a>
+                            <ul class="dropdown-menu">
+                                <li><a id="undo"><span class="glyphicon glyphicon-chevron-left"></span> Undo  | Ctrl+Z</a></li>
+                                <li><a id="redo"><span class="glyphicon glyphicon-repeat"></span> Redo   | Ctrl+Y </a></li>
+                            </ul>
+                        </li>
+                        <li class="dropdown">
+                            <a class="dropdown-toggle" data-toggle="dropdown">Help
+                            <span class="caret"></span></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="docs.html"><span class="glyphicon glyphicon-book"></span> MARIE Documentation </a></li>
+                                <li><a href="about.html"><span class="glyphicon glyphicon-info-sign"></span> About </a></li>
+                                <li class="divider"></li>
+                                <li><a href="https://mariejs.myjetbrains.com/youtrack/newissue?project=mariejs" target="_blank"><span class="glyphicon glyphicon-alert"></span> Report an Issue</a></li>
+                            </ul>
+                        </li>
+                        <li><a href="https://mariejssite.wordpress.com/" target="_blank">Blog</a></li>
+                    </ul>
+                    <a id="forkme_banner" href="https://github.com/cyderize/MARIE.js" target="_blank">View on GitHub</a>
+                    </ul>
+                </div>
+            </nav>
         </header>
         <main>
             <div class="container">
@@ -98,20 +96,48 @@
                     </div>
                     <div id="register-container">
                         <table id="registers">
-                            <tr><th>AC</th></tr>
-                            <tr><td id="ac">0000</td></tr>
-                            <tr><th>IR</th></tr>
-                            <tr><td id="ir">0000</td></tr>
-                            <tr><th>MAR</th></tr>
-                            <tr><td id="mar">000</td></tr>
-                            <tr><th>MBR</th></tr>
-                            <tr><td id="mbr">0000</td></tr>
-                            <tr><th>PC</th></tr>
-                            <tr><td id="pc">000</td></tr>
-                            <tr><th>IN</th></tr>
-                            <tr><td id="in">0000</td></tr>
-                            <tr><th>OUT</th></tr>
-                            <tr><td id="out">0000</td></tr>
+                            <tr>
+                                <th>AC</th>
+                            </tr>
+                            <tr>
+                                <td id="ac">0000</td>
+                            </tr>
+                            <tr>
+                                <th>IR</th>
+                            </tr>
+                            <tr>
+                                <td id="ir">0000</td>
+                            </tr>
+                            <tr>
+                                <th>MAR</th>
+                            </tr>
+                            <tr>
+                                <td id="mar">000</td>
+                            </tr>
+                            <tr>
+                                <th>MBR</th>
+                            </tr>
+                            <tr>
+                                <td id="mbr">0000</td>
+                            </tr>
+                            <tr>
+                                <th>PC</th>
+                            </tr>
+                            <tr>
+                                <td id="pc">000</td>
+                            </tr>
+                            <tr>
+                                <th>IN</th>
+                            </tr>
+                            <tr>
+                                <td id="in">0000</td>
+                            </tr>
+                            <tr>
+                                <th>OUT</th>
+                            </tr>
+                            <tr>
+                                <td id="out">0000</td>
+                            </tr>
                         </table>
                     </div>
                     <div id="tab-container">
@@ -122,14 +148,18 @@
                         </ul>
                         <div class="tab-content">
                             <div id="output-log-outer" class="tab-pane fade in active">
-                                <div id="output-log"></div> 
+                                <div id="output-log"></div>
                             </div>
                             <div id="register-log-outer" class="tab-pane fade">
                                 <div id="register-log"></div>
                             </div>
                             <div id="watch-list-outer" class="tab-pane fade">
                                 <table id="watch-list-headers">
-                                    <tr><th class="watch-list-label">Label</th><th class="watch-list-address">Address</th><th class="watch-list-value">Value</th></tr>
+                                    <tr>
+                                        <th class="watch-list-label">Label</th>
+                                        <th class="watch-list-address">Address</th>
+                                        <th class="watch-list-value">Value</th>
+                                    </tr>
                                 </table>
                                 <table id="watch-list"></table>
                             </div>
@@ -147,28 +177,34 @@
         </main>
         <footer>
             <nav id="bottom-menu" class="navbar navbar-default navbar-fixed-bottom">
-	    	<div id="action-bar">
+                <div id="action-bar">
                     <button id="assemble">Assemble</button>
                     <button id="step" disabled>Step</button>
                     <button id="microstep" disabled>Microstep</button>
                     <button id="run" disabled>Run</button>
                     <button id="restart" disabled>Restart</button>
-                    <span>Delay:</span>
-                    <input id="range-delay" type="range" min="1" max="3000" value="1" />
-                    <span id="display-delay-ms">1 ms</span> 
-					&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;<b>OUTPUT MODE: </b>
-					<select id="output-select" class="output-type">
-                                    <option>HEX</option>
-                                    <option>DEC</option>
-                                    <option>ASCII</option>
-                    </select>
+                    <span id="delay-slider">
+                        <span>Delay:</span>
+                        <input id="range-delay" type="range" min="1" max="3000" value="1" />
+                        <span id="display-delay-ms">1 ms</span> 
+                    </span>
+                    &nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
+                    <span id="output-selector">
+                        <b>OUTPUT MODE: </b>
+                        <select id="output-select" class="output-type">
+                            <option>HEX</option>
+                            <option>DEC</option>
+                            <option>ASCII</option>
+                        </select>
+                    </span>
                 </div>
             </nav>
-        </footer>	
-        
+        </footer>
         <div id="input-dialog" class="popover popover-default popover-md">
-            <div class="arrow"></div> 
-            <div class="popover-title"><h4>Input Value</h4></div>
+            <div class="arrow"></div>
+            <div class="popover-title">
+                <h4>Input Value</h4>
+            </div>
             <div class="popover-content">
                 <p>Please input a value.</p>
                 <div id="input-error" class="alert alert-danger">
@@ -189,11 +225,10 @@
                 <button id="input-button" type="button" class="btn btn-primary">Accept</button>
             </div>
         </div>
-       
         <script src="js/bootstrap-popover-x.js" type="text/javascript"></script>
-        <script src="js/interface.js"></script>
-        <script src="js/text.js"></script>
-	<script src="js/savetext.js"></script>
-	<script src="js/menucmd.js"></script>
+        <script src="js/interface.js" type="text/javascript"></script>
+        <script src="js/text.js" type="text/javascript"></script>
+        <script src="js/savetext.js" type="text/javascript"></script>
+        <script src="js/menucmd.js" type="text/javascript"></script>
     </body>
 </html>

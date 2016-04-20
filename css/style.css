@@ -21,7 +21,7 @@ html, body {
 }
 
 #file {
-	width: 80%;
+    width: 80%;
     margin: 10px auto;
     text-align: center;
 }
@@ -228,7 +228,7 @@ footer {
 
 #file-io {
     padding: 10px;
-	height: 60px
+    height: 60px
 }
 
 /*
@@ -236,50 +236,50 @@ NAVBAR TEST CODE
 */
 #custom-bootstrap-menu.navbar-default .navbar-brand {
     color: rgba(255, 255, 255, 1);
-	cursor: default;
+    cursor: default;
 }
 #custom-bootstrap-menu.navbar-default {
     font-size: 14px;
     background-color: rgba(46, 46, 46, 1);
     border-width: 1px;
     border-radius: 4px;
-	cursor: default;
+    cursor: default;
 }
 #custom-bootstrap-menu.navbar-default .navbar-nav>li>a {
     color: rgba(255, 255, 255, 1);
     background-color: rgba(248, 248, 248, 0);
-	cursor: default;
+    cursor: default;
 }
 #custom-bootstrap-menu.navbar-default .navbar-nav>li>a:hover,
 #custom-bootstrap-menu.navbar-default .navbar-nav>li>a:focus {
     color: rgba(255, 255, 255, 1);
     background-color: rgba(69, 69, 69, 1);
-	cursor: default;
+    cursor: default;
 }
 #custom-bootstrap-menu.navbar-default .navbar-nav>.active>a,
 #custom-bootstrap-menu.navbar-default .navbar-nav>.active>a:hover,
 #custom-bootstrap-menu.navbar-default .navbar-nav>.active>a:focus {
     color: rgba(255, 255, 255, 1);
     background-color: rgba(0, 138, 0, 1);
-	cursor: default;
+    cursor: default;
 }
 #custom-bootstrap-menu.navbar-default .navbar-toggle {
     border-color: #008a00;
-	cursor: default;
+    cursor: default;
 }
 #custom-bootstrap-menu.navbar-default .navbar-toggle:hover,
 #custom-bootstrap-menu.navbar-default .navbar-toggle:focus {
     background-color: #008a00;
-	cursor: default;
+    cursor: default;
 }
 #custom-bootstrap-menu.navbar-default .navbar-toggle .icon-bar {
     background-color: #008a00;
-	cursor: default;
+    cursor: default;
 }
 #custom-bootstrap-menu.navbar-default .navbar-toggle:hover .icon-bar,
 #custom-bootstrap-menu.navbar-default .navbar-toggle:focus .icon-bar {
     background-color: #2e2e2e;
-	cursor: default;
+    cursor: default;
 }
 
 #forkme_banner {
@@ -298,38 +298,38 @@ NAVBAR TEST CODE
 }
 button {
     background-color: #008a00;
-	border: #008a00;
-	color: #fff;
-	height: 2.5em;
-	padding: 10 auto 10 auto;
+    border: #008a00;
+    color: #fff;
+    height: 2.5em;
+    padding: 10 auto 10 auto;
 }
 button:hover {
     background-color: #0AC92B;
-	border: #0AC92B;
-	color: #fff;
-	height: 2.5em;
+    border: #0AC92B;
+    color: #fff;
+    height: 2.5em;
 }
 button[disabled=disabled], button:disabled {
     background-color: #2e2e2e;
-	border: #2e2e2e;
-	color: #fff;
-	height: 2.5em;
+    border: #2e2e2e;
+    color: #fff;
+    height: 2.5em;
 }
 
 codeblock {
-	text-align: left;
-	width: 50%;
-	font-size: 95%;
-	white-space: pre;
-	white-space: pre-wrap;
-	white-space: -moz-pre-wrap;
-	white-space: -o-pre-wrap;
-	background: #faf8f0;
+    text-align: left;
+    width: 50%;
+    font-size: 95%;
+    white-space: pre;
+    white-space: pre-wrap;
+    white-space: -moz-pre-wrap;
+    white-space: -o-pre-wrap;
+    background: #faf8f0;
 }
     
 #content codeblock {
-	display: block;
-	border: 1px solid #bebab0;
+    display: block;
+    border: 1px solid #bebab0;
 }
 
 .inputfile + label {
@@ -347,7 +347,7 @@ codeblock {
 
 @media screen and (max-width: 767px) {
     .container {
-        margin-top: 150px;
+        margin-top: 240px;
     }
 }
 
@@ -386,17 +386,17 @@ codeblock {
     font-size: 14px;
     border-width: 1px;
     border-radius: 4px;
-	background-color: #2e2e2e;
-	color: #fff;
+    background-color: #2e2e2e;
+    color: #fff;
     padding: 10px 10px 10px 10px;
 }
 
 .output-type {
-	height:50%;
-	width:100px;
-	text-align: right;
-	background-color: #2e2e2e;
-	color: white;
+    height:50%;
+    width:100px;
+    text-align: right;
+    background-color: #2e2e2e;
+    color: white;
 }
 
 .completion-origination.CodeMirror-hint,
@@ -410,4 +410,8 @@ codeblock {
 
 .completion-label.CodeMirror-hint {
     color: #A11;
+}
+
+#delay-slider, #output-selector {
+    white-space: nowrap;
 }
