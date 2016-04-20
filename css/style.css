@@ -415,3 +415,7 @@ codeblock {
 #delay-slider, #output-selector {
     white-space: nowrap;
 }
+
+#version {
+    font-size: 1px;
+}
