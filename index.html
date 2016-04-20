@@ -20,6 +20,30 @@
 	<link rel="stylesheet" href="css/style.css" rel="stylesheet" type="text/css">	
     </head>
     <body>
+		<!-- newFile Modal -->
+		  <div class="modal fade" id="newfoldermodal" role="dialog">
+			<div class="modal-dialog">
+			
+			  <!-- Modal content-->
+			  <div class="modal-content">
+				<div class="modal-header">
+				  <button type="button" class="close" data-dismiss="modal">&times;</button>
+				  <h4 class="modal-title">MARIE.js | New File</h4>
+				</div>
+				<div class="alert alert-danger">
+				  <span class="glyphicon glyphicon-alert"></span> <strong>Warning!</strong> This will create clear all history as well as clearing the codearea.
+				</div>
+				<div class="modal-body">
+				  <p>This will create a new file, are you sure you want to proceed.</p>
+				</div>
+				<div class="modal-footer">
+				  <button id="newfilebtn" type="button" class="btn btn-danger" data-dismiss="modal">Yes</button>
+				  <button id="cnclnewfile" type="button" class="btn btn-primary" data-dismiss="modal">Cancel</button>
+				</div>
+			  </div>
+			  
+			</div>
+		  </div>
         <header>
 			<nav id="custom-bootstrap-menu" class="navbar navbar-default navbar-fixed-top">
 					<div class="container-fluid">
