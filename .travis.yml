@@ -6,7 +6,7 @@ node_js:
 addons:
   apt:
     packages:
-      - openjdk-8-jre
+      - oracle-java8-installer
   
 env:
   global:
