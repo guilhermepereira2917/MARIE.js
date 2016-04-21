@@ -425,3 +425,7 @@ codeblock {
     visibility: hidden;
     pointer-events: none;
 }
+
+.memory-changed {
+    color: red;
+}

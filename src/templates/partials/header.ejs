@@ -4,15 +4,21 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>MARIE.js | <%= title %></title>
-        <script src="js/codemirror.js" type="text/javascript"></script>
-        <script src="js/show-hint.js" type="text/javascript"></script>
-        <script src="js/jquery-1.12.3.js" type="text/javascript"></script>
-        <script src="js/bootstrap.min.js" type="text/javascript"></script>
-        <script src="js/filesaver.js" type="text/javascript"></script>
-        <script src="js/simple.js" type="text/javascript"></script>
+        <% if (release) { %>        
+        <script src="js/marie.min.js" type="text/javascript"></script>
+        <% } else { %>
+        <script src="js/ext/jquery-1.12.3.js" type="text/javascript"></script>
+        <script src="js/ext/bootstrap.js" type="text/javascript"></script>
+        <script src="js/ext/bootstrap-popover-x.js" type="text/javascript"></script>
+        <script src="js/ext/codemirror.js" type="text/javascript"></script>
+        <script src="js/ext/simple.js" type="text/javascript"></script>
+        <script src="js/ext/show-hint.js" type="text/javascript"></script>
         <script src="js/syntax.js" type="text/javascript"></script>
         <script src="js/autocomplete.js" type="text/javascript"></script>
+        <script src="js/ext/filesaver.js" type="text/javascript"></script>
         <script src="js/marie.js" type="text/javascript"></script>
+        <script src="js/interface.js" type="text/javascript"></script>
+        <% } %>
         <link href="css/bootstrap.css" rel="stylesheet" type="text/css">
         <link href="css/bootstrap-popover-x.css" media="all" rel="stylesheet" type="text/css" />
         <link href="css/codemirror.css" rel="stylesheet" type="text/css">

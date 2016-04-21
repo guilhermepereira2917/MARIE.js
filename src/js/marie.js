@@ -1,24 +1,29 @@
+var MarieSim,
+    MarieSimError,
+    MarieAsm,
+    MarieAsmError;
+
+(function() {
+
 "use strict";
 
-function MarieSimError(name, message) {
+MarieSimError = function(name, message) {
     this.name = name || "MarieSimError";
     this.message = message;
     this.stack = (new Error()).stack;
     this.toString = function() {
         return [name, ": ", message].join("");
     };
-}
+};
 
 MarieSimError.prototype = Object.create(Error.prototype);
 MarieSimError.constructor = MarieSimError;
 
-function MarieSim(assembled, inputFunc, outputFunc) {
+MarieSim = function(assembled, inputFunc, outputFunc) {
     this.memory = [];
     this.origin = assembled.origin;
     
     this.restart();
-    
-    var myself = this;
     
     this.inputCallback = inputFunc || function(output) {
         output(uintToInt(parseInt(window.prompt("Input hexadecimal value.", 0), 16) & 0xFFFF));
@@ -47,7 +52,7 @@ function MarieSim(assembled, inputFunc, outputFunc) {
             contents: 0x0000
         });
     }
-}
+};
 
 MarieSim.prototype.setEventListener = function(event, callback) {
     switch (event) {
@@ -74,8 +79,9 @@ MarieSim.prototype.current = function() {
 };
 
 MarieSim.prototype.regSet = function(target, source, mask) {
+    var oldValue;    
     if (source == "m") {
-        var oldValue = this[target];
+        oldValue = this[target];
         this[target] = uintToInt(this.memory[this.mar].contents);
         if (this.onRegLog) {
             this.onRegLog([
@@ -133,7 +139,7 @@ MarieSim.prototype.regSet = function(target, source, mask) {
         var src = typeof source == "string" ? this[source] : source;
         var msk = mask !== undefined ? mask : 0xFFFF;
         
-        var oldValue = this[target];
+        oldValue = this[target];
         
         this[target] = uintToInt(src & msk);
         
@@ -234,9 +240,10 @@ MarieSim.prototype.restart = function() {
 // This method blocks until machine execution completes.
 MarieSim.prototype.run = function() {
     while (!this.halted) {
-        for (var _ of this.fetch());
+        var _;        
+        for (_ of this.fetch());
         this.decode();
-        for (var _ of this.execute());
+        for (_ of this.execute());
     }
 };
 
@@ -384,8 +391,8 @@ MarieSim.prototype.operators = {
                 value = v;
             });
             
-            if (value == null)
-                yield;
+            if (value === null)
+                yield null;
             
             // For some reason the simulator deals with these numbers in this way
             if (value > 0x8000 && value <= 0xFFFF) {
@@ -436,7 +443,7 @@ MarieSim.prototype.operators = {
                 case 0x400:
                     if (this.onRegLog)
                         this.onRegLog("Is AC = 0?");
-                    if (this.ac == 0)
+                    if (this.ac === 0)
                         this.regAdd("pc", 1);
                     break;
                 case 0x800:
@@ -448,7 +455,7 @@ MarieSim.prototype.operators = {
                 default:
                     throw new MarieSimError("Undefined skipcond operand.", this.ir);
             }
-            yield;
+            yield null;
         }
     },
     jns: {
@@ -484,11 +491,13 @@ MarieSim.prototype.operators = {
                 this.onRegLog("");
                 this.onRegLog("");
             }
+            
+            yield null;
         }
     }
 };
 
-function MarieAsmError(name, lineNumber, message) {
+MarieAsmError = function(name, lineNumber, message) {
     this.name = name || "MarieAsmError";
     this.message = message;
     this.stack = (new Error()).stack;
@@ -497,14 +506,14 @@ function MarieAsmError(name, lineNumber, message) {
     this.toString = function() {
         return [name, " on line ", lineNumber, ". ", message].join("");
     };
-}
+};
 
 MarieAsmError.prototype = Object.create(Error.prototype);
 MarieAsmError.constructor = MarieAsmError;
 
-function MarieAsm(assembly) {
+MarieAsm = function(assembly) {
     this.assembly = assembly;
-}
+};
 
 MarieAsm.prototype.addressNumberFormatter = function(line) {
     var n = 3;
@@ -519,9 +528,17 @@ MarieAsm.prototype.assemble = function() {
     var parsed = [],
         origin = 0,
         lines = this.assembly.split("\n"),
-        symbols = {};
+        symbols = {},
+        operator,
+        operand;
     
-    for (var i = 0; i < lines.length; i++) {
+    function checkLabel(l, p) {
+        return p.label == l;
+    }
+
+    var i;
+
+    for (i = 0; i < lines.length; i++) {
         var line = lines[i];
         
         if (/^\s*(?:\/.*)?$/.test(line))
@@ -532,7 +549,7 @@ MarieAsm.prototype.assemble = function() {
         var originationDirective = line.match(/^\s*org\s+([0-9a-f]{3})\s*(?:\/.*)?$/i);
         
         if (originationDirective) {
-            if (parsed.length != 0) {
+            if (parsed.length !== 0) {
                 throw new MarieAsmError(
                     "Syntax error", 
                     (i + 1), 
@@ -557,9 +574,9 @@ MarieAsm.prototype.assemble = function() {
             );
         }
         
-        var label = matches[1],
-            operator = matches[2].toLowerCase(),
-            operand = matches[3];
+        var label = matches[1];
+        operator = matches[2].toLowerCase();
+        operand = matches[3];
         
         // Record the symbol map
         if (label) {
@@ -569,10 +586,8 @@ MarieAsm.prototype.assemble = function() {
                     (i + 1), 
                     "Labels cannot start with a number."
                 );
-            if (symbols[label] != null) {
-                var entry = parsed.filter(function(p) {
-                    return p.label == label;
-                })
+            if (label in symbols) {
+                var entry = parsed.filter(checkLabel.bind(null, label));
                 
                 throw new MarieAsmError(
                     "Label error",
@@ -602,7 +617,7 @@ MarieAsm.prototype.assemble = function() {
         });
     }
     
-    for (var i = 0; i < parsed.length; i++) {
+    for (i = 0; i < parsed.length; i++) {
         var instruction = parsed[i];
         
         // Check for assembler directives
@@ -620,7 +635,7 @@ MarieAsm.prototype.assemble = function() {
         }
         
         if (directiveBase) {
-            if (instruction.operand == null) {
+            if (instruction.operand === undefined) {
                 throw new MarieAsmError(
                     "Syntax error",
                     instruction.line,
@@ -657,8 +672,8 @@ MarieAsm.prototype.assemble = function() {
             continue;
         }
         
-        var operator = MarieSim.prototype.operators[instruction.operator],
-            operand = instruction.operand;
+        operator = MarieSim.prototype.operators[instruction.operator];
+        operand = instruction.operand;
         
         if (!operator) {
             throw new MarieAsmError(
@@ -700,15 +715,15 @@ MarieAsm.prototype.assemble = function() {
             }
             else {
                 // This must be a label
-                operand = symbols[operand];
-                
-                if (operand == null) {
+                if (!(operand in symbols)) {
                     throw new MarieAsmError(
                         "Syntax error", 
                         instruction.line, 
                         ["Unknown label ", instruction.operand, "."].join("")
                     );
                 }
+
+                operand = symbols[operand];
             }
         }
         
@@ -743,3 +758,5 @@ function intToUint(int, nbit) {
         return u[0];
     }
 }
+
+}());

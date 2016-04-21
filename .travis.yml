@@ -13,6 +13,7 @@ install:
   - npm install
 
 script:
+  - grunt test
   - grunt build
 
 after_success:

@@ -1,6 +1,8 @@
-'use strict';
-
 module.exports = function(grunt) {
+    'use strict';
+
+    require('load-grunt-tasks')(grunt);
+
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
         open: {
@@ -8,40 +10,93 @@ module.exports = function(grunt) {
                 path: 'build/index.html'
             }
         },
+        concat: {
+            options: {
+                separator: ';'
+            },
+            main: {
+                src: [
+                    'src/js/ext/jquery-*.js',
+                    'src/js/ext/bootstrap.js',
+                    'src/js/**/*.js'
+                ],
+                dest: 'working/marie.concat.js'
+            }
+        },
+        regenerator: {
+            options: {
+                includeRuntime: true
+            },
+            main: {
+                files: {
+                    'working/marie.regenerate.js': 'working/marie.concat.js'
+                }
+            }
+        },
+        uglify: {
+            main: {
+                files: {
+                    "build/js/marie.min.js": ['working/marie.regenerate.js']
+                }
+            }
+        },
         ejs: {
-            all: {
+            options: {
+                version: "<%= pkg.version %>"
+            },
+            dist: {
                 options: {
-                    version: "<%= pkg.version %>"
+                    release: true
                 },
                 expand: true,
                 cwd: 'src/templates/',
                 src: ['*.ejs'],
                 dest: 'build/',
                 ext:  '.html'
-                
+            },
+            dev: {
+                options: {
+                    release: false
+                },
+                expand: true,
+                cwd: 'src/templates/',
+                src: ['*.ejs'],
+                dest: 'build/',
+                ext:  '.html'
             }
         },
         copy: {
-            main: {
+            dist: {
+                expand: true,
+                cwd: 'src/',
+                src: ['**/*', '!**/templates/**', '!**/js/**'],
+                dest: 'build/'
+            },
+            dev: {
                 expand: true,
                 cwd: 'src/',
                 src: ['**/*', '!**/templates/**'],
                 dest: 'build/'
-            }
+            },
         },
         jshint: {
-            files: ['js/*.js', 'Gruntfile.js']
+            options: {
+                esversion: 6,
+                browser: true,
+                undef: true,
+                unused: true,
+                predef: ["$", "CodeMirror", "console", "module", "require"]
+            },
+            files: ['src/js/*.js', 'Gruntfile.js']
         },
-        clean: ['build']
+        clean: ['build', 'working']
     });
 
-    grunt.loadNpmTasks('grunt-open');
-    grunt.loadNpmTasks('grunt-contrib-copy');
-    grunt.loadNpmTasks('grunt-contrib-clean');
-    grunt.loadNpmTasks('grunt-ejs');
-
-    grunt.registerTask('build', ['clean', 'ejs', 'copy']);
+    grunt.registerTask('build', ['clean', 'concat', 'regenerator', 'uglify', 'ejs:dist', 'copy:dist']);
+    grunt.registerTask('build-dev', ['clean', 'ejs:dev', 'copy:dev']);
     grunt.registerTask('run', ['open:dev']);
     grunt.registerTask('bar', ['build', 'run']);
+    grunt.registerTask('bar-dev', ['build-dev', 'run']);
+    grunt.registerTask('test', ['jshint']);
     grunt.registerTask('default', ['bar']);
 };
