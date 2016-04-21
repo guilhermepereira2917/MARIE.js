@@ -18,7 +18,7 @@ install:
   - npm install
 
 before_script:
-  - alias java=/usr/lib/jvm/java-8-oracle/bin/java
+  - export PATH=/usr/lib/jvm/java-8-oracle/bin:$PATH
 
 script:
   - grunt test
