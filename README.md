@@ -1,6 +1,6 @@
 MARIE.js
 ==============
-Current version: `0.4.0`
+Current version: `0.4.1`
 
 Build Status: ![https://travis-ci.org/MARIE-js/MARIE.js.svg?branch=master](https://travis-ci.org/MARIE-js/MARIE.js.svg?branch=master)
 
