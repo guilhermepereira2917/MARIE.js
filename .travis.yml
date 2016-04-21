@@ -3,6 +3,11 @@ language: node_js
 node_js:
   - "4"
 
+addons:
+  apt:
+    packages:
+      - openjdk-8-jre
+  
 env:
   global:
     - GH_REF: github.com/MARIE-js/MARIE.js.git
