@@ -1,4 +1,4 @@
-/* globals getCompletions, MarieAsm, MarieSim */
+/* globals getCompletions, MarieAsm, MarieSim, saveAs */
 
 window.addEventListener("load", function() {
     "use strict";
@@ -573,5 +573,44 @@ window.addEventListener("load", function() {
 
     uploadButton.addEventListener("click", function() {
         fileInput.click();
+    });
+    
+    $("#undo").click( function(){
+	    programCodeMirror.undo();
+    });
+
+    $("#redo").click( function(){
+        programCodeMirror.redo();
+    });
+
+    $("#clear").click( function(){
+        $('#newfoldermodal').modal('show');
+    });
+
+    $("#newfilebtn").click( function(){
+        var clrtxt = "";
+        programCodeMirror.setValue(clrtxt);
+        programCodeMirror.clearHistory();
+    });
+
+    $("#cnclnewfile").click( function(){
+        $('#newfoldermodal').modal('hide');
+    });
+    
+    $("#download").click( function() {
+        var text = programCodeMirror.getValue();
+        var filename = "code";
+        var blob = new Blob([text], {type: "text/plain;charset=utf-8"});
+        saveAs(blob, filename+".mas");
+    });
+    
+    $("#fileInput").change(function() {
+        var file = fileInput.files[0];
+        var reader = new FileReader();
+
+        reader.onload = function() {
+            programCodeMirror.setValue(reader.result);
+        };
+        reader.readAsText(file);
     });
 });
