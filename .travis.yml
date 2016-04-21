@@ -17,6 +17,9 @@ install:
   - npm install -g grunt-cli
   - npm install
 
+before_script:
+  - alias java=/usr/lib/jvm/java-8-oracle/bin/java
+
 script:
   - grunt test
   - grunt build
