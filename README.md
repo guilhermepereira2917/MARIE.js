@@ -1,6 +1,6 @@
 MARIE.js [![Build Status](https://travis-ci.org/MARIE-js/MARIE.js.svg?branch=master)](https://travis-ci.org/MARIE-js/MARIE.js)
 ==============
-Current version: `0.4.2`
+Current version: `0.4.4`
 
 MARIE.js is an implementation of a simulator for a 'Machine Architecture that is Really Intuitive and Easy'
 from [The Essentials of Computer Organization and Architecture](https://books.google.com.au/books/about/The_Essentials_of_Computer_Organization.html?id=3kQoAwAAQBAJ&redir_esc=y) (Linda Null, Julia Lobur) in JavaScript.
