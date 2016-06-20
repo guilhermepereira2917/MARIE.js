@@ -603,7 +603,12 @@ window.addEventListener("load", function() {
         var blob = new Blob([text], {type: "text/plain;charset=utf-8"});
         saveAs(blob, filename+".mas");
     });
-    
+    $("#savefilebtn").click( function() {
+        var text = programCodeMirror.getValue();
+        var filename = "code";
+        var blob = new Blob([text], {type: "text/plain;charset=utf-8"});
+        saveAs(blob, filename+".mas");
+    });
     $("#fileInput").change(function() {
         var file = fileInput.files[0];
         var reader = new FileReader();
