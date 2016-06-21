@@ -596,11 +596,7 @@ window.addEventListener("load", function() {
     $("#cnclnewfile").click( function(){
         $('#newfoldermodal').modal('hide');
     });
-    
     $("#download").click( function() {
-         $('#savefilemodal').modal('show');
-    });
-    $("#save").click( function() {
         var text = programCodeMirror.getValue();
         var filename = $("saveFile").val();
         var blob = new Blob([text], {type: "text/plain;charset=utf-8"});
