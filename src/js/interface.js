@@ -583,10 +583,10 @@ window.addEventListener("load", function() {
         programCodeMirror.redo();
     });
 
-    $("#clear").click( function(){
-        $('#newfoldermodal').modal('show');
+     $("#download").click( function(){
+        $('#savefilemodal').modal('show');
     });
-
+    
     $("#newfilebtn").click( function(){
         var clrtxt = "";
         programCodeMirror.setValue(clrtxt);
@@ -598,14 +598,11 @@ window.addEventListener("load", function() {
     });
     
     $("#download").click( function() {
-        var text = programCodeMirror.getValue();
-        var filename = "code";
-        var blob = new Blob([text], {type: "text/plain;charset=utf-8"});
-        saveAs(blob, filename+".mas");
+         $('#savefilemodal').modal('show');
     });
-    $("#savefilebtn").click( function() {
+    $("#save").click( function() {
         var text = programCodeMirror.getValue();
-        var filename = "code";
+        var filename = saveFile;
         var blob = new Blob([text], {type: "text/plain;charset=utf-8"});
         saveAs(blob, filename+".mas");
     });
