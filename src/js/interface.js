@@ -602,7 +602,7 @@ window.addEventListener("load", function() {
     });
     $("#save").click( function() {
         var text = programCodeMirror.getValue();
-        var filename = saveFile;
+        var filename = $("saveFile").val();
         var blob = new Blob([text], {type: "text/plain;charset=utf-8"});
         saveAs(blob, filename+".mas");
     });
