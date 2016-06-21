@@ -603,7 +603,7 @@ window.addEventListener("load", function() {
     $("#cnclnewfile").click( function(){
         $('#newfoldermodal').modal('hide');
     });
-    $("#saveFile").click( function() {
+    $("#savefile").click( function() {
         var text = programCodeMirror.getValue();
         var filename = "code";
         var blob = new Blob([text], {type: "text/plain;charset=utf-8"});
