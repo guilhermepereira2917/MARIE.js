@@ -605,7 +605,7 @@ window.addEventListener("load", function() {
     });
     $("#saveFile").click( function() {
         var text = programCodeMirror.getValue();
-        var filename = $("saveFile").val();
+        var filename = code;
         var blob = new Blob([text], {type: "text/plain;charset=utf-8"});
         saveAs(blob, filename+".mas");
     });
