@@ -584,7 +584,10 @@ window.addEventListener("load", function() {
     });
 
      $("#download").click( function(){
-        $('#savefilemodal').modal('show');
+        var text = programCodeMirror.getValue();
+        var filename = code;
+        var blob = new Blob([text], {type: "text/plain;charset=utf-8"});
+        saveAs(blob, filename+".mas");
     });
     
     $("#newfilebtn").click( function(){
@@ -593,10 +596,14 @@ window.addEventListener("load", function() {
         programCodeMirror.clearHistory();
     });
 
+    $("#newfoldermodal").click(function(){
+         $('#newfoldermodal').modal('show');
+    });
+
     $("#cnclnewfile").click( function(){
         $('#newfoldermodal').modal('hide');
     });
-    $("#download").click( function() {
+    $("#saveFile").click( function() {
         var text = programCodeMirror.getValue();
         var filename = $("saveFile").val();
         var blob = new Blob([text], {type: "text/plain;charset=utf-8"});
