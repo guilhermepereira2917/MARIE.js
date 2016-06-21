@@ -596,7 +596,7 @@ window.addEventListener("load", function() {
         programCodeMirror.clearHistory();
     });
 
-    $("#newfoldermodal").click(function(){
+    $("#clear").click(function(){
          $('#newfoldermodal').modal('show');
     });
 
