@@ -1,4 +1,5 @@
-MARIE.js 
+# MARIE.js 
+
 [![Build Status](https://travis-ci.org/MARIE-js/MARIE.js.svg?branch=master)](https://travis-ci.org/MARIE-js/MARIE.js)[![devDependency Status](https://david-dm.org/marie-js/MARIE.js/dev-status.svg)](https://david-dm.org/marie-js/MARIE.js#info=devDependencies)
 ==============
 Current version: `0.4.5`
