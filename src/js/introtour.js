@@ -3,9 +3,9 @@
 // if tour is not set
 if(localStorage.getItem("tour")==0){
     //setup tour
-    var tour = new Tour({
-    steps: [
-        {
+    var tour = new Tour();
+    
+    tour.addSteps([{
             element: "#my-element",
             title: "Title of my step",
             content: "Content of my step"
@@ -15,7 +15,7 @@ if(localStorage.getItem("tour")==0){
             title: "Title of my step",
             content: "Content of my step"
         }
-        ]});
+        ]);
     //initiatetour
 
     //set localStorage value to 1
