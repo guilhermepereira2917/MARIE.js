@@ -1,15 +1,15 @@
 /* ========================================================================
- * bootstrap-tour - v0.10.2
+ * bootstrap-tour - v0.10.1
  * http://bootstraptour.com
  * ========================================================================
- * Copyright 2012-2015 Ulrich Sossou
+ * Copyright 2012-2013 Ulrich Sossou
  *
  * ========================================================================
- * Licensed under the MIT License (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     https://opensource.org/licenses/MIT
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -39,7 +39,6 @@
         storage: storage,
         debug: false,
         backdrop: false,
-        backdropContainer: 'body',
         backdropPadding: 0,
         redirect: true,
         orphan: false,
@@ -59,12 +58,10 @@
         onNext: function(tour) {},
         onPrev: function(tour) {},
         onPause: function(tour, duration) {},
-        onResume: function(tour, duration) {},
-        onRedirectError: function(tour) {}
+        onResume: function(tour, duration) {}
       }, options);
       this._force = false;
       this._inited = false;
-      this._current = null;
       this.backdrop = {
         overlay: null,
         $element: null,
@@ -94,7 +91,6 @@
         return $.extend({
           id: "step-" + i,
           path: '',
-          host: '',
           placement: 'right',
           title: '',
           content: '<p></p>',
@@ -104,10 +100,8 @@
           container: this._options.container,
           autoscroll: this._options.autoscroll,
           backdrop: this._options.backdrop,
-          backdropContainer: this._options.backdropContainer,
           backdropPadding: this._options.backdropPadding,
           redirect: this._options.redirect,
-          reflexElement: this._options.steps[i].element,
           orphan: this._options.orphan,
           duration: this._options.duration,
           delay: this._options.delay,
@@ -119,8 +113,7 @@
           onNext: this._options.onNext,
           onPrev: this._options.onPrev,
           onPause: this._options.onPause,
-          onResume: this._options.onResume,
-          onRedirectError: this._options.onRedirectError
+          onResume: this._options.onResume
         }, this._options.steps[i]);
       }
     };
@@ -206,7 +199,6 @@
     Tour.prototype.restart = function() {
       this._removeState('current_step');
       this._removeState('end');
-      this._removeState('redirect_to');
       return this.start();
     };
 
@@ -265,9 +257,8 @@
             $element = $('body');
           }
           $element.popover('destroy').removeClass("tour-" + _this._options.name + "-element tour-" + _this._options.name + "-" + i + "-element");
-          $element.removeData('bs.popover');
           if (step.reflex) {
-            $(step.reflexElement).removeClass('tour-step-element-reflex').off("" + (_this._reflexEvent(step.reflex)) + ".tour-" + _this._options.name);
+            $element.removeClass('tour-step-element-reflex').off("" + (_this._reflexEvent(step.reflex)) + ".tour-" + _this._options.name);
           }
           if (step.backdrop) {
             _this._hideBackdrop();
@@ -295,7 +286,7 @@
       promise = this._makePromise(step.onShow != null ? step.onShow(this, i) : void 0);
       showStepHelper = (function(_this) {
         return function(e) {
-          var path, showPopoverAndOverlay;
+          var current_path, path, showPopoverAndOverlay;
           _this.setCurrentStep(i);
           path = (function() {
             switch ({}.toString.call(step.path)) {
@@ -307,14 +298,13 @@
                 return step.path;
             }
           }).call(_this);
-          if (_this._isRedirect(step.host, path, document.location)) {
-            _this._redirect(step, i, path);
-            if (!_this._isJustPathHashDifferent(step.host, path, document.location)) {
-              return;
-            }
+          current_path = [document.location.pathname, document.location.hash].join('');
+          if (_this._isRedirect(path, current_path)) {
+            _this._redirect(step, path);
+            return;
           }
           if (_this._isOrphan(step)) {
-            if (step.orphan === false) {
+            if (!step.orphan) {
               _this._debug("Skip the orphan step " + (_this._current + 1) + ".\nOrphan option is false and the element does not exist or is hidden.");
               if (skipToPrevious) {
                 _this._showPrevStep();
@@ -326,10 +316,10 @@
             _this._debug("Show the orphan step " + (_this._current + 1) + ". Orphans option is true.");
           }
           if (step.backdrop) {
-            _this._showBackdrop(step);
+            _this._showBackdrop(!_this._isOrphan(step) ? step.element : void 0);
           }
           showPopoverAndOverlay = function() {
-            if (_this.getCurrentStep() !== i || _this.ended()) {
+            if (_this.getCurrentStep() !== i) {
               return;
             }
             if ((step.element != null) && step.backdrop) {
@@ -377,10 +367,6 @@
         this._current = this._current === null ? null : parseInt(this._current, 10);
       }
       return this;
-    };
-
-    Tour.prototype.redraw = function() {
-      return this._showOverlayElement(this.getStep(this.getCurrentStep()).element, true);
     };
 
     Tour.prototype._setState = function(key, value) {
@@ -464,54 +450,16 @@
       }
     };
 
-    Tour.prototype._isRedirect = function(host, path, location) {
-      var currentPath;
-      if (host !== '') {
-        if (this._isHostDifferent(host, location.href)) {
-          return true;
-        }
-      }
-      currentPath = [location.pathname, location.search, location.hash].join('');
-      return (path != null) && path !== '' && (({}.toString.call(path) === '[object RegExp]' && !path.test(currentPath)) || ({}.toString.call(path) === '[object String]' && this._isPathDifferent(path, currentPath)));
+    Tour.prototype._isRedirect = function(path, currentPath) {
+      return (path != null) && path !== '' && (({}.toString.call(path) === '[object RegExp]' && !path.test(currentPath)) || ({}.toString.call(path) === '[object String]' && path.replace(/\?.*$/, '').replace(/\/?$/, '') !== currentPath.replace(/\/?$/, '')));
     };
 
-    Tour.prototype._isHostDifferent = function(host, currentURL) {
-      return this._getProtocol(host) !== this._getProtocol(currentURL) || this._getHost(host) !== this._getHost(currentURL);
-    };
-
-    Tour.prototype._isPathDifferent = function(path, currentPath) {
-      return this._getPath(path) !== this._getPath(currentPath) || !this._equal(this._getQuery(path), this._getQuery(currentPath)) || !this._equal(this._getHash(path), this._getHash(currentPath));
-    };
-
-    Tour.prototype._isJustPathHashDifferent = function(host, path, location) {
-      var currentPath;
-      if (host !== '') {
-        if (this._isHostDifferent(host, location.href)) {
-          return false;
-        }
-      }
-      currentPath = [location.pathname, location.search, location.hash].join('');
-      if ({}.toString.call(path) === '[object String]') {
-        return this._getPath(path) === this._getPath(currentPath) && this._equal(this._getQuery(path), this._getQuery(currentPath)) && !this._equal(this._getHash(path), this._getHash(currentPath));
-      }
-      return false;
-    };
-
-    Tour.prototype._redirect = function(step, i, path) {
+    Tour.prototype._redirect = function(step, path) {
       if ($.isFunction(step.redirect)) {
         return step.redirect.call(this, path);
       } else if (step.redirect === true) {
-        this._debug("Redirect to " + step.host + path);
-        if (this._getState('redirect_to') === ("" + i)) {
-          this._debug("Error redirection loop to " + path);
-          this._removeState('redirect_to');
-          if (step.onRedirectError != null) {
-            return step.onRedirectError(this);
-          }
-        } else {
-          this._setState('redirect_to', "" + i);
-          return document.location.href = "" + step.host + path;
-        }
+        this._debug("Redirect to " + path);
+        return document.location.href = path;
       }
     };
 
@@ -524,7 +472,7 @@
     };
 
     Tour.prototype._showPopover = function(step, i) {
-      var $element, $tip, isOrphan, options, shouldAddSmart;
+      var $element, $tip, isOrphan, options;
       $(".tour-" + this._options.name).remove();
       options = $.extend({}, this._options);
       isOrphan = this._isOrphan(step);
@@ -539,7 +487,9 @@
         $.extend(options, step.options);
       }
       if (step.reflex && !isOrphan) {
-        $(step.reflexElement).addClass('tour-step-element-reflex').off("" + (this._reflexEvent(step.reflex)) + ".tour-" + this._options.name).on("" + (this._reflexEvent(step.reflex)) + ".tour-" + this._options.name, (function(_this) {
+        $element.addClass('tour-step-element-reflex');
+        $element.off("" + (this._reflexEvent(step.reflex)) + ".tour-" + this._options.name);
+        $element.on("" + (this._reflexEvent(step.reflex)) + ".tour-" + this._options.name, (function(_this) {
           return function() {
             if (_this._isLast()) {
               return _this.next();
@@ -549,9 +499,8 @@
           };
         })(this));
       }
-      shouldAddSmart = step.smartPlacement === true && step.placement.search(/auto/i) === -1;
       $element.popover({
-        placement: shouldAddSmart ? "auto " + step.placement : step.placement,
+        placement: step.placement,
         trigger: 'manual',
         title: step.title,
         content: step.content,
@@ -570,12 +519,8 @@
     };
 
     Tour.prototype._template = function(step, i) {
-      var $navigation, $next, $prev, $resume, $template, template;
-      template = step.template;
-      if (this._isOrphan(step) && {}.toString.call(step.orphan) !== '[object Boolean]') {
-        template = step.orphan;
-      }
-      $template = $.isFunction(template) ? $(template(i, step)) : $(template);
+      var $navigation, $next, $prev, $resume, $template;
+      $template = $.isFunction(step.template) ? $(step.template(i, step)) : $(step.template);
       $navigation = $template.find('.popover-navigation');
       $prev = $navigation.find('[data-role="prev"]');
       $next = $navigation.find('[data-role="next"]');
@@ -584,16 +529,11 @@
         $template.addClass('orphan');
       }
       $template.addClass("tour-" + this._options.name + " tour-" + this._options.name + "-" + i);
-      if (step.reflex) {
-        $template.addClass("tour-" + this._options.name + "-reflex");
-      }
       if (step.prev < 0) {
         $prev.addClass('disabled');
-        $prev.prop('disabled', true);
       }
       if (step.next < 0) {
         $next.addClass('disabled');
-        $next.prop('disabled', true);
       }
       if (!step.duration) {
         $resume.remove();
@@ -764,7 +704,7 @@
       }
     };
 
-    Tour.prototype._showBackdrop = function(step) {
+    Tour.prototype._showBackdrop = function(element) {
       if (this.backdrop.backgroundShown) {
         return;
       }
@@ -772,7 +712,7 @@
         "class": 'tour-backdrop'
       });
       this.backdrop.backgroundShown = true;
-      return $(step.backdropContainer).append(this.backdrop);
+      return $('body').append(this.backdrop);
     };
 
     Tour.prototype._hideBackdrop = function() {
@@ -788,25 +728,23 @@
       }
     };
 
-    Tour.prototype._showOverlayElement = function(step, force) {
+    Tour.prototype._showOverlayElement = function(step) {
       var $element, elementData;
       $element = $(step.element);
-      if (!$element || $element.length === 0 || this.backdrop.overlayElementShown && !force) {
+      if (!$element || $element.length === 0 || this.backdrop.overlayElementShown) {
         return;
       }
-      if (!this.backdrop.overlayElementShown) {
-        this.backdrop.$element = $element.addClass('tour-step-backdrop');
-        this.backdrop.$background = $('<div>', {
-          "class": 'tour-step-background'
-        });
-        this.backdrop.$background.appendTo(step.backdropContainer);
-        this.backdrop.overlayElementShown = true;
-      }
+      this.backdrop.overlayElementShown = true;
+      this.backdrop.$element = $element.addClass('tour-step-backdrop');
+      this.backdrop.$background = $('<div>', {
+        "class": 'tour-step-background'
+      });
       elementData = {
         width: $element.innerWidth(),
         height: $element.innerHeight(),
         offset: $element.offset()
       };
+      this.backdrop.$background.appendTo('body');
       if (step.backdropPadding) {
         elementData = this._applyBackdropPadding(step.backdropPadding, elementData);
       }
@@ -855,69 +793,6 @@
       window.clearTimeout(this._timer);
       this._timer = null;
       return this._duration = null;
-    };
-
-    Tour.prototype._getProtocol = function(url) {
-      url = url.split('://');
-      if (url.length > 1) {
-        return url[0];
-      } else {
-        return 'http';
-      }
-    };
-
-    Tour.prototype._getHost = function(url) {
-      url = url.split('//');
-      url = url.length > 1 ? url[1] : url[0];
-      return url.split('/')[0];
-    };
-
-    Tour.prototype._getPath = function(path) {
-      return path.replace(/\/?$/, '').split('?')[0].split('#')[0];
-    };
-
-    Tour.prototype._getQuery = function(path) {
-      return this._getParams(path, '?');
-    };
-
-    Tour.prototype._getHash = function(path) {
-      return this._getParams(path, '#');
-    };
-
-    Tour.prototype._getParams = function(path, start) {
-      var param, params, paramsObject, _i, _len;
-      params = path.split(start);
-      if (params.length === 1) {
-        return {};
-      }
-      params = params[1].split('&');
-      paramsObject = {};
-      for (_i = 0, _len = params.length; _i < _len; _i++) {
-        param = params[_i];
-        param = param.split('=');
-        paramsObject[param[0]] = param[1] || '';
-      }
-      return paramsObject;
-    };
-
-    Tour.prototype._equal = function(obj1, obj2) {
-      var k, v;
-      if ({}.toString.call(obj1) === '[object Object]' && {}.toString.call(obj2) === '[object Object]') {
-        for (k in obj1) {
-          v = obj1[k];
-          if (obj2[k] !== v) {
-            return false;
-          }
-        }
-        for (k in obj2) {
-          v = obj2[k];
-          if (obj1[k] !== v) {
-            return false;
-          }
-        }
-        return true;
-      }
-      return obj1 === obj2;
     };
 
     return Tour;
