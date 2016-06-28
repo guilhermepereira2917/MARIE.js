@@ -34,6 +34,7 @@
     "grunt-html": "^7.0.0",
     "grunt-open": "~0.2.3",
     "grunt-regenerator": "^3.1.0",
-    "load-grunt-tasks": "^3.5.0"
+    "load-grunt-tasks": "^3.5.0",
+    "grunt-contrib-connect": "~1.0.2"
   }
 }

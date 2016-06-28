@@ -88,6 +88,15 @@
                         <table id="memory"></table>
                     </div>
                 </div>
+                <div style="display:none" id="datapath">
+                    <object id="datapath-diagram" data="images/diagrams/drawing_plain.svg" type="image/svg+xml"></object>
+                    <div>Current Instruction</div>
+                    <ul id="microinstructions">
+                        <li>MAR ← PC</li>
+                        <li>IR ← M[MAR]</li>
+                        <li>PC ← PC + 1</li>
+                    </ul>
+                </div>
             </div>
         </main>
         <footer>
