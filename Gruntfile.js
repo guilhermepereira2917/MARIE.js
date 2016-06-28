@@ -7,7 +7,16 @@ module.exports = function(grunt) {
         pkg: grunt.file.readJSON('package.json'),
         open: {
             dev: {
-                path: 'build/index.html'
+                path: 'http://localhost:8000'
+            }
+        },
+        connect: {
+            server: {
+                options: {
+                    port: 8000,
+                    base: 'build',
+                    keepalive: true
+                }
             }
         },
         concat: {
@@ -97,7 +106,7 @@ module.exports = function(grunt) {
 
     grunt.registerTask('build', ['clean', 'concat', 'regenerator', 'uglify', 'ejs:dist', 'copy:dist']);
     grunt.registerTask('build-dev', ['clean', 'ejs:dev', 'copy:dev']);
-    grunt.registerTask('run', ['open:dev']);
+    grunt.registerTask('run', ['open:dev', 'connect']);
     grunt.registerTask('bar', ['build', 'run']);
     grunt.registerTask('bar-dev', ['build-dev', 'run']);
     grunt.registerTask('test', ['clean', 'jshint', 'ejs:dev', 'htmllint']);
