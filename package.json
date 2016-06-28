@@ -1,0 +1,39 @@
+{
+  "name": "MARIE.js",
+  "version": "0.4.5",
+  "description": "MARIE.js is an implementation of a simulator for a 'Machine Architecture that is Really Intuitive and Easy' from The Essentials of Computer Organization and Architecture (Linda Null, Julia Lobur) in JavaScript.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "homepage": "https://marie-js.github.io/MARIE.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/MARIE-js/MARIE.js.git"
+  },
+  "keywords": [
+    "mariejs",
+    "marie",
+    "assembly",
+    "learning",
+    "javascript"
+  ],
+  "author": "Jason Nguyen, Saurabh Joshi and Eric Jiang",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/MARIE-js/MARIE.js/issues"
+  },
+  "devDependencies": {
+    "grunt": "~1.0.1",
+    "grunt-contrib-clean": "~1.0.0",
+    "grunt-contrib-concat": "^1.0.1",
+    "grunt-contrib-copy": "~1.0.0",
+    "grunt-contrib-jshint": "^1.0.0",
+    "grunt-contrib-uglify": "^1.0.1",
+    "grunt-ejs": "~0.3.0",
+    "grunt-html": "^7.0.0",
+    "grunt-open": "~0.2.3",
+    "grunt-regenerator": "^3.1.0",
+    "load-grunt-tasks": "^3.5.0"
+  }
+}
