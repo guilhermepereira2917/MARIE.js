@@ -583,27 +583,32 @@ window.addEventListener("load", function() {
         programCodeMirror.redo();
     });
 
-    $("#clear").click( function(){
-        $('#newfoldermodal').modal('show');
-    });
-
-    $("#newfilebtn").click( function(){
-        var clrtxt = "";
-        programCodeMirror.setValue(clrtxt);
-        programCodeMirror.clearHistory();
-    });
-
-    $("#cnclnewfile").click( function(){
-        $('#newfoldermodal').modal('hide');
-    });
-    
-    $("#download").click( function() {
+     $("#download").click( function(){
         var text = programCodeMirror.getValue();
         var filename = "code";
         var blob = new Blob([text], {type: "text/plain;charset=utf-8"});
         saveAs(blob, filename+".mas");
     });
     
+    $("#newfilebtn").click( function(){
+        var clrtxt = "";
+        programCodeMirror.setValue(clrtxt);
+        programCodeMirror.clearHistory();
+    });
+
+    $("#clear").click(function(){
+         $('#newfoldermodal').modal('show');
+    });
+
+    $("#cnclnewfile").click( function(){
+        $('#newfoldermodal').modal('hide');
+    });
+    $("#savefile").click( function() {
+        var text = programCodeMirror.getValue();
+        var filename = "code";
+        var blob = new Blob([text], {type: "text/plain;charset=utf-8"});
+        saveAs(blob, filename+".mas");
+    });
     $("#fileInput").change(function() {
         var file = fileInput.files[0];
         var reader = new FileReader();
