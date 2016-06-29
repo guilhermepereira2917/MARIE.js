@@ -89,6 +89,7 @@ footer {
 #memory-headers th, #memory th {
     border: 0.1em solid #ccc;
     text-align: center;
+    font-family: sans-serif
 }
 
 #memory tr:nth-child(odd) .cell:nth-child(even) {
@@ -166,11 +167,13 @@ footer {
 
 #registers th {
     padding-top: 1em;
+    font-family: sans-serif;
 }
 
 #registers td {
     border: 0.1em solid #ccc;
     text-align: center;
+    font-family: sans-serif;
 }
 
 #register-label {
