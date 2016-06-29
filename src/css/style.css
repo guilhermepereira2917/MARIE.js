@@ -230,10 +230,12 @@ footer {
 #output-log, #register-log {
     padding: 0.5em 1em;
     text-align: right;
+	font-family: sans-serif;
 }
 
 #output-log {
     border-top: 0.1em solid #ccc;
+	font-family: sans-serif;
 }
 
 #output-select {
