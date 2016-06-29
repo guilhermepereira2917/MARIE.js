@@ -1,4 +1,4 @@
-/* globals getCompletions, MarieAsm, MarieSim, saveAs */
+/* globals getCompletions, MarieAsm, MarieSim, DataPath, saveAs */
 
 window.addEventListener("load", function() {
     "use strict";
@@ -22,7 +22,8 @@ window.addEventListener("load", function() {
         registerLogOuter = document.getElementById("register-log-outer"),
         watchList = document.getElementById("watch-list"),
         uploadButton = document.getElementById("upload"),
-        fileInput = document.getElementById("fileInput");
+        fileInput = document.getElementById("fileInput"),
+        datapathEle = document.getElementById("datapath-diagram");
 
     const HEX = 0, DEC = 1, ASCII = 2;
 
@@ -38,10 +39,11 @@ window.addEventListener("load", function() {
         running = false,
         waiting = false,
         outputType = HEX,
+        datapath = new DataPath(datapathEle),
         outputList = [];
-        
+
     textArea.value = localStorage.getItem("marie-program") || "";
-        
+
     var programCodeMirror = CodeMirror.fromTextArea(textArea, {
         mode: "marie",
         lineNumbers: true,
@@ -86,11 +88,11 @@ window.addEventListener("load", function() {
         while (memory.firstChild) {
             memory.removeChild(memory.firstChild);
         }
-        
+
         while (memoryHeaders.firstChild) {
             memoryHeaders.removeChild(memoryHeaders.firstChild);
         }
-        
+
         // Populate headers
         var i, j, th, tr, cell, header;
         var headers = document.createElement("tr");
@@ -101,17 +103,17 @@ window.addEventListener("load", function() {
             th.appendChild(document.createTextNode("+" + hex(i, 1)));
             headers.appendChild(th);
         }
-        
+
         memoryHeaders.appendChild(headers);
-            
+
         // Populate memory cells
         for (i = 0; i < 4096; i += 16) {
             tr = document.createElement("tr");
-            
+
             header = document.createElement("th");
             header.appendChild(document.createTextNode(hex(i, 3)));
             tr.appendChild(header);
-                    
+
             for (j = 0; j < 16; j++) {
                 cell = document.createElement("td");
                 cell.id = "cell" + (i + j);
@@ -119,10 +121,10 @@ window.addEventListener("load", function() {
                 cell.appendChild(document.createTextNode(hex(sim.memory[i + j].contents)));
                 tr.appendChild(cell);
             }
-            
+
             memory.appendChild(tr);
         }
-        
+
         memoryContainer.style.display = "inline-block";
     }
 
@@ -130,34 +132,34 @@ window.addEventListener("load", function() {
         while (watchList.firstChild) {
             watchList.removeChild(watchList.firstChild);
         }
-        
+
         var symbolCells = {};
-    
+
         for (var symbol in asm.symbols) {
             var address = asm.symbols[symbol];
-            
+
             var tr = document.createElement("tr");
             var labelCell = document.createElement("td");
             labelCell.classList.add("watch-list-label");
             labelCell.appendChild(document.createTextNode(symbol));
-            
+
             var addressCell = document.createElement("td");
             addressCell.classList.add("watch-list-address");
             addressCell.appendChild(document.createTextNode(hex(address, 3)));
-            
+
             var valueCell = document.createElement("td");
             valueCell.classList.add("watch-list-value");
             valueCell.appendChild(document.createTextNode(hex(sim.memory[address].contents)));
-            
+
             tr.appendChild(labelCell);
             tr.appendChild(addressCell);
             tr.appendChild(valueCell);
-            
+
             watchList.appendChild(tr);
-            
+
             symbolCells[address] = valueCell;
         }
-        
+
         return symbolCells;
     }
 
@@ -193,7 +195,9 @@ window.addEventListener("load", function() {
         document.getElementById("pc").textContent = hex(sim.pc, 3);
         document.getElementById("in").textContent = hex(sim.in);
         document.getElementById("out").textContent = hex(sim.out);
-        
+
+        datapath.setAllDatapathRegisters([hex(sim.mar, 3), hex(sim.pc, 3), hex(sim.mbr), hex(sim.ac), hex(sim.in), hex(sim.out), hex(sim.ir)]);
+
         $(".current-pc").removeClass("current-pc");
         $(".current-mar").removeClass("current-mar");
         $(".memory-changed").removeClass("memory-changed");
@@ -215,11 +219,11 @@ window.addEventListener("load", function() {
             programCodeMirror.removeLineClass(lastBreakPointLine, "background", "active-break-point");
             lastBreakPointLine = null;
         }
-        
+
         if (clear) {
             return;
         }
-        
+
         var line = sim.current().line;
         if (line) {
             line--; // Compensate for zero-based lines
@@ -277,7 +281,7 @@ window.addEventListener("load", function() {
                 value = value.charCodeAt(0);
                 break;
         }
-        
+
         if (!isNaN(value)) {
             $('#input-dialog').on('hidden.bs.modal', function () {
                 output(value);
@@ -293,11 +297,11 @@ window.addEventListener("load", function() {
 
     function inputFunc(output) {
         startWaiting();
-        
+
         $('#input-error').hide();
 
         $('#input-dialog').popoverX('show');
-        
+
         $('#input-dialog').off('hidden.bs.modal');
         $('#input-button').off('click');
         $('#input-value').off('keypress');
@@ -317,10 +321,10 @@ window.addEventListener("load", function() {
         var shouldScrollToBottomOutputLog = outputLogOuter.clientHeight === (outputLogOuter.scrollHeight - outputLogOuter.scrollTop);
 
         outputList.push(value);
-        
+
         outputLog.appendChild(document.createTextNode(convertOutput(value)));
         outputLog.appendChild(document.createElement("br"));
-        
+
         if(shouldScrollToBottomOutputLog) {
             outputLogOuter.scrollTop = outputLogOuter.scrollHeight;
         }
@@ -352,7 +356,7 @@ window.addEventListener("load", function() {
     function stop(pause) {
         if (waiting)
             return;
-            
+
         if (interval) {
             window.clearInterval(interval);
             interval = null;
@@ -371,7 +375,7 @@ window.addEventListener("load", function() {
     function run() {
         if (waiting)
             return;
-        
+
         if (interval)
             window.clearInterval(interval);
         interval = window.setInterval(runLoop, delay);
@@ -382,9 +386,9 @@ window.addEventListener("load", function() {
         statusInfo.textContent = "Running...";
     }
 
-    function runLoop(micro) {    
+    function runLoop(micro) {
         microStepping = micro;
-        
+
         try {
             if (micro)
                 sim.microStep();
@@ -400,7 +404,7 @@ window.addEventListener("load", function() {
                 lastErrorLine--;
                 programCodeMirror.addLineClass(lastErrorLine, "background", "error-line");
             }
-            
+
             stop();
             runButton.textContent = "Halted";
             throw e;
@@ -420,14 +424,14 @@ window.addEventListener("load", function() {
     assembleButton.addEventListener("click", function() {
         stop();
         running = false;
-        
+
         if (lastErrorLine !== null) {
             programCodeMirror.removeLineClass(lastErrorLine, "background", "error-line");
             lastErrorLine = null;
         }
-        
+
         var assembler = new MarieAsm(programCodeMirror.getValue());
-        
+
         try {
             asm = assembler.assemble();
         } catch (e) {
@@ -438,7 +442,7 @@ window.addEventListener("load", function() {
             console.error(e);
             return;
         }
-        
+
         try {
             sim = new MarieSim(asm, inputFunc, outputFunc);
         } catch (e) {
@@ -447,59 +451,60 @@ window.addEventListener("load", function() {
             console.error(e);
             return;
         }
-        
+
         statusInfo.textContent = "Assembled successfully";
-        statusInfo.className = ""; 
-        
+        statusInfo.className = "";
+
         sim.setEventListener("regwrite", function(e) {
             document.getElementById(e.register).textContent = hex(e.newValue, e.register == "mar" || e.register == "pc" ? 3 : 4);
-            
+            datapath.setDatapathRegister(e.register, hex(e.newValue, e.register == "mar" || e.register == "pc" ? 3 : 4));
+
             if (e.register == "pc") {
                 document.getElementById("cell" + e.oldValue).classList.remove("current-pc");
                 document.getElementById("cell" + e.newValue).classList.add("current-pc");
             }
-            
+
             if (e.register == "mar") {
                 document.getElementById("cell" + e.oldValue).classList.remove("current-mar");
                 document.getElementById("cell" + e.newValue).classList.add("current-mar");
             }
         });
-    
+
         populateMemoryView(sim);
         var symbolCells = populateWatchList(asm, sim);
         initializeOutputLog();
         initializeRegisterLog();
         resetRegisters();
-        
+
         sim.setEventListener("memwrite", function(e) {
             var cell = document.getElementById("cell" + e.address);
             cell.textContent = hex(e.newCell.contents, false);
             cell.classList.add("memory-changed");
-            
+
             for (var address in symbolCells) {
                 if (address == e.address) {
                     symbolCells[address].textContent = hex(e.newCell.contents);
                 }
             }
         });
-        
+
         sim.setEventListener("reglog", function(message) {
             var shouldScrollToBottomRegisterLog = registerLogOuter.clientHeight === (registerLogOuter.scrollHeight - registerLogOuter.scrollTop);
-            
+
             registerLog.appendChild(document.createTextNode(message));
             registerLog.appendChild(document.createElement("br"));
-            
+
             if(shouldScrollToBottomRegisterLog) {
                 registerLogOuter.scrollTop = registerLogOuter.scrollHeight;
             }
         });
-        
+
         stepButton.disabled = false;
         microStepButton.disabled = false;
         runButton.disabled = false;
         runButton.textContent = "Run";
         restartButton.disabled = false;
-        
+
         updateCurrentLine(true);
     });
 
@@ -532,7 +537,7 @@ window.addEventListener("load", function() {
 
     rangeDelay.addEventListener("change", function() {
         delay = parseInt(this.value);
-        
+
         if (interval) {
             run();
         }
@@ -558,7 +563,7 @@ window.addEventListener("load", function() {
 
     window.addEventListener("beforeunload", function() {
         window.localStorage.setItem("marie-program", programCodeMirror.getValue());
-        
+
         var breakpoints = [];
         var count = programCodeMirror.lineCount(), i;
         for (i = 0; i < count; i++) {
@@ -574,7 +579,7 @@ window.addEventListener("load", function() {
     uploadButton.addEventListener("click", function() {
         fileInput.click();
     });
-    
+
     $("#undo").click( function(){
 	    programCodeMirror.undo();
     });
@@ -589,7 +594,7 @@ window.addEventListener("load", function() {
         var blob = new Blob([text], {type: "text/plain;charset=utf-8"});
         saveAs(blob, filename+".mas");
     });
-    
+
     $("#newfilebtn").click( function(){
         var clrtxt = "";
         programCodeMirror.setValue(clrtxt);
