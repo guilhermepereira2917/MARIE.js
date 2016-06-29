@@ -1,4 +1,4 @@
-(function() {
+/*(function() {
     "use strict";
     var datapath = document.getElementById("datapath-diagram");
 
@@ -54,7 +54,7 @@
 
     window.addEventListener("load", function() {
         datapath = document.getElementById("datapath-diagram");
-        /*
+
         var k = 0;
         setInterval(function() {
             setControlBusNumber(datapath.contentDocument, k, 8 - k);
@@ -62,7 +62,6 @@
 
             k = (k + 1) % 8;
         }, 1000);
-        */
 
     }, false);
-}());
+}());*/
