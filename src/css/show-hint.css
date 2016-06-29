@@ -27,11 +27,11 @@
   padding: 0 4px;
   border-radius: 2px;
   white-space: pre;
-  color: black;
+  color: white;
   cursor: pointer;
 }
 
 li.CodeMirror-hint-active {
-  background: #08f;
+  background: yellow;
   color: white;
 }
