@@ -4,7 +4,7 @@
 
     function setDataBus(dpDocument, isOn) {
         var data_bus = dpDocument.getElementById("data_bus");
-        
+
         for(var i = 0; i < data_bus.childNodes.length; i++) {
             if(data_bus.childNodes[i].tagName == "rect") {
                 if(isOn) {
@@ -31,7 +31,7 @@
                     }
                 }
             }
-            
+
             for(i = 0; i < write_bus[j].childNodes.length; i++) {
                 if(write_bus[j].childNodes[i].tagName === "path") {
                     if(writeK & 1 << j) {
@@ -54,12 +54,12 @@
 
     window.addEventListener("load", function() {
         datapath = document.getElementById("datapath-diagram");
-        
+
         var k = 0;
         setInterval(function() {
             setControlBusNumber(datapath.contentDocument, k, 8 - k);
             setDataBus(datapath.contentDocument, k % 2 === 0);
-        
+
             k = (k + 1) % 8;
         }, 1000);
 

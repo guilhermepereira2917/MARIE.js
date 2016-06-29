@@ -67,6 +67,43 @@ footer {
     text-align: center;
 }
 
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    padding: 0 1em;
+    background: #fff;
+    z-index: 22;
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity 500ms;
+}
+
+.overlay:target {
+    visibility: visible;
+    opacity: 1;
+}
+
+.popup {
+    position: relative;
+}
+
+.popup .close {
+    position: absolute;
+    top: 20px;
+    right: 30px;
+    color: #000;
+    font-size: 30px;
+    font-weight: bold;
+    transition: all 200ms;
+}
+
+.popup .close:hover {
+    color: #888;
+}
+
 #memory-display {
     overflow: auto;
     max-width: 100%;
@@ -207,11 +244,11 @@ footer {
     .container {
         width: 95%;
     }
-    
+
     #flex {
         flex-wrap: wrap;
     }
-    
+
     #program-container {
         width: 100%;
     }
@@ -329,7 +366,7 @@ codeblock {
     white-space: -o-pre-wrap;
     background: #faf8f0;
 }
-    
+
 #content codeblock {
     display: block;
     border: 1px solid #bebab0;
