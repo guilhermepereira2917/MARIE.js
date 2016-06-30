@@ -3,8 +3,9 @@ var DataPath;
 (function() {
     "use strict";
 
-    DataPath = function(element) {
+    DataPath = function(element, microInstructionElement) {
         this.datapath = element;
+        this.datapathMicroInstructionElement = microInstructionElement;
         this.readRegisterNo = null;
         this.writeRegisterNo = null;
 
@@ -88,7 +89,6 @@ var DataPath;
             for(i = 0; i < this.registers.length; i++) {
                 if(i === this.readRegisterIndex && type === "read") {
                     registerElements[i].style.stroke = "blue";
-                    console.log("huzzah");
                 } else if(i === this.writeRegisterIndex && type === "write") {
                     registerElements[i].style.stroke = "red";
                 }
@@ -109,5 +109,9 @@ var DataPath;
 
     DataPath.prototype.setDatapathRegister = function(register, value) {
         this.datapath.contentDocument.getElementById(register + "_register_text").childNodes[0].childNodes[0].textContent = value;
+    };
+
+    DataPath.prototype.showMicroInstruction = function(message) {
+        this.datapathMicroInstructionElement.textContent = message;
     };
 }());

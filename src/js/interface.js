@@ -23,7 +23,8 @@ window.addEventListener("load", function() {
         watchList = document.getElementById("watch-list"),
         uploadButton = document.getElementById("upload"),
         fileInput = document.getElementById("fileInput"),
-        datapathEle = document.getElementById("datapath-diagram");
+        datapathEle = document.getElementById("datapath-diagram"),
+        datapathMicroInstructionElement = document.getElementById("datapath-micro-instruction");
 
     const HEX = 0, DEC = 1, ASCII = 2;
 
@@ -39,7 +40,7 @@ window.addEventListener("load", function() {
         running = false,
         waiting = false,
         outputType = HEX,
-        datapath = new DataPath(datapathEle),
+        datapath = new DataPath(datapathEle, datapathMicroInstructionElement),
         outputList = [];
 
     textArea.value = localStorage.getItem("marie-program") || "";
@@ -480,25 +481,23 @@ window.addEventListener("load", function() {
             }
         });
 
-        sim.setEventListener("memread", function() {
-            if(delay >= 1000) {
-                datapath.setControlBus(null, "read");
-            }
-        });
-
-        sim.setEventListener("memwrite", function() {
-            if(delay >= 1000) {
-                datapath.setControlBus(null, "write");
-            }
-        });
-
         populateMemoryView(sim);
         var symbolCells = populateWatchList(asm, sim);
         initializeOutputLog();
         initializeRegisterLog();
         resetRegisters();
 
+        sim.setEventListener("memread", function() {
+            if(delay >= 1000) {
+                datapath.setControlBus(null, "read");
+            }
+        });
+
         sim.setEventListener("memwrite", function(e) {
+            if(delay >= 1000) {
+                datapath.setControlBus(null, "write");
+            }
+
             var cell = document.getElementById("cell" + e.address);
             cell.textContent = hex(e.newCell.contents, false);
             cell.classList.add("memory-changed");
@@ -511,6 +510,10 @@ window.addEventListener("load", function() {
         });
 
         sim.setEventListener("reglog", function(message) {
+            if(delay >= 1000) {
+                datapath.showMicroInstruction(message);
+            }
+
             var shouldScrollToBottomRegisterLog = registerLogOuter.clientHeight === (registerLogOuter.scrollHeight - registerLogOuter.scrollTop);
 
             registerLog.appendChild(document.createTextNode(message));

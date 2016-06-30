@@ -104,6 +104,11 @@ footer {
     color: #888;
 }
 
+#datapath-micro-instruction {
+    text-align: center;
+    font-size: 30px;
+}
+
 #memory-display {
     overflow: auto;
     max-width: 100%;
