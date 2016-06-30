@@ -455,9 +455,19 @@ window.addEventListener("load", function() {
         statusInfo.textContent = "Assembled successfully";
         statusInfo.className = "";
 
+        sim.setEventListener("regread", function(e) {
+            if(delay >= 1000) {
+                datapath.setControlBusNumber(e.register, "read");
+            }
+        });
+
         sim.setEventListener("regwrite", function(e) {
             document.getElementById(e.register).textContent = hex(e.newValue, e.register == "mar" || e.register == "pc" ? 3 : 4);
-            datapath.setDatapathRegister(e.register, hex(e.newValue, e.register == "mar" || e.register == "pc" ? 3 : 4));
+
+            if(delay >= 1000) {
+                datapath.setDatapathRegister(e.register, hex(e.newValue, e.register == "mar" || e.register == "pc" ? 3 : 4));
+                datapath.setControlBusNumber(e.register, "write");
+            }
 
             if (e.register == "pc") {
                 document.getElementById("cell" + e.oldValue).classList.remove("current-pc");
@@ -467,6 +477,18 @@ window.addEventListener("load", function() {
             if (e.register == "mar") {
                 document.getElementById("cell" + e.oldValue).classList.remove("current-mar");
                 document.getElementById("cell" + e.newValue).classList.add("current-mar");
+            }
+        });
+
+        sim.setEventListener("memread", function() {
+            if(delay >= 1000) {
+                datapath.setControlBusNumber(null, "read");
+            }
+        });
+
+        sim.setEventListener("memwrite", function() {
+            if(delay >= 1000) {
+                datapath.setControlBusNumber(null, "write");
             }
         });
 
