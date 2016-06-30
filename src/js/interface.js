@@ -457,7 +457,7 @@ window.addEventListener("load", function() {
 
         sim.setEventListener("regread", function(e) {
             if(delay >= 1000) {
-                datapath.setControlBusNumber(e.register, "read");
+                datapath.setControlBus(e.register, "read");
             }
         });
 
@@ -466,7 +466,7 @@ window.addEventListener("load", function() {
 
             if(delay >= 1000) {
                 datapath.setDatapathRegister(e.register, hex(e.newValue, e.register == "mar" || e.register == "pc" ? 3 : 4));
-                datapath.setControlBusNumber(e.register, "write");
+                datapath.setControlBus(e.register, "write");
             }
 
             if (e.register == "pc") {
@@ -482,13 +482,13 @@ window.addEventListener("load", function() {
 
         sim.setEventListener("memread", function() {
             if(delay >= 1000) {
-                datapath.setControlBusNumber(null, "read");
+                datapath.setControlBus(null, "read");
             }
         });
 
         sim.setEventListener("memwrite", function() {
             if(delay >= 1000) {
-                datapath.setControlBusNumber(null, "write");
+                datapath.setControlBus(null, "write");
             }
         });
 
