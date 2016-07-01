@@ -54,6 +54,20 @@ MarieSim = function(assembled, inputFunc, outputFunc) {
     }
 };
 
+MarieSim.prototype.toJSON = function() {
+    return JSON.stringify({
+        memory: this.memory,
+        halted: this.halted,
+        pc: this.pc,
+        ac: this.ac,
+        ir: this.ir,
+        mar: this.mar,
+        mbr: this.mbr,
+        in: this.in,
+        out: this.out
+    });
+};
+
 MarieSim.prototype.setEventListener = function(event, callback) {
     switch (event) {
         case "memread":
@@ -70,6 +84,12 @@ MarieSim.prototype.setEventListener = function(event, callback) {
             break;
         case "reglog":
             this.onRegLog = callback;
+            break;
+        case "decode":
+            this.onDecode = callback;
+            break;
+        case "halt":
+            this.onHalt = callback;
             break;
     }
 };
@@ -285,6 +305,10 @@ MarieSim.prototype.decode = function() {
     
     for (var op in MarieSim.prototype.operators) {
         if (MarieSim.prototype.operators[op].opcode == opcode) {
+            if (this.onDecode) {
+                this.onDecode.call(this, this.opcode, op);
+            }
+
             this.opcode = op;
             if (this.onRegLog) {
                 this.onRegLog(["Decoded opcode", opcode.toString(16).toUpperCase(), "as", op].join(" "));
@@ -486,6 +510,10 @@ MarieSim.prototype.operators = {
         fn: function*() {
             this.halted = true;
             
+            if (this.onHalt) {
+                this.onHalt.call(this);
+            }
+
             if(this.onRegLog) {
                 this.onRegLog("----- halted -----");
                 this.onRegLog("");

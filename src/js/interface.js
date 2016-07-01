@@ -6,6 +6,7 @@ window.addEventListener("load", function() {
     var assembleButton = document.getElementById("assemble"),
         stepButton = document.getElementById("step"),
         microStepButton = document.getElementById("microstep"),
+        stepBackButton = document.getElementById("step-back"),
         runButton = document.getElementById("run"),
         rangeDelay = document.getElementById("range-delay"),
         displayDelayMs = document.getElementById("display-delay-ms"),
@@ -30,6 +31,7 @@ window.addEventListener("load", function() {
 
     var asm = null,
         sim = null,
+        stateHistory = [],
         interval = null,
         lastErrorLine = null,
         lastCurrentLine = null,
@@ -41,7 +43,8 @@ window.addEventListener("load", function() {
         waiting = false,
         outputType = HEX,
         datapath = new DataPath(datapathEle, datapathMicroInstructionElement),
-        outputList = [];
+        outputList = [],
+        symbolCells = null;
 
     textArea.value = localStorage.getItem("marie-program") || "";
 
@@ -225,8 +228,9 @@ window.addEventListener("load", function() {
             return;
         }
 
-        var line = sim.current().line;
-        if (line) {
+        var current = sim.current();
+        var line = current ? current.line : null;
+        if (current && line) {
             line--; // Compensate for zero-based lines
             programCodeMirror.addLineClass(line, "background", "current-line");
             lastCurrentLine = line;
@@ -319,6 +323,10 @@ window.addEventListener("load", function() {
     }
 
     function outputFunc(value) {
+        stateHistory.push({
+            type: "output"
+        });
+
         var shouldScrollToBottomOutputLog = outputLogOuter.clientHeight === (outputLogOuter.scrollHeight - outputLogOuter.scrollTop);
 
         outputList.push(value);
@@ -331,6 +339,21 @@ window.addEventListener("load", function() {
         }
     }
 
+    function regLogFunc(message) {
+        if(delay >= 1000) {
+            datapath.showMicroInstruction(message);
+        }
+
+        var shouldScrollToBottomRegisterLog = registerLogOuter.clientHeight === (registerLogOuter.scrollHeight - registerLogOuter.scrollTop);
+
+        registerLog.appendChild(document.createTextNode(message));
+        registerLog.appendChild(document.createElement("br"));
+
+        if(shouldScrollToBottomRegisterLog) {
+            registerLogOuter.scrollTop = registerLogOuter.scrollHeight;
+        }
+    }
+
     function startWaiting() {
         if (interval) {
             window.clearInterval(interval);
@@ -339,6 +362,7 @@ window.addEventListener("load", function() {
         waiting = true;
         assembleButton.disabled = true;
         stepButton.disabled = true;
+        stepBackButton.disabled = true;
         microStepButton.disabled = true;
         restartButton.disabled = true;
     }
@@ -348,6 +372,7 @@ window.addEventListener("load", function() {
         assembleButton.disabled = false;
         restartButton.disabled = false;
         stepButton.disabled = false;
+        stepBackButton.disabled = false;
         microStepButton.disabled = false;
         if (running) {
             run();
@@ -369,6 +394,7 @@ window.addEventListener("load", function() {
         else {
             runButton.disabled = true;
             stepButton.disabled = true;
+            stepBackButton.disabled = true;
             microStepButton.disabled = true;
         }
     }
@@ -383,6 +409,7 @@ window.addEventListener("load", function() {
         runButton.textContent = "Pause";
         runButton.disabled = false;
         stepButton.disabled = true;
+        stepBackButton.disabled = true;
         microStepButton.disabled = true;
         statusInfo.textContent = "Running...";
     }
@@ -391,10 +418,20 @@ window.addEventListener("load", function() {
         microStepping = micro;
 
         try {
-            if (micro)
-                sim.microStep();
-            else
+            var step = true;
+
+            if (micro) {
+                step = sim.microStep() == "step";
+            }
+            else {
                 sim.step();
+            }
+
+            if (step) {
+                stateHistory.push({
+                    type: "step"
+                });
+            }
         }
         catch (e) {
             // prevents catastrophic failure if an error occurs (whether it is MARIE or some other JavaScript error)
@@ -411,6 +448,7 @@ window.addEventListener("load", function() {
             throw e;
         }
         updateCurrentLine();
+        stepBackButton.disabled = false;
         if (sim.halted) {
             stop();
             runButton.textContent = "Halted";
@@ -418,6 +456,8 @@ window.addEventListener("load", function() {
         }
         else if (breaking) {
             stop(true);
+            running = false;
+            runButton.textContent = "Continue";
             statusInfo.textContent = "Machine paused at break point.";
         }
     }
@@ -465,6 +505,12 @@ window.addEventListener("load", function() {
         sim.setEventListener("regwrite", function(e) {
             document.getElementById(e.register).textContent = hex(e.newValue, e.register == "mar" || e.register == "pc" ? 3 : 4);
 
+            stateHistory.push({
+                type: "register",
+                register: e.register,
+                value: e.oldValue
+            });
+
             if(delay >= 1000) {
                 datapath.setDatapathRegister(e.register, hex(e.newValue, e.register == "mar" || e.register == "pc" ? 3 : 4));
                 datapath.setControlBus(e.register, "write");
@@ -482,7 +528,7 @@ window.addEventListener("load", function() {
         });
 
         populateMemoryView(sim);
-        var symbolCells = populateWatchList(asm, sim);
+        symbolCells = populateWatchList(asm, sim);
         initializeOutputLog();
         initializeRegisterLog();
         resetRegisters();
@@ -498,6 +544,12 @@ window.addEventListener("load", function() {
                 datapath.setControlBus(null, "write");
             }
 
+            stateHistory.push({
+                type: "memory",
+                address: e.address,
+                value: e.oldCell
+            });
+
             var cell = document.getElementById("cell" + e.address);
             cell.textContent = hex(e.newCell.contents, false);
             cell.classList.add("memory-changed");
@@ -509,23 +561,20 @@ window.addEventListener("load", function() {
             }
         });
 
-        sim.setEventListener("reglog", function(message) {
-            if(delay >= 1000) {
-                datapath.showMicroInstruction(message);
-            }
-
-            var shouldScrollToBottomRegisterLog = registerLogOuter.clientHeight === (registerLogOuter.scrollHeight - registerLogOuter.scrollTop);
-
-            registerLog.appendChild(document.createTextNode(message));
-            registerLog.appendChild(document.createElement("br"));
-
-            if(shouldScrollToBottomRegisterLog) {
-                registerLogOuter.scrollTop = registerLogOuter.scrollHeight;
-            }
+        sim.setEventListener("reglog", regLogFunc);
+        sim.setEventListener("decode", function(old) {
+            stateHistory.push({
+                type: "decode",
+                opcode: old
+            });
         });
 
+        sim.setEventListener("halt", function() {
+            stateHistory.push({type: "halt"});
+        });
         stepButton.disabled = false;
         microStepButton.disabled = false;
+        stepBackButton.disabled = true;
         runButton.disabled = false;
         runButton.textContent = "Run";
         restartButton.disabled = false;
@@ -535,6 +584,65 @@ window.addEventListener("load", function() {
 
     stepButton.addEventListener("click", function() {
         runLoop();
+    });
+
+    stepBackButton.addEventListener("click", function() {
+        var action = stateHistory[stateHistory.length - 1];
+        if (action.type != "step")
+            sim.step();
+        stateHistory.pop();
+        action = stateHistory.pop();
+        while (action.type != "step" && stateHistory.length > 0) {
+            switch (action.type) {
+                case "register":
+                    var oldValue = sim[action.register],
+                        newValue = action.value;
+                    sim[action.register] = newValue;
+                    document.getElementById(action.register).textContent = hex(newValue, action.register == "mar" || action.register == "pc" ? 3 : 4);
+                    if (action.register == "pc") {
+                        document.getElementById("cell" + oldValue).classList.remove("current-pc");
+                        document.getElementById("cell" + newValue).classList.add("current-pc");
+                    }
+
+                    if (action.register == "mar") {
+                        document.getElementById("cell" + oldValue).classList.remove("current-mar");
+                        document.getElementById("cell" + newValue).classList.add("current-mar");
+                    }
+                    break;
+                case "memory":
+                    sim.memory[action.address].contents = action.value;
+                    var cell = document.getElementById("cell" + action.address);
+                    cell.textContent = hex(action.value, false);
+                    for (var address in symbolCells) {
+                        if (address == action.address) {
+                            symbolCells[address].textContent = hex(action.value);
+                        }
+                    }
+                    break;
+                case "output":
+                    outputList.pop();
+                    repopulateOutputLog();
+                    break;
+                case "decode":
+                    if (action.opcode)
+                        sim.opcode = action.opcode;
+                    break;
+                case "halt":
+                    sim.halted = false;
+                    break;
+            }
+            action = stateHistory.pop();
+        }
+
+        if (stateHistory.length === 0) {
+            stepBackButton.disabled = true;
+        }
+        else {
+            stateHistory.push({type: "step"});
+        }
+
+        regLogFunc("----- stepped back -----");
+        updateCurrentLine();
     });
 
     microStepButton.addEventListener("click", function() {
@@ -573,10 +681,12 @@ window.addEventListener("load", function() {
         running = false;
         sim.restart();
         resetRegisters();
+        stateHistory = [];
         updateCurrentLine(true);
         runButton.textContent = "Run";
         runButton.disabled = false;
         stepButton.disabled = false;
+        stepBackButton.disabled = true;
         microStepButton.disabled = false;
         statusInfo.textContent = "Restarted simulator (memory contents are still preserved)";
     });
