@@ -76,12 +76,15 @@ footer {
     padding: 0 1em;
     background: #fff;
     z-index: 22;
-    visibility: hidden;
-    opacity: 0;
     transition: opacity 500ms;
 }
 
-.overlay:target {
+.overlay-view {
+    visibility: hidden;
+    opacity: 0;
+}
+
+.overlay-view:target {
     visibility: visible;
     opacity: 1;
 }
@@ -98,15 +101,50 @@ footer {
     font-size: 30px;
     font-weight: bold;
     transition: all 200ms;
+    opacity: 1;
 }
 
 .popup .close:hover {
     color: #888;
 }
 
-#datapath-micro-instruction {
+#datapath-display-instructions {
     text-align: center;
+}
+
+#instructions {
+    display:inline-block;
+    width: 49%;
+    float: left;
+}
+
+#micro-instructions {
+    display: inline-block;
+    width: 49%;
+    float: right;
+    height: 6em;
+    overflow: auto;
+}
+
+#micro-instructions td {
+    margin: auto;
+    text-align: center;
+    width: 100%;
+}
+
+#current-instruction {
+    border-top: 1px solid black;
+    border-bottom: 1px solid black;
+    width: auto;
     font-size: 30px;
+}
+
+#previous-instruction, #next-instruction {
+    color: #888;
+}
+
+#datapath-too-fast-warning {
+    visibility: hidden;
 }
 
 #memory-display {
