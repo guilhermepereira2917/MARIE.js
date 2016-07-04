@@ -34,7 +34,7 @@ function getCompletions(editor) {
         case ("start"):
             Array.prototype.push.apply(list, completions.origination.map(function(x) {
                 return {
-                    text: x,
+                    text: x +' ',
                     className: "completion-origination"
                 };
             }));
@@ -42,7 +42,7 @@ function getCompletions(editor) {
         case ("operator"):
             Array.prototype.push.apply(list, completions.operators.map(function(x) {
                 return {
-                    text: x,
+                    text: x +' ',
                     className: "completion-operator"
                 };
             }));
@@ -50,7 +50,7 @@ function getCompletions(editor) {
         case ("operand"):
             Array.prototype.push.apply(list, completions.operand.map(function(x) {
                 return {
-                    text: x,
+                    text: x +' ',
                     className: "completion-operand"
                 };
             }));
@@ -78,6 +78,6 @@ function getCompletions(editor) {
     return {
         list: list,
         from: from,
-        to: to
+        to: to,
     };
 }
