@@ -66,7 +66,7 @@ $(document).ready( function(){
             title: "Select the output type here",
             content: "This by default is set to HEX"
         }
-        ]})
+        ]});
     // Initialize the tour
     tour.init();
 
