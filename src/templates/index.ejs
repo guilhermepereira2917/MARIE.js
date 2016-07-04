@@ -1,6 +1,6 @@
 <% title = "Home" %>
 <% include partials/header.ejs %>
-    <body>
+    <body id="marie-js">
         <% include partials/nav %>
         <main>
             <div class="container">
@@ -88,20 +88,15 @@
                         <table id="memory"></table>
                     </div>
                 </div>
-                <div id="datapath" class="overlay">
+                <div id="datapath" class="overlay overlay-view">
                     <div class="popup">
                         <a class="close" href="#">&times;</a>
                         <div class="container">
+                            <div id="datapath-too-fast-warning" class="alert alert-warning">
+                                <strong>Note: </strong> MARIE.js is running too fast to update datapath visualiser. Increase delay to at least 1000 ms, or set simulator to stepping mode.
+                            </div>
                             <object id="datapath-diagram" data="images/diagrams/drawing_plain.svg" type="image/svg+xml"></object>
-                            <div id="datapath-micro-instruction"></div>
-                            <!--
-                            <div>Current Instruction</div>
-                            <ul id="microinstructions">
-                                <li>MAR ← PC</li>
-                                <li>IR ← M[MAR]</li>
-                                <li>PC ← PC + 1</li>
-                            </ul>
-                            -->
+                            <div id="datapath-display-instructions"></div>
                         </div>
                     </div>
                 </div>
