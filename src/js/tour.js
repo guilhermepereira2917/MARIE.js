@@ -3,7 +3,7 @@ $(document).ready( function(){
     if (localStorage.getItem("tourComplete") === null) {
         localStorage.setItem("tourComplete", false);
     }
-})
+});
 
 $("#tour").click( function() {
     //if localStorage item is equal to false excute tour code

@@ -8,10 +8,14 @@ MARIE.js is an implementation of a simulator for a 'Machine Architecture that is
 from [The Essentials of Computer Organization and Architecture](https://books.google.com.au/books/about/The_Essentials_of_Computer_Organization.html?id=3kQoAwAAQBAJ&redir_esc=y) (Linda Null, Julia Lobur) in JavaScript.
 
 ## Setup
-
-    # Install npm and grunt, then run these commands:
+    # Install npm and grunt by:
+    sudo apt-get install npm
+    sudo apt-get install grunt-cli
+    
+    # Run these commands:
     cd /path/to/repo/MARIE.js
     npm install
+    sudo npm install grunt-cli
     grunt
 
 ## Development
