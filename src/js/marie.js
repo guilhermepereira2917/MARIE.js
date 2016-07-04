@@ -21,32 +21,33 @@ MarieSimError.constructor = MarieSimError;
 
 MarieSim = function(assembled, inputFunc, outputFunc) {
     this.memory = [];
+    this.program = assembled.program;
     this.origin = assembled.origin;
-    
+
     this.restart();
-    
+
     this.inputCallback = inputFunc || function(output) {
         output(uintToInt(parseInt(window.prompt("Input hexadecimal value.", 0), 16) & 0xFFFF));
     };
-    
+
     this.outputCallback = outputFunc || function(value) {
         window.alert((value >>> 0).toString(16));
     };
-    
+
     this.halted = false;
-    
+
     while (this.memory.length < assembled.origin) {
         this.memory.push({
             contents: 0x0000
         });
     }
-    
+
     Array.prototype.push.apply(this.memory, assembled.program);
-   
+
     if (this.memory.length > 0xFFF) {
         throw new MarieSimError("Insufficent memory error", "Failed to load program. Insufficent memory.");
     }
-    
+
     while (this.memory.length <= 0xFFF) {
         this.memory.push({
             contents: 0x0000
@@ -85,6 +86,9 @@ MarieSim.prototype.setEventListener = function(event, callback) {
         case "reglog":
             this.onRegLog = callback;
             break;
+        case "newinstruction":
+            this.onNewInstruction = callback;
+            break;
         case "decode":
             this.onDecode = callback;
             break;
@@ -99,10 +103,8 @@ MarieSim.prototype.current = function() {
 };
 
 MarieSim.prototype.regSet = function(target, source, mask) {
-    var oldValue;    
+    var oldValue;
     if (source == "m") {
-        oldValue = this[target];
-        this[target] = uintToInt(this.memory[this.mar].contents);
         if (this.onRegLog) {
             this.onRegLog([
                 target.toUpperCase(),
@@ -110,13 +112,20 @@ MarieSim.prototype.regSet = function(target, source, mask) {
                 "M[MAR]"
             ].join(" "));
         }
-        
+
+        if(this.debug) {
+            return;
+        }
+
+        oldValue = this[target];
+        this[target] = uintToInt(this.memory[this.mar].contents);
+
         if (this.onMemRead) {
             this.onMemRead.call(this, {
                 address: this.mar
             });
         }
-        
+
         if (this.onRegWrite) {
             this.onRegWrite.call(this, {
                 register: target,
@@ -126,12 +135,6 @@ MarieSim.prototype.regSet = function(target, source, mask) {
         }
     }
     else if (target == "m") {
-        var oldCell = this.memory[this.mar].contents;
-        
-        this.memory[this.mar] = {
-            contents: this[source]
-        };
-        
         if (this.onRegLog) {
             this.onRegLog([
                 "M[MAR]",
@@ -139,14 +142,24 @@ MarieSim.prototype.regSet = function(target, source, mask) {
                 source.toUpperCase()
             ].join(" "));
         }
-        
+
+        if(this.debug) {
+            return;
+        }
+
+        var oldCell = this.memory[this.mar].contents;
+
+        this.memory[this.mar] = {
+            contents: this[source]
+        };
+
         if (this.onRegRead) {
             this.onRegRead.call(this, {
                 register: source,
                 value: this[source]
             });
         }
-        
+
         if (this.onMemWrite) {
             this.onMemWrite.call(this, {
                 address: this.mar,
@@ -156,13 +169,6 @@ MarieSim.prototype.regSet = function(target, source, mask) {
         }
     }
     else {
-        var src = typeof source == "string" ? this[source] : source;
-        var msk = mask !== undefined ? mask : 0xFFFF;
-        
-        oldValue = this[target];
-        
-        this[target] = uintToInt(src & msk);
-        
         if (this.onRegLog) {
             if (mask === undefined) {
                 this.onRegLog([
@@ -181,14 +187,25 @@ MarieSim.prototype.regSet = function(target, source, mask) {
                 ].join(" "));
             }
         }
-        
+
+        if(this.debug) {
+            return;
+        }
+
+        var src = typeof source == "string" ? this[source] : source;
+        var msk = mask !== undefined ? mask : 0xFFFF;
+
+        oldValue = this[target];
+
+        this[target] = uintToInt(src & msk);
+
         if (typeof source == "string" && this.onRegRead) {
             this.onRegRead.call(this, {
                 register: source,
                 value: this[source]
             });
         }
-        
+
         if (this.onRegWrite) {
             this.onRegWrite.call(this, {
                 register: target,
@@ -201,9 +218,8 @@ MarieSim.prototype.regSet = function(target, source, mask) {
 
 MarieSim.prototype.regAdd = function(target, source, subtract) {
     var oldValue = this[target];
-    
+
     if (subtract) {
-        this[target] -= typeof source == "string" ? this[source] : source;
         if (this.onRegLog) {
             this.onRegLog([
                 target.toString().toUpperCase(),
@@ -213,9 +229,14 @@ MarieSim.prototype.regAdd = function(target, source, subtract) {
                 source.toString(16).toUpperCase()
             ].join(" "));
         }
+
+        if (this.debug) {
+            return;
+        }
+
+        this[target] -= typeof source == "string" ? this[source] : source;
     }
     else {
-        this[target] += typeof source == "string" ? this[source] : source;
         if (this.onRegLog) {
             this.onRegLog([
                 target.toString().toUpperCase(),
@@ -225,15 +246,29 @@ MarieSim.prototype.regAdd = function(target, source, subtract) {
                 source.toString(16).toUpperCase()
             ].join(" "));
         }
+
+        if (this.debug) {
+            return;
+        }
+
+        this[target] += typeof source == "string" ? this[source] : source;
     }
-    
-    if (typeof source == "string" && this.onRegRead) {
-        this.onRegRead.call(this, {
-            register: source,
-            value: this[source]
-        });
+
+    if (this.onRegRead) {
+        if(typeof source == "string") {
+            this.onRegRead.call(this, {
+                register: source,
+                value: this[source]
+            });
+        } else {
+            // source is the target
+            this.onRegRead.call(this, {
+                register: target,
+                value: this[target]
+            });
+        }
     }
-    
+
     if (this.onRegWrite) {
         this.onRegWrite.call(this, {
             register: target,
@@ -252,6 +287,7 @@ MarieSim.prototype.restart = function() {
     this.in = 0x0000;
     this.out = 0x0000;
     this.halted = false;
+    this.debug = false;
     this.stepper = null;
     this.paused = false;
     this.microStepper = null;
@@ -260,7 +296,11 @@ MarieSim.prototype.restart = function() {
 // This method blocks until machine execution completes.
 MarieSim.prototype.run = function() {
     while (!this.halted) {
-        var _;        
+        if(this.onNewInstruction) {
+            this.onNewInstruction();
+        }
+
+        var _;
         for (_ of this.fetch());
         this.decode();
         for (_ of this.execute());
@@ -276,10 +316,13 @@ MarieSim.prototype.step = function() {
 
 MarieSim.prototype.microStep = function() {
     var myself = this;
-    
+
     if (!this.microStepper) {
         this.microStepper = (function*() {
             while (!myself.halted) {
+                if(myself.onNewInstruction) {
+                    myself.onNewInstruction();
+                }
                 yield* myself.fetch();
                 myself.decode();
                 yield "step";
@@ -287,7 +330,7 @@ MarieSim.prototype.microStep = function() {
             }
         }());
     }
-    
+
     if (this.paused)
         return "paused";
      else
@@ -302,7 +345,7 @@ MarieSim.prototype.fetch = function*() {
 
 MarieSim.prototype.decode = function() {
     var opcode = intToUint(this.ir) >> 12;
-    
+
     for (var op in MarieSim.prototype.operators) {
         if (MarieSim.prototype.operators[op].opcode == opcode) {
             if (this.onDecode) {
@@ -316,7 +359,7 @@ MarieSim.prototype.decode = function() {
             return;
         }
     }
-    
+
     throw new MarieSimError("Illegal instruction", this.ir);
 };
 
@@ -407,33 +450,33 @@ MarieSim.prototype.operators = {
         fn: function*() {
             var myself = this,
                 value = null;
-            
+
             this.paused = true;
-            
+
             yield this.inputCallback.call(null, function(v) {
                 myself.paused = false;
                 value = v;
             });
-            
+
             if (value === null)
                 yield null;
-            
+
             // For some reason the simulator deals with these numbers in this way
             if (value > 0x8000 && value <= 0xFFFF) {
                 value = uintToInt(value);
             }
-            
+
             if (value < -0x8000 && value >= -0xFFFF) {
                 value = intToUint(value);
             }
-            
+
             if (value > 0x8000 || value < -0x8000) {
                 throw new MarieSimError(
                     "Input is out of bounds",
                     value
                 );
             }
-            
+
             yield this.regSet("in", value);
             yield this.regSet("ac", "in");
         }
@@ -509,7 +552,7 @@ MarieSim.prototype.operators = {
         operand: false,
         fn: function*() {
             this.halted = true;
-            
+
             if (this.onHalt) {
                 this.onHalt.call(this);
             }
@@ -519,7 +562,7 @@ MarieSim.prototype.operators = {
                 this.onRegLog("");
                 this.onRegLog("");
             }
-            
+
             yield null;
         }
     }
@@ -529,7 +572,7 @@ MarieAsmError = function(name, lineNumber, message) {
     this.name = name || "MarieAsmError";
     this.message = message;
     this.stack = (new Error()).stack;
-    
+
     this.lineNumber = lineNumber;
     this.toString = function() {
         return [name, " on line ", lineNumber, ". ", message].join("");
@@ -559,7 +602,7 @@ MarieAsm.prototype.assemble = function() {
         symbols = {},
         operator,
         operand;
-    
+
     function checkLabel(l, p) {
         return p.label == l;
     }
@@ -568,55 +611,55 @@ MarieAsm.prototype.assemble = function() {
 
     for (i = 0; i < lines.length; i++) {
         var line = lines[i];
-        
+
         if (/^\s*(?:\/.*)?$/.test(line))
             continue; // This line is empty, whitespace or a comment
-        
+
         // Check for origination directive
-        
+
         var originationDirective = line.match(/^\s*org\s+([0-9a-f]{3})\s*(?:\/.*)?$/i);
-        
+
         if (originationDirective) {
             if (parsed.length !== 0) {
                 throw new MarieAsmError(
-                    "Syntax error", 
-                    (i + 1), 
+                    "Syntax error",
+                    (i + 1),
                     "Unexpected origination directive."
                 );
             }
-            
+
             origin = parseInt(originationDirective[1], 16);
-            
+
             continue;
         }
-        
+
         // Try to match it with the correct syntax
         var matches = line.match(/^(?:([^,\/]+),)?\s*([^\s,]+?)(?:\s+([^\s,]+?))?\s*(?:\/.*)?$/);
-        
+
         if (!matches) {
             // Syntax error
             throw new MarieAsmError(
-                "Syntax error", 
-                (i + 1), 
+                "Syntax error",
+                (i + 1),
                 "Incorrect form."
             );
         }
-        
+
         var label = matches[1];
         operator = matches[2].toLowerCase();
         operand = matches[3];
-        
+
         // Record the symbol map
         if (label) {
             if (label.match(/^\d.*$/))
                 throw new MarieAsmError(
-                    "Syntax error", 
-                    (i + 1), 
+                    "Syntax error",
+                    (i + 1),
                     "Labels cannot start with a number."
                 );
             if (label in symbols) {
                 var entry = parsed.filter(checkLabel.bind(null, label));
-                
+
                 throw new MarieAsmError(
                     "Label error",
                     (i + 1),
@@ -631,12 +674,12 @@ MarieAsm.prototype.assemble = function() {
             }
             symbols[label] = parsed.length + origin;
         }
-        
+
         // Special END keyword
         if (operator == "end") {
             break;
         }
-        
+
         parsed.push({
             label: label,
             operator: operator,
@@ -644,10 +687,10 @@ MarieAsm.prototype.assemble = function() {
             line: (i + 1)
         });
     }
-    
+
     for (i = 0; i < parsed.length; i++) {
         var instruction = parsed[i];
-        
+
         // Check for assembler directives
         var directiveBase = false;
         switch (instruction.operator) {
@@ -661,7 +704,7 @@ MarieAsm.prototype.assemble = function() {
                 directiveBase = 16;
                 break;
         }
-        
+
         if (directiveBase) {
             if (instruction.operand === undefined) {
                 throw new MarieAsmError(
@@ -673,25 +716,25 @@ MarieAsm.prototype.assemble = function() {
             var constant = parseInt(instruction.operand, directiveBase);
             if (isNaN(constant)) {
                 throw new MarieAsmError(
-                    "Syntax error", 
-                    instruction.line, 
+                    "Syntax error",
+                    instruction.line,
                     "Failed to parse operand."
                 );
             }
-            
+
             // For some reason the simulator deals with these numbers in this way
-            
+
             if (constant > 0x8000 && constant <= 0xFFFF) {
                 constant = uintToInt(constant);
             }
-            
+
             if (constant < -0x8000 && constant >= -0xFFFF) {
                 constant = intToUint(constant);
             }
-            
+
             if (constant > 0x8000 || constant < -0x8000) {
                 throw new MarieAsmError(
-                    "Syntax error", 
+                    "Syntax error",
                     instruction.line,
                     "Literal out of bounds."
                 );
@@ -699,44 +742,44 @@ MarieAsm.prototype.assemble = function() {
             instruction.contents = constant;
             continue;
         }
-        
+
         operator = MarieSim.prototype.operators[instruction.operator];
         operand = instruction.operand;
-        
+
         if (!operator) {
             throw new MarieAsmError(
-                "Syntax error", 
-                instruction.line, 
+                "Syntax error",
+                instruction.line,
                 ["Unknown operator ", instruction.operator, "."].join("")
             );
         }
-        
+
         var needsOperand = operator.operand;
         if (needsOperand && !operand) {
             throw new MarieAsmError(
-                "Syntax error", 
+                "Syntax error",
                 instruction.line,
                 "Expected operand."
             );
         }
-        
+
         if (operand) {
             if (!needsOperand) {
                 throw new MarieAsmError(
-                    "Syntax error", 
-                    instruction.line, 
+                    "Syntax error",
+                    instruction.line,
                     ["Unexpected operand ", instruction.operand, "."].join("")
                 );
             }
-            
+
             if (operand.match(/^\d[0-9a-fA-F]*$/)) {
                 // This is a literal address
                 operand = parseInt(operand, 16);
-                
+
                 if (operand > 0x0FFF) {
                     throw new MarieAsmError(
-                        "Syntax error", 
-                        instruction.line, 
+                        "Syntax error",
+                        instruction.line,
                         ["Address ", instruction.operand, " out of bounds."].join("")
                     );
                 }
@@ -745,8 +788,8 @@ MarieAsm.prototype.assemble = function() {
                 // This must be a label
                 if (!(operand in symbols)) {
                     throw new MarieAsmError(
-                        "Syntax error", 
-                        instruction.line, 
+                        "Syntax error",
+                        instruction.line,
                         ["Unknown label ", instruction.operand, "."].join("")
                     );
                 }
@@ -754,10 +797,10 @@ MarieAsm.prototype.assemble = function() {
                 operand = symbols[operand];
             }
         }
-        
+
         instruction.contents = (operator.opcode << 12) | operand;
     }
-        
+
     return {
         origin: origin,
         program: parsed,
