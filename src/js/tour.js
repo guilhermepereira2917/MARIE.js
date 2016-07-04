@@ -37,7 +37,6 @@ $(document).ready( function(){
         },
         {
             smartPlacement: true,
-            backdrop: true,
             element: "#bottom-menu",
             title: "Control Bar",
             content: "This is the bar used for stepping through the code, and building it"
@@ -89,6 +88,12 @@ $(document).ready( function(){
             element: "#output-select",
             title: "Select Output Type",
             content: "Change the output type here with the options (HEX - Base 8, DEC - Base 10, ASCII - Base 16) . This by default is set to HEX. "
+        },
+        {
+            smartPlacement: true,
+            element: "#dpath-menu",
+            title: "Select Output Type",
+            content: "Change the output type here with the options (HEX - Base 8, DEC - Base 10, ASCII - Base 16) . This by default is set to HEX. "
         }
         ]});
     // Initialize the tour
@@ -96,8 +101,11 @@ $(document).ready( function(){
 
     // Start the tour
     tour.start(); 
+
+    //Crude way of rerunning tour 
+    // Clears localStorage variable, then reloads page
     $( "#starttour" ).click(function() {
-        window.localStorage.removeItem('tour_current_step');
+        window.localStorage.removeItem('tour_current_step'); //remove tour current step var
         window.localStorage.removeItem('tour_end'); //removes tour variable
         location.reload(); //reload page
     });
