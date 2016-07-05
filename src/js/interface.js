@@ -201,7 +201,7 @@ window.addEventListener("load", function() {
         document.getElementById("in").textContent = hex(sim.in);
         document.getElementById("out").textContent = hex(sim.out);
 
-        datapath.setAllDatapathRegisters([hex(sim.mar, 3), hex(sim.pc, 3), hex(sim.mbr), hex(sim.ac), hex(sim.in), hex(sim.out), hex(sim.ir)]);
+        datapath.setAllRegisters([hex(sim.mar, 3), hex(sim.pc, 3), hex(sim.mbr), hex(sim.ac), hex(sim.in), hex(sim.out), hex(sim.ir)]);
 
         $(".current-pc").removeClass("current-pc");
         $(".current-mar").removeClass("current-mar");
@@ -513,7 +513,7 @@ window.addEventListener("load", function() {
                 datapath.setControlBus(e.register, "read");
                 datapath.setALUBus(e.type);
 
-                datapath.showDataBusAccess(false, delay);
+                datapath.showDataBusAccess(false, running ? delay/2 : 1000);
 
                 stateHistory.push({
                     type: "regread",
@@ -534,10 +534,10 @@ window.addEventListener("load", function() {
             });
 
             if(!running || delay >= minDatapathDelay) {
-                datapath.setDatapathRegister(e.register, hex(e.newValue, e.register == "mar" || e.register == "pc" ? 3 : 4));
+                datapath.setRegister(e.register, hex(e.newValue, e.register == "mar" || e.register == "pc" ? 3 : 4));
                 datapath.setControlBus(e.register, "write");
 
-                datapath.showDataBusAccess(false, delay);
+                datapath.showDataBusAccess(false, running ? delay/2 : 1000);
             }
 
             if (e.register == "pc") {
@@ -560,7 +560,7 @@ window.addEventListener("load", function() {
         sim.setEventListener("memread", function(e) {
             if(!running || delay >= minDatapathDelay) {
                 datapath.setControlBus("memory", "read");
-                datapath.showDataBusAccess(true, delay);
+                datapath.showDataBusAccess(true, running ? delay/2 : 1000);
             }
 
             stateHistory.push({
@@ -572,7 +572,7 @@ window.addEventListener("load", function() {
         sim.setEventListener("memwrite", function(e) {
             if(!running || delay >= minDatapathDelay) {
                 datapath.setControlBus("memory", "write");
-                datapath.showDataBusAccess(true, delay);
+                datapath.showDataBusAccess(true, running ? delay/2 : 1000);
             }
 
             stateHistory.push({
@@ -632,7 +632,7 @@ window.addEventListener("load", function() {
             switch (action.type) {
                 case "regread":
                     datapath.setControlBus(action.register, "read");
-                    datapath.showDataBusAccess(false, delay);
+                    datapath.showDataBusAccess(false, 1000);
                     break;
                 case "regwrite":
                     var oldValue = sim[action.register],
@@ -640,10 +640,10 @@ window.addEventListener("load", function() {
                     sim[action.register] = newValue;
 
                     datapath.setALUBus(action.regtype);
-                    datapath.showDataBusAccess(false, delay);
+                    datapath.showDataBusAccess(false, 1000);
 
                     datapath.setControlBus(action.register, "write");
-                    datapath.setDatapathRegister(action.register, hex(newValue, action.register == "mar" || action.register == "pc" ? 3 : 4));
+                    datapath.setRegister(action.register, hex(newValue, action.register == "mar" || action.register == "pc" ? 3 : 4));
 
                     document.getElementById(action.register).textContent = hex(newValue, action.register == "mar" || action.register == "pc" ? 3 : 4);
                     if (action.register == "pc") {
@@ -657,10 +657,10 @@ window.addEventListener("load", function() {
                     }
                     break;
                 case "memread":
-                    datapath.showDataBusAccess(true, delay);
+                    datapath.showDataBusAccess(true, 1000);
                     break;
                 case "memwrite":
-                    datapath.showDataBusAccess(true, delay);
+                    datapath.showDataBusAccess(true, 1000);
 
                     sim.memory[action.address].contents = action.value;
                     var cell = document.getElementById("cell" + action.address);
