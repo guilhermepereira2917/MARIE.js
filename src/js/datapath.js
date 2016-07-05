@@ -236,10 +236,10 @@ var DataPath;
         td.textContent = microInstruction;
         tr.appendChild(td);
 
-        this.highlightMicroInstruction(microInstruction);
+        this.highlightMicroInstruction();
     };
 
-    DataPath.prototype.highlightMicroInstruction = function(microInstruction) {
+    DataPath.prototype.highlightMicroInstruction = function() {
         var nodes = this.microInstructionsElement.getElementsByTagName("td");
 
         nodes[this.timeSeqCounter].style.background = "lime";
@@ -249,7 +249,7 @@ var DataPath;
 
         this.setTimeSequence();
         this.timeSeqCounter++;
-    }
+    };
 
     DataPath.prototype.setTimeSequence = function(clear) {
         for(var i = 0; i < 8; i++) {
