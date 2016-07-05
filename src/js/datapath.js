@@ -70,6 +70,19 @@ var DataPath;
         }
     };
 
+    DataPath.prototype.showDataBusAccess = function(isMemoryAccess, delay) {
+        this.setDataBus(true, isMemoryAccess || this.isMemoryRead || this.isMemoryWrite);
+
+        if(this.timeoutToTurnDataBusOff) {
+            clearTimeout(this.timeoutToTurnDataBusOff);
+        }
+
+        var self = this;
+        this.timeoutToTurnDataBusOff = setTimeout(function() {
+            self.setDataBus(false, false);
+        }, delay/2);
+    };
+
     DataPath.prototype.setControlBus = function(register, type) {
         var dpDocument = this.datapath.contentDocument;
         var registerIndex = this.registers.indexOf(register);
