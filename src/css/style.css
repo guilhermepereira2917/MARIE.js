@@ -43,6 +43,11 @@ html, body {
     min-width: 500px;
 }
 
+#program {
+    flex: 1 0 0;
+    height: 100%;
+}
+
 #register-container {
     width: 60px;
 }
@@ -122,12 +127,12 @@ footer {
     float: right;
     height: 6em;
     overflow: auto;
+    border: 1px solid black;
 }
 
 #micro-instructions td {
     margin: auto;
     text-align: center;
-    width: 100%;
 }
 
 #current-instruction {
