@@ -5,7 +5,7 @@ $(document).ready( function(){
             smartPlacement: true,
             element: "#brand",
             title: "Welcome to MARIE.js",
-            content: "This tour introduces the features of MARIE.js"
+            content: "This tour introduces the features and how to use MARIE.js"
         },
         {
             smartPlacement: true,
@@ -86,12 +86,6 @@ $(document).ready( function(){
         {
             smartPlacement: true,
             element: "#output-select",
-            title: "Select Output Type",
-            content: "Change the output type here with the options (HEX - Base 8, DEC - Base 10, ASCII - Base 16) . This by default is set to HEX. "
-        },
-        {
-            smartPlacement: true,
-            element: "#dpath-menu",
             title: "Select Output Type",
             content: "Change the output type here with the options (HEX - Base 8, DEC - Base 10, ASCII - Base 16) . This by default is set to HEX. "
         }
