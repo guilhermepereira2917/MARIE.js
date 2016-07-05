@@ -5,10 +5,10 @@
                 MARIE.js <span class="version">v<%= version %></span>
             </div>
             <ul class="nav navbar-nav">
-                <li><a href="./index.html"><span class="glyphicon glyphicon-home"></span> Home</a></li>
+                <li><a href="./"><span class="glyphicon glyphicon-home"></span> Home </a></li>    
                 <% if(title == "Home") { %>
                 <li class="dropdown">
-                    <a class="dropdown-toggle" data-toggle="dropdown">File
+                    <a class="dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-file"></span> File
                     <span class="caret"></span></a>
                     <ul class="dropdown-menu">
                         <li><a id="clear">New...</a></li>
@@ -18,7 +18,7 @@
                     </ul>
                 </li>
                 <li class="dropdown">
-                    <a class="dropdown-toggle" data-toggle="dropdown">Edit
+                    <a class="dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-pencil"></span> Edit
                     <span class="caret"></span></a>
                     <ul class="dropdown-menu">
                         <li><a id="undo"><span class="glyphicon glyphicon-chevron-left"></span> Undo  | Ctrl+Z</a></li>
@@ -26,15 +26,15 @@
                     </ul>
                 </li>
                 <li class="dropdown">
-                    <a class="dropdown-toggle" data-toggle="dropdown">View
+                    <a class="dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-eye-open"></span> View
                     <span class="caret"></span></a>
                     <ul class="dropdown-menu">
-                        <li><a href="#datapath" id="dpath-menu">Datapath <i id="datapath-tick" class="glyphicon glyphicon-ok pull-right overlay-view"></i></a></li>
+                        <li><a id="dpath-menu"><span id="datapath-tick" class="glyphicon glyphicon-ok pull-right"></span> Datapath</a></li>
                     </ul>
                 </li>
                 <% } %>
                 <li class="dropdown">
-                    <a class="dropdown-toggle" data-toggle="dropdown">Help
+                    <a class="dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-question-sign"></span> Help
                     <span class="caret"></span></a>
                     <ul class="dropdown-menu">
                         <li><a href="https://github.com/MARIE-js/MARIE.js/wiki" target="_blank"><span class="glyphicon glyphicon-book"></span> Wiki </a></li>
