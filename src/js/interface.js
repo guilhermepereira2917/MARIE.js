@@ -201,7 +201,7 @@ window.addEventListener("load", function() {
         document.getElementById("in").textContent = hex(sim.in);
         document.getElementById("out").textContent = hex(sim.out);
 
-        datapath.setAllDatapathRegisters([hex(sim.mar, 3), hex(sim.pc, 3), hex(sim.mbr), hex(sim.ac), hex(sim.in), hex(sim.out), hex(sim.ir)]);
+        datapath.setAllRegisters([hex(sim.mar, 3), hex(sim.pc, 3), hex(sim.mbr), hex(sim.ac), hex(sim.in), hex(sim.out), hex(sim.ir)]);
 
         $(".current-pc").removeClass("current-pc");
         $(".current-mar").removeClass("current-mar");
@@ -513,15 +513,13 @@ window.addEventListener("load", function() {
                 datapath.setControlBus(e.register, "read");
                 datapath.setALUBus(e.type);
 
-                datapath.setDataBus(true);
+                datapath.showDataBusAccess(false, running ? delay/2 : 1000);
 
-                if(datapath.timeoutToTurnDataBusOff) {
-                    clearTimeout(datapath.timeoutToTurnDataBusOff);
-                }
-
-                datapath.timeoutToTurnDataBusOff = setTimeout(function() {
-                    datapath.setDataBus(false, false);
-                }, delay/2);
+                stateHistory.push({
+                    type: "regread",
+                    register: e.register,
+                    value: e.value
+                });
             }
         });
 
@@ -529,24 +527,17 @@ window.addEventListener("load", function() {
             document.getElementById(e.register).textContent = hex(e.newValue, e.register == "mar" || e.register == "pc" ? 3 : 4);
 
             stateHistory.push({
-                type: "register",
+                type: "regwrite",
                 register: e.register,
-                value: e.oldValue
+                value: e.oldValue,
+                regtype: e.type
             });
 
             if(!running || delay >= minDatapathDelay) {
-                datapath.setDatapathRegister(e.register, hex(e.newValue, e.register == "mar" || e.register == "pc" ? 3 : 4));
+                datapath.setRegister(e.register, hex(e.newValue, e.register == "mar" || e.register == "pc" ? 3 : 4));
                 datapath.setControlBus(e.register, "write");
 
-                datapath.setDataBus(true);
-
-                if(datapath.timeoutToTurnDataBusOff) {
-                    clearTimeout(datapath.timeoutToTurnDataBusOff);
-                }
-
-                datapath.timeoutToTurnDataBusOff = setTimeout(function() {
-                    datapath.setDataBus(false, false);
-                }, delay/2);
+                datapath.showDataBusAccess(false, running ? delay/2 : 1000);
             }
 
             if (e.register == "pc") {
@@ -566,39 +557,26 @@ window.addEventListener("load", function() {
         initializeRegisterLog();
         resetRegisters();
 
-        sim.setEventListener("memread", function() {
+        sim.setEventListener("memread", function(e) {
             if(!running || delay >= minDatapathDelay) {
                 datapath.setControlBus("memory", "read");
-
-                datapath.setDataBus(true, true);
-
-                if(datapath.timeoutToTurnDataBusOff) {
-                    clearTimeout(datapath.timeoutToTurnDataBusOff);
-                }
-
-                datapath.timeoutToTurnDataBusOff = setTimeout(function() {
-                    datapath.setDataBus(false, false);
-                }, delay/2);
+                datapath.showDataBusAccess(true, running ? delay/2 : 1000);
             }
+
+            stateHistory.push({
+                type: "memread",
+                address: e.address
+            });
         });
 
         sim.setEventListener("memwrite", function(e) {
             if(!running || delay >= minDatapathDelay) {
                 datapath.setControlBus("memory", "write");
-
-                datapath.setDataBus(true, true);
-
-                if(datapath.timeoutToTurnDataBusOff) {
-                    clearTimeout(datapath.timeoutToTurnDataBusOff);
-                }
-
-                datapath.timeoutToTurnDataBusOff = setTimeout(function() {
-                    datapath.setDataBus(false, false);
-                }, delay/2);
+                datapath.showDataBusAccess(true, running ? delay/2 : 1000);
             }
 
             stateHistory.push({
-                type: "memory",
+                type: "memwrite",
                 address: e.address,
                 value: e.oldCell
             });
@@ -652,10 +630,21 @@ window.addEventListener("load", function() {
         action = stateHistory.pop();
         while (action.type != "step" && stateHistory.length > 0) {
             switch (action.type) {
-                case "register":
+                case "regread":
+                    datapath.setControlBus(action.register, "read");
+                    datapath.showDataBusAccess(false, 1000);
+                    break;
+                case "regwrite":
                     var oldValue = sim[action.register],
                         newValue = action.value;
                     sim[action.register] = newValue;
+
+                    datapath.setALUBus(action.regtype);
+                    datapath.showDataBusAccess(false, 1000);
+
+                    datapath.setControlBus(action.register, "write");
+                    datapath.setRegister(action.register, hex(newValue, action.register == "mar" || action.register == "pc" ? 3 : 4));
+
                     document.getElementById(action.register).textContent = hex(newValue, action.register == "mar" || action.register == "pc" ? 3 : 4);
                     if (action.register == "pc") {
                         document.getElementById("cell" + oldValue).classList.remove("current-pc");
@@ -667,7 +656,12 @@ window.addEventListener("load", function() {
                         document.getElementById("cell" + newValue).classList.add("current-mar");
                     }
                     break;
-                case "memory":
+                case "memread":
+                    datapath.showDataBusAccess(true, 1000);
+                    break;
+                case "memwrite":
+                    datapath.showDataBusAccess(true, 1000);
+
                     sim.memory[action.address].contents = action.value;
                     var cell = document.getElementById("cell" + action.address);
                     cell.textContent = hex(action.value, false);
@@ -699,6 +693,7 @@ window.addEventListener("load", function() {
             stateHistory.push({type: "step"});
         }
 
+        datapath.showInstruction();
         regLogFunc("----- stepped back -----");
         updateCurrentLine();
     });
