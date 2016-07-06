@@ -81,14 +81,15 @@ footer {
     padding: 0 1em;
     background: #fff;
     z-index: 22;
-    transition: opacity 500ms;
     visibility: hidden;
     opacity: 0;
+    display: none;
 }
 
 .overlay:target {
     visibility: visible;
     opacity: 1;
+    display: block;
 }
 
 .popup {
