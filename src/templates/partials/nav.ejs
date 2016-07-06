@@ -5,45 +5,45 @@
                 MARIE.js <span class="version">v<%= version %></span>
             </div>
             <ul class="nav navbar-nav">
-                <li><a href="./"><span class="glyphicon glyphicon-home"></span> Home </a></li>    
+                <li><a href="./"><span class="fa fa-home"></span> Home </a></li>    
                 <% if(title == "Home") { %>
                 <li class="dropdown">
-                    <a class="dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-file"></span> File
+                    <a class="dropdown-toggle" data-toggle="dropdown"><span class="fa fa-file"></span> File
                     <span class="caret"></span></a>
                     <ul class="dropdown-menu">
-                        <li><a id="clear">New...</a></li>
+                        <li><a id="clear"><span class="fa fa-file-o"></span> New...</a></li>
                         <li class="divider"></li>
-                        <li><a id="upload"><span class="glyphicon glyphicon-folder-open"></span>  Upload...</a></li>
-                        <li><a id="download"><span class="glyphicon glyphicon-export"></span> Export</a></li>
+                        <li><a id="upload"><span class="fa fa-folder-open-o"></span>  Upload...</a></li>
+                        <li><a id="download"><span class="fa fa-download"></span> Download</a></li>
                     </ul>
                 </li>
                 <li class="dropdown">
-                    <a class="dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-pencil"></span> Edit
+                    <a class="dropdown-toggle" data-toggle="dropdown"><span class="fa fa-pencil"></span> Edit
                     <span class="caret"></span></a>
                     <ul class="dropdown-menu">
-                        <li><a id="undo"><span class="glyphicon glyphicon-chevron-left"></span> Undo  | Ctrl+Z</a></li>
-                        <li><a id="redo"><span class="glyphicon glyphicon-repeat"></span> Redo   | Ctrl+Y </a></li>
+                        <li><a id="undo"><span class="fa fa-undo"></span> Undo  | Ctrl+Z</a></li>
+                        <li><a id="redo"><span class="fa fa-repeat"></span> Redo   | Ctrl+Y </a></li>
                     </ul>
                 </li>
                 <li class="dropdown">
-                    <a class="dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-eye-open"></span> View
+                    <a class="dropdown-toggle" data-toggle="dropdown"><span class="fa fa-eye"></span> View
                     <span class="caret"></span></a>
                     <ul class="dropdown-menu">
-                        <li><a id="dpath-menu"><span id="datapath-tick" class="glyphicon glyphicon-ok pull-right"></span> Datapath</a></li>
+                        <li><a id="dpath-menu"><span id="datapath-tick" class="fa fa-check fa-pull-right"></span> Datapath</a></li>
                     </ul>
                 </li>
                 <% } %>
                 <li class="dropdown">
-                    <a class="dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-question-sign"></span> Help
+                    <a class="dropdown-toggle" data-toggle="dropdown"><span class="fa fa-question-circle-o"></span> Help
                     <span class="caret"></span></a>
                     <ul class="dropdown-menu">
-                        <li><a href="https://github.com/MARIE-js/MARIE.js/wiki" target="_blank"><span class="glyphicon glyphicon-book"></span> Wiki </a></li>
-                        <li><a href="https://github.com/MARIE-js/MARIE.js/wiki/MARIE-Instruction-Set-(with-Opcodes)" target="_blank"><span class="glyphicon glyphicon-book"></span> Instruction Set </a></li>
-                        <li><a href="about.html"><span class="glyphicon glyphicon-info-sign"></span> About </a></li>
-                        <li><a href="https://mariejssite.wordpress.com/" target="_blank"> Blog</a></li>
+                        <li><a href="https://github.com/MARIE-js/MARIE.js/wiki" target="_blank"><span class="fa fa-book"></span> Wiki </a></li>
+                        <li><a href="https://github.com/MARIE-js/MARIE.js/wiki/MARIE-Instruction-Set-(with-Opcodes)" target="_blank"><span class="fa fa-info"></span> Instruction Set </a></li>
+                        <li><a href="about.html"><span class="fa fa-info-circle"></span> About </a></li>
+                        <li><a href="https://mariejssite.wordpress.com/" target="_blank"><span class="fa fa-wordpress"></span> Blog</a></li>
                         <li class="divider"></li>
-                        <li><a href="https://gitreports.com/issue/MARIE-js/MARIE.js/" target="_blank"><span class="glyphicon glyphicon-alert"></span> Report an Issue</a></li>
-                        <li><a id="starttour"> Rerun Tour</a></li>
+                        <li><a href="https://gitreports.com/issue/MARIE-js/MARIE.js/" target="_blank"><span class="fa fa-bug"></span> Report an Issue</a></li>
+                        <li><a id="starttour"><span class="fa fa-ship"></span> Rerun Tour</a></li>
                     </ul>
                 </li>
             </ul>
