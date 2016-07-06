@@ -70,6 +70,19 @@ var DataPath;
         }
     };
 
+    DataPath.prototype.showDataBusAccess = function(isMemoryAccess, delay) {
+        this.setDataBus(true, isMemoryAccess || this.isMemoryRead || this.isMemoryWrite);
+
+        if(this.timeoutToTurnDataBusOff) {
+            clearTimeout(this.timeoutToTurnDataBusOff);
+        }
+
+        var self = this;
+        this.timeoutToTurnDataBusOff = setTimeout(function() {
+            self.setDataBus(false, false);
+        }, delay);
+    };
+
     DataPath.prototype.setControlBus = function(register, type) {
         var dpDocument = this.datapath.contentDocument;
         var registerIndex = this.registers.indexOf(register);
@@ -152,24 +165,37 @@ var DataPath;
     };
 
     DataPath.prototype.setALUBus = function(type) {
-        var alu0 = this.datapath.contentDocument.getElementById("alu_wire_0");
-        var alu1 = this.datapath.contentDocument.getElementById("alu_wire_1");
+        var dpDocument = this.datapath.contentDocument;
+        var alu0 = dpDocument.getElementById("alu_wire_0");
+        var alu1 = dpDocument.getElementById("alu_wire_1");
+
+        var acToAluWire = dpDocument.getElementById("ac_to_alu_wire");
+        var mbrToAluWire = dpDocument.getElementById("mbr_to_alu_wire");
+
         if(type === "add") {
             alu0.style.stroke = "lime";
             alu1.style.stroke = "black";
+            acToAluWire.style.stroke = "lime";
+            mbrToAluWire.style.stroke = "lime";
         } else if(type === "subtract") {
             alu0.style.stroke = "black";
             alu1.style.stroke = "lime";
+            acToAluWire.style.stroke = "lime";
+            mbrToAluWire.style.stroke = "lime";
         } else if(type === "clear") {
             alu0.style.stroke = "lime";
             alu1.style.stroke = "lime";
+            acToAluWire.style.stroke = "lime";
+            mbrToAluWire.style.stroke = "black";
         } else { // if type === "set" or anything else
             alu0.style.stroke = "black";
             alu1.style.stroke = "black";
+            acToAluWire.style.stroke = "black";
+            mbrToAluWire.style.stroke = "black";
         }
     };
 
-    DataPath.prototype.setAllDatapathRegisters = function(registers) {
+    DataPath.prototype.setAllRegisters = function(registers) {
         var self = this;
         this.registers.map(function(ele, index) {
             self.datapath.contentDocument.getElementById(ele + "_register_text")
@@ -177,7 +203,7 @@ var DataPath;
         });
     };
 
-    DataPath.prototype.setDatapathRegister = function(register, value) {
+    DataPath.prototype.setRegister = function(register, value) {
         this.datapath.contentDocument.getElementById(register + "_register_text").childNodes[0].childNodes[0].textContent = value;
     };
 
@@ -205,11 +231,14 @@ var DataPath;
 
             return [
                 instruction.line.toString() + ".",
+                typeof instruction.label !== "undefined" ? instruction.label + "," : undefined,
                 instruction.operator.toUpperCase(),
-                instruction.operand,
-                instruction.label
+                instruction.operand
             ].filter(function(element) {
                 return typeof element !== "undefined";
+            }).map(function(element) {
+                var str = element.toString();
+                return str.length > 10 ? str.substr(0, 7) + "..." : str;
             }).join(" ");
         });
 
@@ -235,6 +264,8 @@ var DataPath;
         var td = document.createElement("td");
         td.textContent = microInstruction;
         tr.appendChild(td);
+
+        this.microInstructionsElement.scrollTop = this.microInstructionsElement.scrollHeight;
 
         this.highlightMicroInstruction();
     };
