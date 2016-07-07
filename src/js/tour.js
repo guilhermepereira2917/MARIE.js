@@ -90,8 +90,9 @@ $(document).ready( function(){
             content: "Change the output type here with the options (HEX - Base 8, DEC - Base 10, ASCII - Base 16) . This by default is set to HEX. ",
         },
         {
-            autoscroll: false
-            onshow: function (tour) {this.location.hash = '#datapath'},smartPlacement: true,
+            autoscroll: false,
+            onshow: function () {this.location.hash = '#datapath';},
+            smartPlacement: true,
             element: "#datapath-diagram",
             title: "Datapath Diagram",
             content: "Change the output type here with the options (HEX - Base 8, DEC - Base 10, ASCII - Base 16) . This by default is set to HEX. "       
