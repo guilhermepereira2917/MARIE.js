@@ -7,6 +7,23 @@ var DataPath;
         this.datapath = element;
         this.displayInstruction = displayInstruction;
 
+        /* Fixes loading svg contentDocument bug by dropping function calls
+        if the svg document hasn't been loaded yet by the time the DOM
+        document has been loaded
+        */
+        this.loaded = false;
+
+        var self = this;
+        this.datapath.addEventListener("load", function() {
+            self.loaded = true;
+            console.log("DataPath SVG object loaded");
+        });
+
+        if(this.datapath.contentDocument) {
+            this.loaded = true;
+            console.log("DataPath SVG object loaded");
+        }
+
         this.populateInstructions();
         this.populateMicroInstructions();
 
@@ -49,6 +66,11 @@ var DataPath;
     };
 
     DataPath.prototype.setDataBus = function(isOn, isMemoryInvolved) {
+        if(!this.loaded) {
+            console.warn("DataPath SVG object has not loaded yet.");
+            return;
+        }
+
         var data_bus = this.datapath.contentDocument.getElementById("data_bus");
 
         for(var i = 0; i < data_bus.childNodes.length; i++) {
@@ -84,6 +106,11 @@ var DataPath;
     };
 
     DataPath.prototype.setControlBus = function(register, type) {
+        if(!this.loaded) {
+            console.warn("DataPath SVG object has not loaded yet.");
+            return;
+        }
+
         var dpDocument = this.datapath.contentDocument;
         var registerIndex = this.registers.indexOf(register);
 
@@ -165,37 +192,48 @@ var DataPath;
     };
 
     DataPath.prototype.setALUBus = function(type) {
+        if(!this.loaded) {
+            console.warn("DataPath SVG object has not loaded yet.");
+            return;
+        }
+
         var dpDocument = this.datapath.contentDocument;
-        var alu0 = dpDocument.getElementById("alu_wire_0");
-        var alu1 = dpDocument.getElementById("alu_wire_1");
+
+        var alu_opcodes = ["set", "add", "subtract", "clear", "<?", "=?", ">?", "incr_pc"];
+        var alu_op_int = alu_opcodes.indexOf(type);
+        if(alu_op_int === -1) {
+            alu_op_int = 0;
+        }
+        var alu_op = uintToBinArray(alu_op_int);
 
         var acToAluWire = dpDocument.getElementById("ac_to_alu_wire");
         var mbrToAluWire = dpDocument.getElementById("mbr_to_alu_wire");
 
+        [0, 1, 2].map(function(element) {
+            dpDocument.getElementById("alu_wire_" + element).style.stroke = alu_op[element] ? "lime" : "rgb(0, 51, 0)";
+        });
+
         if(type === "add") {
-            alu0.style.stroke = "lime";
-            alu1.style.stroke = "black";
             acToAluWire.style.stroke = "lime";
             mbrToAluWire.style.stroke = "lime";
         } else if(type === "subtract") {
-            alu0.style.stroke = "black";
-            alu1.style.stroke = "lime";
             acToAluWire.style.stroke = "lime";
             mbrToAluWire.style.stroke = "lime";
         } else if(type === "clear") {
-            alu0.style.stroke = "lime";
-            alu1.style.stroke = "lime";
             acToAluWire.style.stroke = "lime";
             mbrToAluWire.style.stroke = "black";
         } else { // if type === "set" or anything else
-            alu0.style.stroke = "black";
-            alu1.style.stroke = "black";
             acToAluWire.style.stroke = "black";
             mbrToAluWire.style.stroke = "black";
         }
     };
 
     DataPath.prototype.setAllRegisters = function(registers) {
+        if(!this.loaded) {
+            console.warn("DataPath SVG object has not loaded yet.");
+            return;
+        }
+
         var self = this;
         this.registers.map(function(ele, index) {
             self.datapath.contentDocument.getElementById(ele + "_register_text")
@@ -204,6 +242,11 @@ var DataPath;
     };
 
     DataPath.prototype.setRegister = function(register, value) {
+        if(!this.loaded) {
+            console.warn("DataPath SVG object has not loaded yet.");
+            return;
+        }
+
         this.datapath.contentDocument.getElementById(register + "_register_text").childNodes[0].childNodes[0].textContent = value;
     };
 
@@ -249,13 +292,6 @@ var DataPath;
         while(this.microInstructionsElement.firstChild) {
             this.microInstructionsElement.removeChild(this.microInstructionsElement.firstChild);
         }
-
-        /*
-        // populate micro-instructions
-        this.simulator.debug = true;
-        this.simulator.run();
-        this.simulator.debug = false;
-        */
     };
 
     DataPath.prototype.appendMicroInstruction = function(microInstruction) {
@@ -272,17 +308,27 @@ var DataPath;
 
     DataPath.prototype.highlightMicroInstruction = function() {
         var nodes = this.microInstructionsElement.getElementsByTagName("td");
-
-        nodes[this.timeSeqCounter].style.background = "lime";
-        if(this.timeSeqCounter) {
-            nodes[this.timeSeqCounter - 1].style.background = "transparent";
+        if(nodes.length <= this.timeSeqCounter) {
+            console.warn("Something went wrong with populating the RTL microinstructions");
+            return;
         }
 
-        this.setTimeSequence();
-        this.timeSeqCounter++;
+        nodes[nodes.length - 1].style.background = "lime";
+        if(nodes.length > 1) {
+            nodes[nodes.length - 2].style.background = "transparent";
+        }
+
+        if(nodes[nodes.length - 1].textContent.indexOf("Decoded") === -1) {
+            this.setTimeSequence();
+            this.timeSeqCounter++;
+        }
     };
 
     DataPath.prototype.setTimeSequence = function(clear) {
+        if(!this.loaded) {
+            return;
+        }
+
         for(var i = 0; i < 8; i++) {
             var ele = this.datapath.contentDocument.getElementById("timing_signal_" + i.toString());
 
@@ -293,4 +339,23 @@ var DataPath;
             }
         }
     };
+
+    function uintToBinArray(num, padding) {
+        var bin_array = [];
+        while(num > 0) {
+            bin_array.push(num % 2);
+            num >>= 1;
+        }
+
+        if(typeof padding !== "undefined") {
+            padding -= bin_array.length;
+
+            while(padding > 0) {
+                bin_array.push(0);
+                padding -= 1;
+            }
+        }
+
+        return bin_array;
+    }
 }());
