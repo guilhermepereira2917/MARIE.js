@@ -80,16 +80,16 @@ footer {
     bottom: 0;
     padding: 0 1em;
     background: #fff;
-    z-index: 22;
-    visibility: hidden;
+    z-index: -1;
     opacity: 0;
-    display: none;
+    /* http://stackoverflow.com/a/19311234 */
+    transition: z-index 0.2s step-end, opacity 0.2s linear;
 }
 
 .overlay:target {
-    visibility: visible;
     opacity: 1;
-    display: block;
+    z-index: 22;
+    transition: z-index 0.2s step-start, opacity 0.2s linear;
 }
 
 .popup {

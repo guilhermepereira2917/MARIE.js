@@ -59,9 +59,7 @@
                     <div class="popup">
                         <a id="close-datapath" class="close">&times;</a>
                         <div class="container">
-                            <div id="datapath-too-fast-warning" class="alert alert-warning">
-                                <strong>Note: </strong> MARIE.js is running too fast to update datapath visualiser. Increase delay to at least 1000 ms, or set simulator to stepping mode.
-                            </div>
+                            <div id="datapath-status-bar" class="alert alert-info">MARIE.js</div>
                             <object id="datapath-diagram" data="images/diagrams/drawing_plain.svg" type="image/svg+xml"></object>
                             <div id="datapath-display-instructions"></div>
                         </div>
@@ -117,6 +115,7 @@
                 </div>
             </div>
             <div class="popover-footer">
+                <button id="input-pause-button" type="button" class="btn btn-default">Pause</button>
                 <button id="input-button" type="button" class="btn btn-primary">Accept</button>
             </div>
         </div>

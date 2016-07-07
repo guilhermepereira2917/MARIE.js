@@ -42,6 +42,8 @@ window.addEventListener("load", function() {
         microStepping = false,
         running = false,
         waiting = false,
+        pausedOnInput = false,
+        savedOutput = null,
         outputType = HEX,
         datapath = new DataPath(datapathEle, datapathInstructionElement),
         outputList = [],
@@ -310,6 +312,7 @@ window.addEventListener("load", function() {
 
         $('#input-dialog').off('hidden.bs.modal');
         $('#input-button').off('click');
+        $('#input-button-pause').off('click');
         $('#input-value').off('keypress');
 
         $('#input-value').on('keypress', function(e) {
@@ -320,6 +323,16 @@ window.addEventListener("load", function() {
 
         $('#input-button').on('click', function() {
             finishInput(output);
+        });
+
+        $('#input-pause-button').on('click', function() {
+            stopWaiting();
+            stop(true);
+            setStatus("Halted at user request.");
+            runButton.textContent = "Continue";
+            $('#input-dialog').popoverX('hide');
+            pausedOnInput = true;
+            savedOutput = output;
         });
     }
 
@@ -337,6 +350,27 @@ window.addEventListener("load", function() {
 
         if(shouldScrollToBottomOutputLog) {
             outputLogOuter.scrollTop = outputLogOuter.scrollHeight;
+        }
+    }
+
+    function setStatus(message, error) {
+        statusInfo.textContent = message;
+
+        if(error) {
+            statusInfo.className = "error";
+            $("#datapath-status-bar").removeClass("alert-info alert-warning").addClass("alert-danger").text(message);
+        } else {
+            statusInfo.className = "";
+
+            $("#datapath-status-bar").removeClass("alert-danger");
+
+            if(!$('#datapath-status-bar').hasClass("alert-warning")) {
+                $("#datapath-status-bar").addClass("alert-info");
+            }
+
+            if($("#datapath-status-bar").hasClass("alert-info")) {
+                $("#datapath-status-bar").text(message);
+            }
         }
     }
 
@@ -412,7 +446,7 @@ window.addEventListener("load", function() {
         stepButton.disabled = true;
         stepBackButton.disabled = true;
         microStepButton.disabled = true;
-        statusInfo.textContent = "Running...";
+        setStatus("Running...");
     }
 
     function runLoop(micro) {
@@ -436,8 +470,7 @@ window.addEventListener("load", function() {
         }
         catch (e) {
             // prevents catastrophic failure if an error occurs (whether it is MARIE or some other JavaScript error)
-            statusInfo.textContent = e.toString();
-            statusInfo.className = "error";
+            setStatus(e.toString(), true);
             lastErrorLine = e.lineNumber;
             if (lastErrorLine) {
                 lastErrorLine--;
@@ -453,7 +486,7 @@ window.addEventListener("load", function() {
         if (sim.halted) {
             stop();
             runButton.textContent = "Halted";
-            statusInfo.textContent = "Machine halted normally.";
+            setStatus("Machine halted normally.");
         }
         else if (breaking) {
             stop(true);
@@ -462,17 +495,21 @@ window.addEventListener("load", function() {
             datapathWarning(false);
 
             runButton.textContent = "Continue";
-            statusInfo.textContent = "Machine paused at break point.";
+            setStatus("Machine paused at break point.");
         }
     }
 
     function datapathWarning(showWarning) {
+        if($('#datapath-status-bar').hasClass("alert-danger")) {
+            return;
+        }
+
         if(showWarning) {
-            $("#datapath-too-fast-warning").css('visibility', 'visible');
+            $('#datapath-status-bar').removeClass('alert-info').addClass('alert-warning').html("<strong>Note: </strong> Delay is set too low for datapath to update. Increase delay to at least 1000 ms, or set simulator to stepping mode.");
             $("#datapath-display-instructions").css({"opacity": 0.5});
             $("#datapath-diagram").css({"opacity": 0.5});
         } else {
-            $("#datapath-too-fast-warning").css('visibility', 'hidden');
+            $('#datapath-status-bar').removeClass('alert-warning').addClass('alert-info').text(statusInfo.textContent);
             $("#datapath-display-instructions").css({"opacity": 1});
             $("#datapath-diagram").css({"opacity": 1});
         }
@@ -494,8 +531,7 @@ window.addEventListener("load", function() {
         try {
             asm = assembler.assemble();
         } catch (e) {
-            statusInfo.textContent = e.toString();
-            statusInfo.className = "error";
+            setStatus(e.toString(), true);
             lastErrorLine = e.lineNumber - 1;
             programCodeMirror.addLineClass(lastErrorLine, "background", "error-line");
             console.error(e);
@@ -505,16 +541,14 @@ window.addEventListener("load", function() {
         try {
             sim = new MarieSim(asm, inputFunc, outputFunc);
         } catch (e) {
-            statusInfo.textContent = e.message;
-            statusInfo.className = "error";
+            setStatus(e.message, true);
             console.error(e);
             return;
         }
 
         datapath.attachSimulator(sim);
 
-        statusInfo.textContent = "Assembled successfully";
-        statusInfo.className = "";
+        setStatus("Assembled successfully", false);
 
         sim.setEventListener("regread", function(e) {
             if(!running || delay >= minDatapathDelay) {
@@ -718,7 +752,7 @@ window.addEventListener("load", function() {
 
             datapathWarning(false);
 
-            statusInfo.textContent = "Halted at user request.";
+            setStatus("Halted at user request.");
             runButton.textContent = "Continue";
             running = false;
         }
@@ -727,6 +761,11 @@ window.addEventListener("load", function() {
             run();
             runButton.textContent = "Pause";
             running = true;
+
+            if(pausedOnInput) {
+                pausedOnInput = false;
+                inputFunc(savedOutput);
+            }
 
             if(delay < minDatapathDelay) {
                 datapathWarning(true);
@@ -766,7 +805,7 @@ window.addEventListener("load", function() {
         microStepButton.disabled = false;
         datapathWarning(false);
         datapath.restart();
-        statusInfo.textContent = "Restarted simulator (memory contents are still preserved)";
+        setStatus("Restarted simulator (memory contents are still preserved)");
     });
 
     outputSelect.addEventListener("change", function() {
