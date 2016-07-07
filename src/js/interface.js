@@ -459,12 +459,22 @@ window.addEventListener("load", function() {
             stop(true);
             running = false;
 
-            $("#datapath-too-fast-warning").css('visibility', 'hidden');
-            $("#datapath-display-instructions").css({"opacity": 1});
-            $("#datapath-diagram").css({"opacity": 1});
+            datapathWarning(false);
 
             runButton.textContent = "Continue";
             statusInfo.textContent = "Machine paused at break point.";
+        }
+    }
+
+    function datapathWarning(showWarning) {
+        if(showWarning) {
+            $("#datapath-too-fast-warning").css('visibility', 'visible');
+            $("#datapath-display-instructions").css({"opacity": 0.5});
+            $("#datapath-diagram").css({"opacity": 0.5});
+        } else {
+            $("#datapath-too-fast-warning").css('visibility', 'hidden');
+            $("#datapath-display-instructions").css({"opacity": 1});
+            $("#datapath-diagram").css({"opacity": 1});
         }
     }
 
@@ -472,9 +482,7 @@ window.addEventListener("load", function() {
         stop();
         running = false;
 
-        $("#datapath-too-fast-warning").css('visibility', 'hidden');
-        $("#datapath-display-instructions").css({"opacity": 1});
-        $("#datapath-diagram").css({"opacity": 1});
+        datapathWarning(false);
 
         if (lastErrorLine !== null) {
             programCodeMirror.removeLineClass(lastErrorLine, "background", "error-line");
@@ -599,6 +607,8 @@ window.addEventListener("load", function() {
         });
         sim.setEventListener("reglog", regLogFunc);
         sim.setEventListener("decode", function(old) {
+            datapath.setALUBus("decode");
+
             stateHistory.push({
                 type: "decode",
                 opcode: old
@@ -706,9 +716,7 @@ window.addEventListener("load", function() {
         if (running) {
             stop(true);
 
-            $("#datapath-too-fast-warning").css('visibility', 'hidden');
-            $("#datapath-display-instructions").css({"opacity": 1});
-            $("#datapath-diagram").css({"opacity": 1});
+            datapathWarning(false);
 
             statusInfo.textContent = "Halted at user request.";
             runButton.textContent = "Continue";
@@ -721,9 +729,7 @@ window.addEventListener("load", function() {
             running = true;
 
             if(delay < minDatapathDelay) {
-                $("#datapath-too-fast-warning").css('visibility', 'visible');
-                $("#datapath-display-instructions").css({"opacity": 0.5});
-                $("#datapath-diagram").css({"opacity": 0.5});
+                datapathWarning(true);
             }
         }
     });
@@ -736,13 +742,9 @@ window.addEventListener("load", function() {
         delay = parseInt(this.value);
 
         if(!running || delay >= minDatapathDelay) {
-            $("#datapath-too-fast-warning").css('visibility', 'hidden');
-            $("#datapath-display-instructions").css({"opacity": 1});
-            $("#datapath-diagram").css({"opacity": 1});
+            datapathWarning(false);
         } else if(running) {
-            $("#datapath-too-fast-warning").css('visibility', 'visible');
-            $("#datapath-display-instructions").css({"opacity": 0.5});
-            $("#datapath-diagram").css({"opacity": 0.5});
+            datapathWarning(true);
         }
 
         if (interval) {
@@ -762,7 +764,8 @@ window.addEventListener("load", function() {
         stepButton.disabled = false;
         stepBackButton.disabled = true;
         microStepButton.disabled = false;
-        $("#datapath-too-fast-warning").css('visibility', 'hideen');
+        datapathWarning(false);
+        datapath.restart();
         statusInfo.textContent = "Restarted simulator (memory contents are still preserved)";
     });
 
@@ -862,5 +865,5 @@ window.addEventListener("load", function() {
         $("#datapath-tick").hide();
     }
 
-    
+
 });
