@@ -15,11 +15,13 @@ var DataPath;
 
         var self = this;
         this.datapath.addEventListener("load", function() {
-            self.loaded = true;
-            console.log("DataPath SVG object loaded");
+            if(!self.loaded) {
+                self.loaded = true;
+                console.log("DataPath SVG object loaded");
+            }
         });
 
-        if(this.datapath.contentDocument) {
+        if(this.datapath.contentDocument && !this.loaded) {
             this.loaded = true;
             console.log("DataPath SVG object loaded");
         }
