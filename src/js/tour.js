@@ -98,7 +98,7 @@ $(document).ready( function(){
             tour.start(); 
     }
     catch(ex){
-        console.log(ex)
+        console.log(ex);
     }
         //Crude way of rerunning tour 
         // Clears localStorage variable, then reloads page
