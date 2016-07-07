@@ -904,5 +904,5 @@ window.addEventListener("load", function() {
         $("#datapath-tick").hide();
     }
 
-
+    $("body").removeClass("preload");
 });
