@@ -575,9 +575,10 @@ MarieAsm = function(assembly) {
 };
 
 MarieAsm.prototype.addressNumberFormatter = function(line) {
+    line--;
     var n = 3;
 
-    var str = line.toString();
+    var str = line.toString(16).toUpperCase();
     // http://stackoverflow.com/a/10073788/824294
     // pads leading zeros if str is shorter than 3 characters.
     return str.length >= n ? str : new Array(n - str.length + 1).join("0") + str;
