@@ -512,10 +512,15 @@ window.addEventListener("load", function() {
             $('#datapath-status-bar').removeClass('alert-info').addClass('alert-warning').html("<strong>Note: </strong> Delay is set too low for datapath to update. Increase delay to at least 1000 ms, or set simulator to stepping mode.");
             $("#datapath-display-instructions").css({"opacity": 0.5});
             $("#datapath-diagram").css({"opacity": 0.5});
+            datapath.restart();
         } else {
             $('#datapath-status-bar').removeClass('alert-warning').addClass('alert-info').text(statusInfo.textContent);
             $("#datapath-display-instructions").css({"opacity": 1});
             $("#datapath-diagram").css({"opacity": 1});
+            if(sim) {
+                datapath.setAllRegisters([hex(sim.mar, 3), hex(sim.pc, 3), hex(sim.mbr), hex(sim.ac), hex(sim.in), hex(sim.out), hex(sim.ir)]);
+                datapath.showInstruction();
+            }
         }
     }
 

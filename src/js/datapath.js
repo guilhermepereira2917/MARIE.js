@@ -73,6 +73,17 @@ var DataPath;
         this.setControlBus(null, "read");
         this.setControlBus(null, "write");
         this.setTimeSequence(true);
+
+        /*
+        this.savedPreviousInstruction = null;
+        this.savedCurrentInstruction = null;
+        */
+
+        this.previousInstruction.textContent = "";
+        this.currentInstruction.textContent = "";
+        this.nextInstruction.textContent = "";
+        this.showInstruction();
+        this.incrementedPC = false;
     };
 
     DataPath.prototype.setDataBus = function(isOn, isMemoryInvolved) {
@@ -258,24 +269,80 @@ var DataPath;
         }
 
         this.datapath.contentDocument.getElementById(register + "_register_text").childNodes[0].childNodes[0].textContent = value;
+
+        /*
+        if(register.toLowerCase() === "pc") {
+            if(this.incrementedPC) {
+                this.swapNextInstruction();
+            } else {
+                this.incrementedPC = true;
+            }
+        }
+        */
     };
 
     DataPath.prototype.attachSimulator = function(sim) {
             this.simulator = sim;
             this.displayInstruction.style.visibility = "visible";
             this.restart();
-
-            this.showInstruction();
     };
 
-    DataPath.prototype.showInstruction = function() {
+    DataPath.prototype.decodeInstruction = function(pc) {
+        if(typeof this.simulator.memory[pc] == "undefined") {
+            return undefined;
+        }
+
+        var instruction = intToUint(this.simulator.memory[pc].contents).toString(16);
+
+        for(var op in this.simulator.operators) {
+            if(this.simulator.operators[op].opcode === parseInt(instruction[0], 16)) {
+                return {
+                    line: pc,
+                    operator: op,
+                    operand: instruction.slice(1, 4)
+                };
+            }
+        }
+    };
+
+    DataPath.prototype.showInstruction = function(/*preventSave*/) {
+        this.incrementedPC = false;
         var pc = this.simulator.pc || 0;
         this.timeSeqCounter = 0;
 
-        var previousInstruction = this.simulator.program[pc - 1];
-        var currentInstruction = this.simulator.program[pc];
+        var previousInstruction = /*this.savedPreviousInstruction ||*/ this.simulator.program[pc - 1];
+        var currentInstruction = /*this.savedCurrentInstruction ||*/ this.simulator.program[pc];
         var nextInstruction = this.simulator.program[pc + 1];
+
+        if(typeof previousInstruction == "undefined") {
+            previousInstruction = this.decodeInstruction(pc - 1);
+            this.previousInstruction.style.fontStyle = "italic";
+        } else {
+            this.previousInstruction.style.fontStyle = "normal";
+        }
+
+        if(typeof currentInstruction == "undefined") {
+            currentInstruction = this.decodeInstruction(pc);
+            this.currentInstruction.style.fontStyle = "italic";
+        } else {
+            this.currentInstruction.style.fontStyle = "normal";
+        }
+
+        if(typeof nextInstruction == "undefined") {
+            nextInstruction = this.decodeInstruction(pc + 1);
+            this.nextInstruction.style.fontStyle = "italic";
+        } else {
+            this.nextInstruction.style.fontStyle = "normal";
+        }
+
         var instructions = [previousInstruction, currentInstruction, nextInstruction];
+
+        /*
+        if(preventSave !== false) {
+            this.savedPreviousInstruction = currentInstruction;
+            this.savedCurrentInstruction = nextInstruction;
+        }
+        */
 
         var instructionsContents = instructions.map(function(instruction) {
             if(typeof instruction === "undefined") {
@@ -283,7 +350,7 @@ var DataPath;
             }
 
             return [
-                instruction.line.toString() + ".",
+                addressNumberFormatter(instruction.line) + ":",
                 typeof instruction.label !== "undefined" ? instruction.label + "," : undefined,
                 instruction.operator.toUpperCase(),
                 instruction.operand
@@ -299,10 +366,43 @@ var DataPath;
         this.currentInstruction.textContent = instructionsContents[1];
         this.nextInstruction.textContent = instructionsContents[2];
 
+        this.nextInstruction.style.color = "#888";
+
         while(this.microInstructionsElement.firstChild) {
             this.microInstructionsElement.removeChild(this.microInstructionsElement.firstChild);
         }
     };
+
+    /*
+    DataPath.prototype.swapNextInstruction = function() {
+        var pc = this.simulator.pc || 0;
+        var nextInstruction = this.simulator.program[pc];
+
+        if(typeof nextInstruction == "undefined") {
+            nextInstruction = this.decodeInstruction(pc);
+        }
+
+        if(typeof nextInstruction == "undefined") {
+            return;
+        }
+
+        this.nextInstruction.style.color = "rgb(128, 0, 0)";
+
+        this.savedCurrentInstruction = nextInstruction;
+
+        this.nextInstruction.textContent = [
+            addressNumberFormatter(nextInstruction.line) + ":",
+            typeof nextInstruction.label !== "undefined" ? nextInstruction.label + "," : undefined,
+            nextInstruction.operator.toUpperCase(),
+            nextInstruction.operand
+        ].filter(function(element) {
+            return typeof element !== "undefined";
+        }).map(function(element) {
+            var str = element.toString();
+            return str.length > 10 ? str.substr(0, 7) + "..." : str;
+        }).join(" ");
+    };
+    */
 
     DataPath.prototype.appendMicroInstruction = function(microInstruction) {
         var tr = document.createElement("tr");
@@ -367,5 +467,28 @@ var DataPath;
         }
 
         return bin_array;
+    }
+
+    function intToUint(int, nbit) {
+        var u = new Uint32Array(1);
+        nbit = +nbit || 16;
+        if (nbit > 32) throw new RangeError('intToUint only supports ints up to 32 bits');
+        u[0] = int;
+        if (nbit < 32) { // don't accidentally sign again
+            int = Math.pow(2, nbit) - 1;
+            return u[0] & int;
+        } else {
+            return u[0];
+        }
+    }
+
+    function addressNumberFormatter(line) {
+        line --;
+        var n = 3;
+
+        var str = line.toString(16).toUpperCase();
+        // http://stackoverflow.com/a/10073788/824294
+        // pads leading zeros if str is shorter than 3 characters.
+        return str.length >= n ? str : new Array(n - str.length + 1).join("0") + str;
     }
 }());
