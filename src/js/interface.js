@@ -257,10 +257,14 @@ window.addEventListener("load", function() {
         $('#input-value').focus();
     });
 
+    var placeInputDialog = document.createElement("div");
+    placeInputDialog.id = "place-input-dialog";
+    document.body.appendChild(placeInputDialog);
+
     $('#input-dialog').popoverX({
         show: false,
         keyboard: false,
-        $target: $("#in"),
+        $target: $("#place-input-dialog"),
         placement: "left",
         closeOtherPopovers: false,
         useOffsetForPos: false
@@ -520,6 +524,9 @@ window.addEventListener("load", function() {
         running = false;
 
         datapathWarning(false);
+
+        savedOutput = null;
+        pausedOnInput = false;
 
         if (lastErrorLine !== null) {
             programCodeMirror.removeLineClass(lastErrorLine, "background", "error-line");
@@ -805,6 +812,8 @@ window.addEventListener("load", function() {
         microStepButton.disabled = false;
         datapathWarning(false);
         datapath.restart();
+        savedOutput = null;
+        pausedOnInput = false;
         setStatus("Restarted simulator (memory contents are still preserved)");
     });
 
@@ -812,6 +821,10 @@ window.addEventListener("load", function() {
         outputType = this.selectedIndex;
         repopulateOutputLog();
     });
+
+    window.addEventListener("resize", function() {
+        handleDatapathUI();
+    }, false);
 
     window.addEventListener("beforeunload", function() {
         window.localStorage.setItem("marie-program", programCodeMirror.getValue());
@@ -890,19 +903,49 @@ window.addEventListener("load", function() {
         window.location.hash = "";
     });
 
-    $(window).on('hashchange', function() {
+    function handleDatapathUI() {
         if(window.location.hash === "#datapath") {
-            $("#datapath-tick").show();
-        } else {
-            $("#datapath-tick").hide();
-        }
-    });
+            if(!datapath.loaded) {
+                console.warn("DataPath SVG object has not loaded yet.");
 
-    if(window.location.hash === "#datapath") {
-        $("#datapath-tick").show();
-    } else {
-        $("#datapath-tick").hide();
+                datapath.onLoad = function() {
+                    handleDatapathUI();
+                };
+                return;
+            }
+
+            $("#datapath-tick").show();
+
+            var dpBoundingRect = datapath.datapath.getBoundingClientRect();
+            var boundingRect = datapath.datapath.contentDocument
+                                                .getElementById("in_register")
+                                                .getBoundingClientRect();
+            $("#place-input-dialog").css({
+                top: dpBoundingRect.top + boundingRect.top,
+                left: dpBoundingRect.left + boundingRect.left,
+                width: boundingRect.width,
+                height: boundingRect.height
+            });
+        } else {
+            var inBoundingRect = document.getElementById("in").getBoundingClientRect();
+
+            $("#datapath-tick").hide();
+            $("#place-input-dialog").css({
+                top: inBoundingRect.top,
+                left: inBoundingRect.left,
+                width: inBoundingRect.width,
+                height: inBoundingRect.height
+            });
+        }
+
+        $("#input-dialog").popoverX("refreshPosition");
     }
+
+    handleDatapathUI();
+
+    $(window).on('hashchange', function() {
+        handleDatapathUI();
+    });
 
     $("body").removeClass("preload");
 });

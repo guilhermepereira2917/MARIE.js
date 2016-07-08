@@ -18,12 +18,20 @@ var DataPath;
             if(!self.loaded) {
                 self.loaded = true;
                 console.log("DataPath SVG object loaded");
+
+                if(this.onLoad) {
+                    this.onLoad();
+                }
             }
         });
 
         if(this.datapath.contentDocument && !this.loaded) {
             this.loaded = true;
             console.log("DataPath SVG object loaded");
+
+            if(this.onLoad) {
+                this.onLoad();
+            }
         }
 
         this.populateInstructions();

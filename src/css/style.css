@@ -479,6 +479,12 @@ codeblock {
     pointer-events: all;
 }
 
+#place-input-dialog {
+    position: absolute;
+    visibility: hidden;
+    z-index: -100;
+}
+
 #bottom-menu{
     font-size: 14px;
     border-width: 1px;
