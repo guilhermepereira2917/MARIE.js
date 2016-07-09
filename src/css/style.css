@@ -244,6 +244,10 @@ footer {
     background-color: #ADF;
 }
 
+.highlighted-line {
+    background-color: #EEE;
+}
+
 .current-pc {
     background-color: #0F0 !important;
 }
