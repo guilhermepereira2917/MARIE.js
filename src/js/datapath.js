@@ -1,3 +1,5 @@
+/* globals Utility */
+
 var DataPath;
 
 (function() {
@@ -225,12 +227,12 @@ var DataPath;
         if(alu_op_int === -1) {
             alu_op_int = 0;
         }
-        var alu_op = uintToBinArray(alu_op_int);
+        var alu_op = Utility.uintToBinArray(alu_op_int);
 
         var acToAluWire = dpDocument.getElementById("ac_to_alu_wire");
         var mbrToAluWire = dpDocument.getElementById("mbr_to_alu_wire");
 
-        [0, 1, 2].map(function(element) {
+        [2, 1, 0].map(function(element) {
             dpDocument.getElementById("alu_wire_" + element).style.stroke = alu_op[element] ? "lime" : "rgb(0, 51, 0)";
         });
 
@@ -292,7 +294,7 @@ var DataPath;
             return undefined;
         }
 
-        var instruction = intToUint(this.simulator.memory[pc].contents).toString(16);
+        var instruction = Utility.intToUint(this.simulator.memory[pc].contents).toString(16);
 
         for(var op in this.simulator.operators) {
             if(this.simulator.operators[op].opcode === parseInt(instruction[0], 16)) {
@@ -350,7 +352,7 @@ var DataPath;
             }
 
             return [
-                addressNumberFormatter(instruction.line) + ":",
+                Utility.lineToMemoryAddress(instruction.line) + ":",
                 typeof instruction.label !== "undefined" ? instruction.label + "," : undefined,
                 instruction.operator.toUpperCase(),
                 instruction.operand
@@ -449,46 +451,4 @@ var DataPath;
             }
         }
     };
-
-    function uintToBinArray(num, padding) {
-        var bin_array = [];
-        while(num > 0) {
-            bin_array.push(num % 2);
-            num >>= 1;
-        }
-
-        if(typeof padding !== "undefined") {
-            padding -= bin_array.length;
-
-            while(padding > 0) {
-                bin_array.push(0);
-                padding -= 1;
-            }
-        }
-
-        return bin_array;
-    }
-
-    function intToUint(int, nbit) {
-        var u = new Uint32Array(1);
-        nbit = +nbit || 16;
-        if (nbit > 32) throw new RangeError('intToUint only supports ints up to 32 bits');
-        u[0] = int;
-        if (nbit < 32) { // don't accidentally sign again
-            int = Math.pow(2, nbit) - 1;
-            return u[0] & int;
-        } else {
-            return u[0];
-        }
-    }
-
-    function addressNumberFormatter(line) {
-        line --;
-        var n = 3;
-
-        var str = line.toString(16).toUpperCase();
-        // http://stackoverflow.com/a/10073788/824294
-        // pads leading zeros if str is shorter than 3 characters.
-        return str.length >= n ? str : new Array(n - str.length + 1).join("0") + str;
-    }
 }());
