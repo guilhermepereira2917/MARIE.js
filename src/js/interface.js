@@ -25,7 +25,8 @@ window.addEventListener("load", function() {
         uploadButton = document.getElementById("upload"),
         fileInput = document.getElementById("fileInput"),
         datapathEle = document.getElementById("datapath-diagram"),
-        datapathInstructionElement = document.getElementById("datapath-display-instructions");
+        datapathInstructionElement = document.getElementById("datapath-display-instructions"),
+        currentInstructionRegisterLog = null;
 
     const HEX = 0, DEC = 1, ASCII = 2;
     var minDatapathDelay = parseInt(localStorage.getItem("min-datapath-delay")) || 1000;
@@ -379,8 +380,8 @@ window.addEventListener("load", function() {
 
         var shouldScrollToBottomRegisterLog = registerLogOuter.clientHeight === (registerLogOuter.scrollHeight - registerLogOuter.scrollTop);
 
-        registerLog.appendChild(document.createTextNode(message));
-        registerLog.appendChild(document.createElement("br"));
+        currentInstructionRegisterLog.appendChild(document.createTextNode(message));
+        currentInstructionRegisterLog.appendChild(document.createElement("br"));
 
         if(shouldScrollToBottomRegisterLog) {
             registerLogOuter.scrollTop = registerLogOuter.scrollHeight;
@@ -644,6 +645,36 @@ window.addEventListener("load", function() {
             if(!running || delay >= minDatapathDelay) {
                 datapath.showInstruction();
             }
+
+            var currentInstruction = sim.current();
+
+            console.log(currentInstruction);
+
+            currentInstructionRegisterLog = document.createElement("div");
+
+            currentInstructionRegisterLog.addEventListener("mouseover", function() {
+                this.style.background = "#eee";
+            });
+
+            currentInstructionRegisterLog.addEventListener("mouseout", function() {
+                this.style.background = "transparent";
+            });
+
+            if(currentInstruction && typeof currentInstruction.line !== "undefined") {
+                currentInstructionRegisterLog.dataset.currentLine = currentInstruction.line;
+
+                currentInstructionRegisterLog.addEventListener("mouseover", function() {
+                    var line = parseInt(this.dataset.currentLine);
+                    programCodeMirror.addLineClass(line, "background", "highlighted-line");
+                }, false);
+
+                currentInstructionRegisterLog.addEventListener("mouseout", function() {
+                    var line = parseInt(this.dataset.currentLine);
+                    programCodeMirror.removeLineClass(line, "background", "highlighted-line");
+                }, false);
+            }
+
+            registerLog.appendChild(currentInstructionRegisterLog);
         });
         sim.setEventListener("reglog", regLogFunc);
         sim.setEventListener("decode", function(old) {
