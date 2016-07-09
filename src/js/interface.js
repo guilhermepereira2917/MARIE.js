@@ -1,4 +1,4 @@
-/* globals getCompletions, MarieAsm, MarieSim, DataPath, saveAs */
+/* globals Utility, getCompletions, MarieAsm, MarieSim, DataPath, saveAs */
 
 window.addEventListener("load", function() {
     "use strict";
@@ -85,12 +85,6 @@ window.addEventListener("load", function() {
         });
     }
 
-    function hex(num, digits) {
-        digits = digits || 4;
-        var s = "0000" + (num >>> 0).toString(16).toUpperCase();
-        return s.substr(s.length - digits);
-    }
-
     function populateMemoryView(sim) {
         while (memory.firstChild) {
             memory.removeChild(memory.firstChild);
@@ -107,7 +101,7 @@ window.addEventListener("load", function() {
         headers.appendChild(th);
         for (i = 0; i < 16; i++) {
             th = document.createElement("th");
-            th.appendChild(document.createTextNode("+" + hex(i, 1)));
+            th.appendChild(document.createTextNode("+" + Utility.hex(i, 1)));
             headers.appendChild(th);
         }
 
@@ -118,14 +112,14 @@ window.addEventListener("load", function() {
             tr = document.createElement("tr");
 
             header = document.createElement("th");
-            header.appendChild(document.createTextNode(hex(i, 3)));
+            header.appendChild(document.createTextNode(Utility.hex(i, 3)));
             tr.appendChild(header);
 
             for (j = 0; j < 16; j++) {
                 cell = document.createElement("td");
                 cell.id = "cell" + (i + j);
                 cell.className = "cell";
-                cell.appendChild(document.createTextNode(hex(sim.memory[i + j].contents)));
+                cell.appendChild(document.createTextNode(Utility.hex(sim.memory[i + j].contents)));
                 tr.appendChild(cell);
             }
 
@@ -152,11 +146,11 @@ window.addEventListener("load", function() {
 
             var addressCell = document.createElement("td");
             addressCell.classList.add("watch-list-address");
-            addressCell.appendChild(document.createTextNode(hex(address, 3)));
+            addressCell.appendChild(document.createTextNode(Utility.hex(address, 3)));
 
             var valueCell = document.createElement("td");
             valueCell.classList.add("watch-list-value");
-            valueCell.appendChild(document.createTextNode(hex(sim.memory[address].contents)));
+            valueCell.appendChild(document.createTextNode(Utility.hex(sim.memory[address].contents)));
 
             tr.appendChild(labelCell);
             tr.appendChild(addressCell);
@@ -173,7 +167,7 @@ window.addEventListener("load", function() {
     function convertOutput(value) {
         switch(outputType) {
             case HEX:
-                return hex(value);
+                return Utility.hex(value);
             case DEC:
                 return value;
             case ASCII:
@@ -195,15 +189,15 @@ window.addEventListener("load", function() {
     }
 
     function resetRegisters() {
-        document.getElementById("ac").textContent = hex(sim.ac);
-        document.getElementById("ir").textContent = hex(sim.ir);
-        document.getElementById("mar").textContent = hex(sim.mar, 3);
-        document.getElementById("mbr").textContent = hex(sim.mbr);
-        document.getElementById("pc").textContent = hex(sim.pc, 3);
-        document.getElementById("in").textContent = hex(sim.in);
-        document.getElementById("out").textContent = hex(sim.out);
+        document.getElementById("ac").textContent = Utility.hex(sim.ac);
+        document.getElementById("ir").textContent = Utility.hex(sim.ir);
+        document.getElementById("mar").textContent = Utility.hex(sim.mar, 3);
+        document.getElementById("mbr").textContent = Utility.hex(sim.mbr);
+        document.getElementById("pc").textContent = Utility.hex(sim.pc, 3);
+        document.getElementById("in").textContent = Utility.hex(sim.in);
+        document.getElementById("out").textContent = Utility.hex(sim.out);
 
-        datapath.setAllRegisters([hex(sim.mar, 3), hex(sim.pc, 3), hex(sim.mbr), hex(sim.ac), hex(sim.in), hex(sim.out), hex(sim.ir)]);
+        datapath.setAllRegisters([Utility.hex(sim.mar, 3), Utility.hex(sim.pc, 3), Utility.hex(sim.mbr), Utility.hex(sim.ac), Utility.hex(sim.in), Utility.hex(sim.out), Utility.hex(sim.ir)]);
 
         $(".current-pc").removeClass("current-pc");
         $(".current-mar").removeClass("current-mar");
@@ -518,7 +512,7 @@ window.addEventListener("load", function() {
             $("#datapath-display-instructions").css({"opacity": 1});
             $("#datapath-diagram").css({"opacity": 1});
             if(sim) {
-                datapath.setAllRegisters([hex(sim.mar, 3), hex(sim.pc, 3), hex(sim.mbr), hex(sim.ac), hex(sim.in), hex(sim.out), hex(sim.ir)]);
+                datapath.setAllRegisters([Utility.hex(sim.mar, 3), Utility.hex(sim.pc, 3), Utility.hex(sim.mbr), Utility.hex(sim.ac), Utility.hex(sim.in), Utility.hex(sim.out), Utility.hex(sim.ir)]);
                 datapath.showInstruction();
             }
         }
@@ -578,7 +572,7 @@ window.addEventListener("load", function() {
         });
 
         sim.setEventListener("regwrite", function(e) {
-            document.getElementById(e.register).textContent = hex(e.newValue, e.register == "mar" || e.register == "pc" ? 3 : 4);
+            document.getElementById(e.register).textContent = Utility.hex(e.newValue, e.register == "mar" || e.register == "pc" ? 3 : 4);
 
             stateHistory.push({
                 type: "regwrite",
@@ -588,7 +582,7 @@ window.addEventListener("load", function() {
             });
 
             if(!running || delay >= minDatapathDelay) {
-                datapath.setRegister(e.register, hex(e.newValue, e.register == "mar" || e.register == "pc" ? 3 : 4));
+                datapath.setRegister(e.register, Utility.hex(e.newValue, e.register == "mar" || e.register == "pc" ? 3 : 4));
                 datapath.setControlBus(e.register, "write");
 
                 datapath.showDataBusAccess(false, running ? delay/2 : 1000);
@@ -636,12 +630,12 @@ window.addEventListener("load", function() {
             });
 
             var cell = document.getElementById("cell" + e.address);
-            cell.textContent = hex(e.newCell.contents, false);
+            cell.textContent = Utility.hex(e.newCell.contents, false);
             cell.classList.add("memory-changed");
 
             for (var address in symbolCells) {
                 if (address == e.address) {
-                    symbolCells[address].textContent = hex(e.newCell.contents);
+                    symbolCells[address].textContent = Utility.hex(e.newCell.contents);
                 }
             }
         });
@@ -699,9 +693,9 @@ window.addEventListener("load", function() {
                     datapath.showDataBusAccess(false, 1000);
 
                     datapath.setControlBus(action.register, "write");
-                    datapath.setRegister(action.register, hex(newValue, action.register == "mar" || action.register == "pc" ? 3 : 4));
+                    datapath.setRegister(action.register, Utility.hex(newValue, action.register == "mar" || action.register == "pc" ? 3 : 4));
 
-                    document.getElementById(action.register).textContent = hex(newValue, action.register == "mar" || action.register == "pc" ? 3 : 4);
+                    document.getElementById(action.register).textContent = Utility.hex(newValue, action.register == "mar" || action.register == "pc" ? 3 : 4);
                     if (action.register == "pc") {
                         document.getElementById("cell" + oldValue).classList.remove("current-pc");
                         document.getElementById("cell" + newValue).classList.add("current-pc");
@@ -720,10 +714,10 @@ window.addEventListener("load", function() {
 
                     sim.memory[action.address].contents = action.value;
                     var cell = document.getElementById("cell" + action.address);
-                    cell.textContent = hex(action.value, false);
+                    cell.textContent = Utility.hex(action.value, false);
                     for (var address in symbolCells) {
                         if (address == action.address) {
-                            symbolCells[address].textContent = hex(action.value);
+                            symbolCells[address].textContent = Utility.hex(action.value);
                         }
                     }
                     break;
