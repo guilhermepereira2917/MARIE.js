@@ -515,6 +515,7 @@ window.addEventListener("load", function() {
     }
 
     assembleButton.addEventListener("click", function() {
+        setStatus("Assembling", false);
         stop();
         running = false;
 
@@ -823,9 +824,13 @@ window.addEventListener("load", function() {
     window.addEventListener("resize", function() {
         handleDatapathUI();
     }, false);
+    
+    function saveFile(){
+        window.localStorage.setItem("marie-program",programCodeMirror.getValue());
+    }
 
     window.addEventListener("beforeunload", function() {
-        window.localStorage.setItem("marie-program", programCodeMirror.getValue());
+        saveFile();
 
         var breakpoints = [];
         var count = programCodeMirror.lineCount(), i;
@@ -946,4 +951,15 @@ window.addEventListener("load", function() {
     });
 
     $("body").removeClass("preload");
+
+
+
+
+    function saveTimeout(){
+        setTimeout(saveFile(), 10*1000);
+    }
+
+    if(saveTimeout) { 
+        clearTimeout(saveTimeout);
+    }
 });
