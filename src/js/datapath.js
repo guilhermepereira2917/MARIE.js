@@ -96,14 +96,10 @@ var DataPath;
 
         var data_bus = this.datapath.contentDocument.getElementById("data_bus");
 
-        for(var i = 0; i < data_bus.childNodes.length; i++) {
-            if(data_bus.childNodes[i].tagName == "path") {
-                if(isOn) {
-                    data_bus.childNodes[i].style.stroke = "lime";
-                } else {
-                    data_bus.childNodes[i].style.stroke = "green";
-                }
-            }
+        if(isOn) {
+            data_bus.style.stroke = "lime";
+        } else {
+            data_bus.style.stroke = "green";
         }
 
         var memToMARWire = this.datapath.contentDocument.getElementById("memory_to_mar_wire");
@@ -224,15 +220,18 @@ var DataPath;
 
         var alu_opcodes = ["set", "add", "subtract", "clear", "<?", "=?", ">?", "incr_pc"];
         var alu_op_int = alu_opcodes.indexOf(type);
+
         if(alu_op_int === -1) {
             alu_op_int = 0;
         }
         var alu_op = Utility.uintToBinArray(alu_op_int);
 
+        alu_op.reverse();
+
         var acToAluWire = dpDocument.getElementById("ac_to_alu_wire");
         var mbrToAluWire = dpDocument.getElementById("mbr_to_alu_wire");
 
-        [2, 1, 0].map(function(element) {
+        [0, 1, 2].map(function(element) {
             dpDocument.getElementById("alu_wire_" + element).style.stroke = alu_op[element] ? "lime" : "rgb(0, 51, 0)";
         });
 

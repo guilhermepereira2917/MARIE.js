@@ -210,16 +210,14 @@ var MarieSim,
                 this.onRegWrite.call(this, {
                     register: target,
                     oldValue: oldValue,
-                    newValue: this[target],
-                    type: "set"
+                    newValue: this[target]
                 });
             }
 
             this.stateHistory.push({
                 type: "regwrite",
                 register: target,
-                value: oldValue,
-                regtype: "set"
+                value: oldValue
             });
         }
         else if (target == "m") {
@@ -241,14 +239,15 @@ var MarieSim,
                 this.onRegRead.call(this, {
                     register: source,
                     value: this[source],
-                    type: "set"
+                    alutype: "set"
                 });
             }
 
             this.stateHistory.push({
                 type: "regread",
                 register: source,
-                value: this[source]
+                value: this[source],
+                alutype: "set"
             });
 
             if (this.onMemWrite) {
@@ -297,14 +296,15 @@ var MarieSim,
                     this.onRegRead.call(this, {
                         register: source,
                         value: this[source],
-                        type: "set"
+                        alutype: "set"
                     });
                 }
 
                 this.stateHistory.push({
                     type: "regread",
                     register: source,
-                    value: this[source]
+                    value: this[source],
+                    alutype: "set"
                 });
             }
 
@@ -312,16 +312,14 @@ var MarieSim,
                 this.onRegWrite.call(this, {
                     register: target,
                     oldValue: oldValue,
-                    newValue: this[target],
-                    type: "set"
+                    newValue: this[target]
                 });
             }
 
             this.stateHistory.push({
                 type: "regwrite",
                 register: target,
-                value: oldValue,
-                regtype: "set"
+                value: oldValue
             });
         }
     };
@@ -372,14 +370,15 @@ var MarieSim,
                 this.onRegRead.call(this, {
                     register: source,
                     value: this[source],
-                    type: subtract ? "subtract" : "add"
+                    alutype: subtract ? "subtract" : "add"
                 });
             }
 
             this.stateHistory.push({
                 type: "regread",
                 register: source,
-                value: this[source]
+                value: this[source],
+                alutype: subtract ? "subtract" : "add"
             });
         } else {
             // source is the target
@@ -387,14 +386,15 @@ var MarieSim,
                 this.onRegRead.call(this, {
                     register: target,
                     value: this[target],
-                    type: subtract ? "subtract" : "add"
+                    alutype: target === "pc" ? "incr_pc" : (subtract ? "subtract" : "add")
                 });
             }
 
             this.stateHistory.push({
                 type: "regread",
                 register: target,
-                value: this[target]
+                value: this[target],
+                alutype: target === "pc" ? "incr_pc" : (subtract ? "subtract" : "add")
             });
         }
 
@@ -402,16 +402,14 @@ var MarieSim,
             this.onRegWrite.call(this, {
                 register: target,
                 oldValue: oldValue,
-                newValue: this[target],
-                type: subtract ? "subtract" : "add"
+                newValue: this[target]
             });
         }
 
         this.stateHistory.push({
             type: "regwrite",
             register: target,
-            value: oldValue,
-            regtype: subtract ? "subtract" : "add"
+            value: oldValue
         });
     };
 
@@ -696,19 +694,19 @@ var MarieSim,
                 switch (this.ir & 0xF00) {
                     case 0x000:
                         if (this.onRegLog)
-                            this.onRegLog("Is AC < 0?");
+                            this.onRegLog("Is AC < 0? " + (this.ac < 0 ? "Yes!" : "No!"));
                         if (this.ac < 0)
                             this.regAdd("pc", 1);
                         break;
                     case 0x400:
                         if (this.onRegLog)
-                            this.onRegLog("Is AC = 0?");
+                            this.onRegLog("Is AC = 0? " + (this.ac === 0 ? "Yes!" : "No!"));
                         if (this.ac === 0)
                             this.regAdd("pc", 1);
                         break;
                     case 0x800:
                         if (this.onRegLog)
-                            this.onRegLog("Is AC > 0?");
+                            this.onRegLog("Is AC > 0? " + (this.ac > 0 ? "Yes!" : "No!"));
                         if (this.ac > 0)
                             this.regAdd("pc", 1);
                         break;
@@ -752,8 +750,6 @@ var MarieSim,
 
                 if(this.onRegLog) {
                     this.onRegLog("----- halted -----");
-                    this.onRegLog("");
-                    this.onRegLog("");
                 }
 
                 this.stateHistory.push({type: "halt"});

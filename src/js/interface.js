@@ -1,5 +1,5 @@
 /* globals Utility, getCompletions, MarieAsm, MarieSim, DataPath, saveAs */
-
+var sim = null;
 window.addEventListener("load", function() {
     "use strict";
 
@@ -32,7 +32,7 @@ window.addEventListener("load", function() {
     var minDatapathDelay = parseInt(localStorage.getItem("min-datapath-delay")) || 1000;
 
     var asm = null,
-        sim = null,
+
         interval = null,
         lastErrorLine = null,
         lastCurrentLine = null,
@@ -428,7 +428,6 @@ window.addEventListener("load", function() {
         else {
             runButton.disabled = true;
             stepButton.disabled = true;
-            stepBackButton.disabled = true;
             microStepButton.disabled = true;
         }
     }
@@ -450,6 +449,8 @@ window.addEventListener("load", function() {
 
     function runLoop(micro) {
         microStepping = micro;
+
+        setStatus(micro ? "Performed one micro-step" : "Performed one step");
 
         try {
             var step = true;
@@ -554,7 +555,7 @@ window.addEventListener("load", function() {
         sim.setEventListener("regread", function(e) {
             if(!running || delay >= minDatapathDelay) {
                 datapath.setControlBus(e.register, "read");
-                datapath.setALUBus(e.type);
+                datapath.setALUBus(e.alutype);
 
                 datapath.showDataBusAccess(false, running ? delay/2 : 1000);
             }
@@ -618,8 +619,6 @@ window.addEventListener("load", function() {
 
             var currentInstruction = sim.current();
 
-            console.log(currentInstruction);
-
             currentInstructionRegisterLog = document.createElement("div");
             currentInstructionRegisterLog.classList.add("instruction-register-log");
 
@@ -669,18 +668,23 @@ window.addEventListener("load", function() {
             sim.step();
         sim.stateHistory.pop();
         action = sim.stateHistory.pop();
+
+        if(sim.stateHistory.length > 0) {
+            setStatus("Stepped backwards one step");
+        }
+
         while (action.type != "step" && sim.stateHistory.length > 0) {
             switch (action.type) {
                 case "regread":
                     datapath.setControlBus(action.register, "read");
                     datapath.showDataBusAccess(false, 1000);
+                    datapath.setALUBus(action.alutype);
                     break;
                 case "regwrite":
                     var oldValue = sim[action.register],
                         newValue = action.value;
                     sim[action.register] = newValue;
 
-                    datapath.setALUBus(action.regtype);
                     datapath.showDataBusAccess(false, 1000);
 
                     datapath.setControlBus(action.register, "write");
@@ -722,6 +726,11 @@ window.addEventListener("load", function() {
                     break;
                 case "halt":
                     sim.halted = false;
+                    running = false;
+                    runButton.textContent = "Run";
+                    runButton.disabled = false;
+                    stepButton.disabled = false;
+                    microStepButton.disabled = false;
                     break;
             }
             action = sim.stateHistory.pop();
@@ -917,7 +926,6 @@ window.addEventListener("load", function() {
             });
         } else {
             var inBoundingRect = document.getElementById("in").getBoundingClientRect();
-            console.log(inBoundingRect);
 
             $("#datapath-tick").hide();
             $("#place-input-dialog").css({
