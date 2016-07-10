@@ -292,9 +292,12 @@ footer {
 	font-family: sans-serif;
 }
 
-#output-log {
-    border-top: 0.1em solid #ccc;
-	font-family: sans-serif;
+.instruction-register-log {
+    border-bottom: 1px solid grey;
+}
+
+.instruction-register-log:hover {
+    background: #eee;
 }
 
 #output-select {

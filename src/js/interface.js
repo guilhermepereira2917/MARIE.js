@@ -33,7 +33,6 @@ window.addEventListener("load", function() {
 
     var asm = null,
         sim = null,
-        stateHistory = [],
         interval = null,
         lastErrorLine = null,
         lastCurrentLine = null,
@@ -298,7 +297,11 @@ window.addEventListener("load", function() {
             $('#input-dialog').popoverX('hide');
         }
         else {
-            $('#input-error').show({});
+            $('#input-error').show({
+                step: function() {
+                    $('#input-dialog').popoverX("refreshPosition");
+                }
+            });
         }
     }
 
@@ -329,6 +332,7 @@ window.addEventListener("load", function() {
             stop(true);
             setStatus("Halted at user request.");
             runButton.textContent = "Continue";
+            running = false;
             $('#input-dialog').popoverX('hide');
             pausedOnInput = true;
             savedOutput = output;
@@ -336,10 +340,6 @@ window.addEventListener("load", function() {
     }
 
     function outputFunc(value) {
-        stateHistory.push({
-            type: "output"
-        });
-
         var shouldScrollToBottomOutputLog = outputLogOuter.clientHeight === (outputLogOuter.scrollHeight - outputLogOuter.scrollTop);
 
         outputList.push(value);
@@ -460,12 +460,6 @@ window.addEventListener("load", function() {
             else {
                 sim.step();
             }
-
-            if (step) {
-                stateHistory.push({
-                    type: "step"
-                });
-            }
         }
         catch (e) {
             // prevents catastrophic failure if an error occurs (whether it is MARIE or some other JavaScript error)
@@ -563,24 +557,11 @@ window.addEventListener("load", function() {
                 datapath.setALUBus(e.type);
 
                 datapath.showDataBusAccess(false, running ? delay/2 : 1000);
-
-                stateHistory.push({
-                    type: "regread",
-                    register: e.register,
-                    value: e.value
-                });
             }
         });
 
         sim.setEventListener("regwrite", function(e) {
             document.getElementById(e.register).textContent = Utility.hex(e.newValue, e.register == "mar" || e.register == "pc" ? 3 : 4);
-
-            stateHistory.push({
-                type: "regwrite",
-                register: e.register,
-                value: e.oldValue,
-                regtype: e.type
-            });
 
             if(!running || delay >= minDatapathDelay) {
                 datapath.setRegister(e.register, Utility.hex(e.newValue, e.register == "mar" || e.register == "pc" ? 3 : 4));
@@ -606,16 +587,11 @@ window.addEventListener("load", function() {
         initializeRegisterLog();
         resetRegisters();
 
-        sim.setEventListener("memread", function(e) {
+        sim.setEventListener("memread", function() {
             if(!running || delay >= minDatapathDelay) {
                 datapath.setControlBus("memory", "read");
                 datapath.showDataBusAccess(true, running ? delay/2 : 1000);
             }
-
-            stateHistory.push({
-                type: "memread",
-                address: e.address
-            });
         });
 
         sim.setEventListener("memwrite", function(e) {
@@ -623,12 +599,6 @@ window.addEventListener("load", function() {
                 datapath.setControlBus("memory", "write");
                 datapath.showDataBusAccess(true, running ? delay/2 : 1000);
             }
-
-            stateHistory.push({
-                type: "memwrite",
-                address: e.address,
-                value: e.oldCell
-            });
 
             var cell = document.getElementById("cell" + e.address);
             cell.textContent = Utility.hex(e.newCell.contents, false);
@@ -651,14 +621,7 @@ window.addEventListener("load", function() {
             console.log(currentInstruction);
 
             currentInstructionRegisterLog = document.createElement("div");
-
-            currentInstructionRegisterLog.addEventListener("mouseover", function() {
-                this.style.background = "#eee";
-            });
-
-            currentInstructionRegisterLog.addEventListener("mouseout", function() {
-                this.style.background = "transparent";
-            });
+            currentInstructionRegisterLog.classList.add("instruction-register-log");
 
             if(currentInstruction && typeof currentInstruction.line !== "undefined") {
                 currentInstructionRegisterLog.dataset.currentLine = currentInstruction.line;
@@ -677,18 +640,10 @@ window.addEventListener("load", function() {
             registerLog.appendChild(currentInstructionRegisterLog);
         });
         sim.setEventListener("reglog", regLogFunc);
-        sim.setEventListener("decode", function(old) {
+        sim.setEventListener("decode", function() {
             datapath.setALUBus("decode");
-
-            stateHistory.push({
-                type: "decode",
-                opcode: old
-            });
         });
 
-        sim.setEventListener("halt", function() {
-            stateHistory.push({type: "halt"});
-        });
         stepButton.disabled = false;
         microStepButton.disabled = false;
         stepBackButton.disabled = true;
@@ -704,12 +659,17 @@ window.addEventListener("load", function() {
     });
 
     stepBackButton.addEventListener("click", function() {
-        var action = stateHistory[stateHistory.length - 1];
+        if(pausedOnInput) {
+            savedOutput = null;
+            pausedOnInput = false;
+        }
+
+        var action = sim.stateHistory[sim.stateHistory.length - 1];
         if (action.type != "step")
             sim.step();
-        stateHistory.pop();
-        action = stateHistory.pop();
-        while (action.type != "step" && stateHistory.length > 0) {
+        sim.stateHistory.pop();
+        action = sim.stateHistory.pop();
+        while (action.type != "step" && sim.stateHistory.length > 0) {
             switch (action.type) {
                 case "regread":
                     datapath.setControlBus(action.register, "read");
@@ -764,14 +724,14 @@ window.addEventListener("load", function() {
                     sim.halted = false;
                     break;
             }
-            action = stateHistory.pop();
+            action = sim.stateHistory.pop();
         }
 
-        if (stateHistory.length === 0) {
+        if (sim.stateHistory.length === 0) {
             stepBackButton.disabled = true;
         }
         else {
-            stateHistory.push({type: "step"});
+            sim.stateHistory.push({type: "step"});
         }
 
         datapath.showInstruction();
@@ -833,7 +793,6 @@ window.addEventListener("load", function() {
         running = false;
         sim.restart();
         resetRegisters();
-        stateHistory = [];
         updateCurrentLine(true);
         runButton.textContent = "Run";
         runButton.disabled = false;
@@ -958,6 +917,7 @@ window.addEventListener("load", function() {
             });
         } else {
             var inBoundingRect = document.getElementById("in").getBoundingClientRect();
+            console.log(inBoundingRect);
 
             $("#datapath-tick").hide();
             $("#place-input-dialog").css({
