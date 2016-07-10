@@ -92,6 +92,7 @@ var MarieSim,
         this.stepper = null;
         this.paused = false;
         this.microStepper = null;
+        this.stateHistory = [];
     };
 
 
@@ -200,6 +201,11 @@ var MarieSim,
                 });
             }
 
+            this.stateHistory.push({
+                type: "memread",
+                address: this.mar
+            });
+
             if (this.onRegWrite) {
                 this.onRegWrite.call(this, {
                     register: target,
@@ -208,6 +214,13 @@ var MarieSim,
                     type: "set"
                 });
             }
+
+            this.stateHistory.push({
+                type: "regwrite",
+                register: target,
+                value: oldValue,
+                regtype: "set"
+            });
         }
         else if (target == "m") {
             if (this.onRegLog) {
@@ -232,6 +245,12 @@ var MarieSim,
                 });
             }
 
+            this.stateHistory.push({
+                type: "regread",
+                register: source,
+                value: this[source]
+            });
+
             if (this.onMemWrite) {
                 this.onMemWrite.call(this, {
                     address: this.mar,
@@ -239,6 +258,12 @@ var MarieSim,
                     newCell: this.memory[this.mar]
                 });
             }
+
+            this.stateHistory.push({
+                type: "memwrite",
+                address: this.mar,
+                value: oldCell
+            });
         }
         else {
             if (this.onRegLog) {
@@ -267,11 +292,19 @@ var MarieSim,
 
             this[target] = Utility.uintToInt(src & msk);
 
-            if (typeof source == "string" && this.onRegRead) {
-                this.onRegRead.call(this, {
+            if (typeof source == "string") {
+                if(this.onRegRead) {
+                    this.onRegRead.call(this, {
+                        register: source,
+                        value: this[source],
+                        type: "set"
+                    });
+                }
+
+                this.stateHistory.push({
+                    type: "regread",
                     register: source,
-                    value: this[source],
-                    type: "set"
+                    value: this[source]
                 });
             }
 
@@ -283,6 +316,13 @@ var MarieSim,
                     type: "set"
                 });
             }
+
+            this.stateHistory.push({
+                type: "regwrite",
+                register: target,
+                value: oldValue,
+                regtype: "set"
+            });
         }
     };
 
@@ -326,21 +366,36 @@ var MarieSim,
             this[target] += typeof source == "string" ? this[source] : source;
         }
 
-        if (this.onRegRead) {
-            if(typeof source == "string") {
+
+        if(typeof source == "string") {
+            if (this.onRegRead) {
                 this.onRegRead.call(this, {
                     register: source,
                     value: this[source],
                     type: subtract ? "subtract" : "add"
                 });
-            } else {
-                // source is the target
+            }
+
+            this.stateHistory.push({
+                type: "regread",
+                register: source,
+                value: this[source]
+            });
+        } else {
+            // source is the target
+            if (this.onRegRead) {
                 this.onRegRead.call(this, {
                     register: target,
                     value: this[target],
                     type: subtract ? "subtract" : "add"
                 });
             }
+
+            this.stateHistory.push({
+                type: "regread",
+                register: target,
+                value: this[target]
+            });
         }
 
         if (this.onRegWrite) {
@@ -351,6 +406,13 @@ var MarieSim,
                 type: subtract ? "subtract" : "add"
             });
         }
+
+        this.stateHistory.push({
+            type: "regwrite",
+            register: target,
+            value: oldValue,
+            regtype: subtract ? "subtract" : "add"
+        });
     };
 
 
@@ -387,6 +449,10 @@ var MarieSim,
         while (!this.halted && microstep != "paused" && microstep != "step") {
             microstep = this.microStep();
         }
+
+        this.stateHistory.push({
+            type: "step"
+        });
     };
 
 
@@ -452,6 +518,11 @@ var MarieSim,
                     this.onRegLog(["Decoded opcode", opcode.toString(16).toUpperCase(), "as", op].join(" "));
                 }
 
+                this.stateHistory.push({
+                    type: "decode",
+                    opcode: this.opcode
+                });
+
                 if (this.onDecode) {
                     this.onDecode.call(this, this.opcode, op);
                 }
@@ -465,7 +536,7 @@ var MarieSim,
         throw new MarieSimError("Illegal instruction", this.ir);
     };
 
-    
+
     /**
      * MarieSim.prototype.execute - Performs the execute part of the
      * fetch-decode-execute cycle.
@@ -603,6 +674,10 @@ var MarieSim,
             opcode: 0x6,
             operand: false,
             fn: function*() {
+                this.stateHistory.push({
+                    type: "output"
+                });
+
                 yield this.regSet("out", "ac");
                 yield this.outputCallback.call(null, this.out);
             }
@@ -680,6 +755,8 @@ var MarieSim,
                     this.onRegLog("");
                     this.onRegLog("");
                 }
+
+                this.stateHistory.push({type: "halt"});
 
                 yield null;
             }
