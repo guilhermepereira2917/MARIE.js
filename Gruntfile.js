@@ -101,6 +101,14 @@ module.exports = function(grunt) {
         htmllint: {
             all: ["build/**/*.html"]
         },
+        jsdoc : {
+            dist : {
+                src: ['src/js/**/*.js', 'README.md'],
+                options: {
+                    destination : 'doc'
+                }
+            }
+        },
         clean: ['build', 'working']
     });
 

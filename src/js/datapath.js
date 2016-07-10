@@ -1,3 +1,5 @@
+/* globals Utility */
+
 var DataPath;
 
 (function() {
@@ -18,12 +20,20 @@ var DataPath;
             if(!self.loaded) {
                 self.loaded = true;
                 console.log("DataPath SVG object loaded");
+
+                if(this.onLoad) {
+                    this.onLoad();
+                }
             }
         });
 
         if(this.datapath.contentDocument && !this.loaded) {
             this.loaded = true;
             console.log("DataPath SVG object loaded");
+
+            if(this.onLoad) {
+                this.onLoad();
+            }
         }
 
         this.populateInstructions();
@@ -65,6 +75,17 @@ var DataPath;
         this.setControlBus(null, "read");
         this.setControlBus(null, "write");
         this.setTimeSequence(true);
+
+        /*
+        this.savedPreviousInstruction = null;
+        this.savedCurrentInstruction = null;
+        */
+
+        this.previousInstruction.textContent = "";
+        this.currentInstruction.textContent = "";
+        this.nextInstruction.textContent = "";
+        this.showInstruction();
+        this.incrementedPC = false;
     };
 
     DataPath.prototype.setDataBus = function(isOn, isMemoryInvolved) {
@@ -75,14 +96,10 @@ var DataPath;
 
         var data_bus = this.datapath.contentDocument.getElementById("data_bus");
 
-        for(var i = 0; i < data_bus.childNodes.length; i++) {
-            if(data_bus.childNodes[i].tagName == "path") {
-                if(isOn) {
-                    data_bus.childNodes[i].style.stroke = "lime";
-                } else {
-                    data_bus.childNodes[i].style.stroke = "green";
-                }
-            }
+        if(isOn) {
+            data_bus.style.stroke = "lime";
+        } else {
+            data_bus.style.stroke = "green";
         }
 
         var memToMARWire = this.datapath.contentDocument.getElementById("memory_to_mar_wire");
@@ -203,10 +220,13 @@ var DataPath;
 
         var alu_opcodes = ["set", "add", "subtract", "clear", "<?", "=?", ">?", "incr_pc"];
         var alu_op_int = alu_opcodes.indexOf(type);
+
         if(alu_op_int === -1) {
             alu_op_int = 0;
         }
-        var alu_op = uintToBinArray(alu_op_int);
+        var alu_op = Utility.uintToBinArray(alu_op_int);
+
+        alu_op.reverse();
 
         var acToAluWire = dpDocument.getElementById("ac_to_alu_wire");
         var mbrToAluWire = dpDocument.getElementById("mbr_to_alu_wire");
@@ -250,24 +270,80 @@ var DataPath;
         }
 
         this.datapath.contentDocument.getElementById(register + "_register_text").childNodes[0].childNodes[0].textContent = value;
+
+        /*
+        if(register.toLowerCase() === "pc") {
+            if(this.incrementedPC) {
+                this.swapNextInstruction();
+            } else {
+                this.incrementedPC = true;
+            }
+        }
+        */
     };
 
     DataPath.prototype.attachSimulator = function(sim) {
             this.simulator = sim;
             this.displayInstruction.style.visibility = "visible";
             this.restart();
-
-            this.showInstruction();
     };
 
-    DataPath.prototype.showInstruction = function() {
+    DataPath.prototype.decodeInstruction = function(pc) {
+        if(typeof this.simulator.memory[pc] == "undefined") {
+            return undefined;
+        }
+
+        var instruction = Utility.intToUint(this.simulator.memory[pc].contents).toString(16);
+
+        for(var op in this.simulator.operators) {
+            if(this.simulator.operators[op].opcode === parseInt(instruction[0], 16)) {
+                return {
+                    line: pc,
+                    operator: op,
+                    operand: instruction.slice(1, 4)
+                };
+            }
+        }
+    };
+
+    DataPath.prototype.showInstruction = function(/*preventSave*/) {
+        this.incrementedPC = false;
         var pc = this.simulator.pc || 0;
         this.timeSeqCounter = 0;
 
-        var previousInstruction = this.simulator.program[pc - 1];
-        var currentInstruction = this.simulator.program[pc];
+        var previousInstruction = /*this.savedPreviousInstruction ||*/ this.simulator.program[pc - 1];
+        var currentInstruction = /*this.savedCurrentInstruction ||*/ this.simulator.program[pc];
         var nextInstruction = this.simulator.program[pc + 1];
+
+        if(typeof previousInstruction == "undefined") {
+            previousInstruction = this.decodeInstruction(pc - 1);
+            this.previousInstruction.style.fontStyle = "italic";
+        } else {
+            this.previousInstruction.style.fontStyle = "normal";
+        }
+
+        if(typeof currentInstruction == "undefined") {
+            currentInstruction = this.decodeInstruction(pc);
+            this.currentInstruction.style.fontStyle = "italic";
+        } else {
+            this.currentInstruction.style.fontStyle = "normal";
+        }
+
+        if(typeof nextInstruction == "undefined") {
+            nextInstruction = this.decodeInstruction(pc + 1);
+            this.nextInstruction.style.fontStyle = "italic";
+        } else {
+            this.nextInstruction.style.fontStyle = "normal";
+        }
+
         var instructions = [previousInstruction, currentInstruction, nextInstruction];
+
+        /*
+        if(preventSave !== false) {
+            this.savedPreviousInstruction = currentInstruction;
+            this.savedCurrentInstruction = nextInstruction;
+        }
+        */
 
         var instructionsContents = instructions.map(function(instruction) {
             if(typeof instruction === "undefined") {
@@ -275,7 +351,7 @@ var DataPath;
             }
 
             return [
-                instruction.line.toString() + ".",
+                Utility.lineToMemoryAddress(instruction.line) + ":",
                 typeof instruction.label !== "undefined" ? instruction.label + "," : undefined,
                 instruction.operator.toUpperCase(),
                 instruction.operand
@@ -291,10 +367,43 @@ var DataPath;
         this.currentInstruction.textContent = instructionsContents[1];
         this.nextInstruction.textContent = instructionsContents[2];
 
+        this.nextInstruction.style.color = "#888";
+
         while(this.microInstructionsElement.firstChild) {
             this.microInstructionsElement.removeChild(this.microInstructionsElement.firstChild);
         }
     };
+
+    /*
+    DataPath.prototype.swapNextInstruction = function() {
+        var pc = this.simulator.pc || 0;
+        var nextInstruction = this.simulator.program[pc];
+
+        if(typeof nextInstruction == "undefined") {
+            nextInstruction = this.decodeInstruction(pc);
+        }
+
+        if(typeof nextInstruction == "undefined") {
+            return;
+        }
+
+        this.nextInstruction.style.color = "rgb(128, 0, 0)";
+
+        this.savedCurrentInstruction = nextInstruction;
+
+        this.nextInstruction.textContent = [
+            addressNumberFormatter(nextInstruction.line) + ":",
+            typeof nextInstruction.label !== "undefined" ? nextInstruction.label + "," : undefined,
+            nextInstruction.operator.toUpperCase(),
+            nextInstruction.operand
+        ].filter(function(element) {
+            return typeof element !== "undefined";
+        }).map(function(element) {
+            var str = element.toString();
+            return str.length > 10 ? str.substr(0, 7) + "..." : str;
+        }).join(" ");
+    };
+    */
 
     DataPath.prototype.appendMicroInstruction = function(microInstruction) {
         var tr = document.createElement("tr");
@@ -341,23 +450,4 @@ var DataPath;
             }
         }
     };
-
-    function uintToBinArray(num, padding) {
-        var bin_array = [];
-        while(num > 0) {
-            bin_array.push(num % 2);
-            num >>= 1;
-        }
-
-        if(typeof padding !== "undefined") {
-            padding -= bin_array.length;
-
-            while(padding > 0) {
-                bin_array.push(0);
-                padding -= 1;
-            }
-        }
-
-        return bin_array;
-    }
 }());

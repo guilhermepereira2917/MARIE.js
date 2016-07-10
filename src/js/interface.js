@@ -1,5 +1,5 @@
-/* globals getCompletions, MarieAsm, MarieSim, DataPath, saveAs */
-
+/* globals Utility, getCompletions, MarieAsm, MarieSim, DataPath, saveAs */
+var sim = null;
 window.addEventListener("load", function() {
     "use strict";
 
@@ -25,14 +25,14 @@ window.addEventListener("load", function() {
         uploadButton = document.getElementById("upload"),
         fileInput = document.getElementById("fileInput"),
         datapathEle = document.getElementById("datapath-diagram"),
-        datapathInstructionElement = document.getElementById("datapath-display-instructions");
+        datapathInstructionElement = document.getElementById("datapath-display-instructions"),
+        currentInstructionRegisterLog = null;
 
     const HEX = 0, DEC = 1, ASCII = 2;
     var minDatapathDelay = parseInt(localStorage.getItem("min-datapath-delay")) || 1000;
 
     var asm = null,
-        sim = null,
-        stateHistory = [],
+
         interval = null,
         lastErrorLine = null,
         lastCurrentLine = null,
@@ -85,12 +85,6 @@ window.addEventListener("load", function() {
         });
     }
 
-    function hex(num, digits) {
-        digits = digits || 4;
-        var s = "0000" + (num >>> 0).toString(16).toUpperCase();
-        return s.substr(s.length - digits);
-    }
-
     function populateMemoryView(sim) {
         while (memory.firstChild) {
             memory.removeChild(memory.firstChild);
@@ -107,7 +101,7 @@ window.addEventListener("load", function() {
         headers.appendChild(th);
         for (i = 0; i < 16; i++) {
             th = document.createElement("th");
-            th.appendChild(document.createTextNode("+" + hex(i, 1)));
+            th.appendChild(document.createTextNode("+" + Utility.hex(i, 1)));
             headers.appendChild(th);
         }
 
@@ -118,14 +112,14 @@ window.addEventListener("load", function() {
             tr = document.createElement("tr");
 
             header = document.createElement("th");
-            header.appendChild(document.createTextNode(hex(i, 3)));
+            header.appendChild(document.createTextNode(Utility.hex(i, 3)));
             tr.appendChild(header);
 
             for (j = 0; j < 16; j++) {
                 cell = document.createElement("td");
                 cell.id = "cell" + (i + j);
                 cell.className = "cell";
-                cell.appendChild(document.createTextNode(hex(sim.memory[i + j].contents)));
+                cell.appendChild(document.createTextNode(Utility.hex(sim.memory[i + j].contents)));
                 tr.appendChild(cell);
             }
 
@@ -152,11 +146,11 @@ window.addEventListener("load", function() {
 
             var addressCell = document.createElement("td");
             addressCell.classList.add("watch-list-address");
-            addressCell.appendChild(document.createTextNode(hex(address, 3)));
+            addressCell.appendChild(document.createTextNode(Utility.hex(address, 3)));
 
             var valueCell = document.createElement("td");
             valueCell.classList.add("watch-list-value");
-            valueCell.appendChild(document.createTextNode(hex(sim.memory[address].contents)));
+            valueCell.appendChild(document.createTextNode(Utility.hex(sim.memory[address].contents)));
 
             tr.appendChild(labelCell);
             tr.appendChild(addressCell);
@@ -173,7 +167,7 @@ window.addEventListener("load", function() {
     function convertOutput(value) {
         switch(outputType) {
             case HEX:
-                return hex(value);
+                return Utility.hex(value);
             case DEC:
                 return value;
             case ASCII:
@@ -195,15 +189,15 @@ window.addEventListener("load", function() {
     }
 
     function resetRegisters() {
-        document.getElementById("ac").textContent = hex(sim.ac);
-        document.getElementById("ir").textContent = hex(sim.ir);
-        document.getElementById("mar").textContent = hex(sim.mar, 3);
-        document.getElementById("mbr").textContent = hex(sim.mbr);
-        document.getElementById("pc").textContent = hex(sim.pc, 3);
-        document.getElementById("in").textContent = hex(sim.in);
-        document.getElementById("out").textContent = hex(sim.out);
+        document.getElementById("ac").textContent = Utility.hex(sim.ac);
+        document.getElementById("ir").textContent = Utility.hex(sim.ir);
+        document.getElementById("mar").textContent = Utility.hex(sim.mar, 3);
+        document.getElementById("mbr").textContent = Utility.hex(sim.mbr);
+        document.getElementById("pc").textContent = Utility.hex(sim.pc, 3);
+        document.getElementById("in").textContent = Utility.hex(sim.in);
+        document.getElementById("out").textContent = Utility.hex(sim.out);
 
-        datapath.setAllRegisters([hex(sim.mar, 3), hex(sim.pc, 3), hex(sim.mbr), hex(sim.ac), hex(sim.in), hex(sim.out), hex(sim.ir)]);
+        datapath.setAllRegisters([Utility.hex(sim.mar, 3), Utility.hex(sim.pc, 3), Utility.hex(sim.mbr), Utility.hex(sim.ac), Utility.hex(sim.in), Utility.hex(sim.out), Utility.hex(sim.ir)]);
 
         $(".current-pc").removeClass("current-pc");
         $(".current-mar").removeClass("current-mar");
@@ -257,10 +251,14 @@ window.addEventListener("load", function() {
         $('#input-value').focus();
     });
 
+    var placeInputDialog = document.createElement("div");
+    placeInputDialog.id = "place-input-dialog";
+    document.body.appendChild(placeInputDialog);
+
     $('#input-dialog').popoverX({
         show: false,
         keyboard: false,
-        $target: $("#in"),
+        $target: $("#place-input-dialog"),
         placement: "left",
         closeOtherPopovers: false,
         useOffsetForPos: false
@@ -299,7 +297,11 @@ window.addEventListener("load", function() {
             $('#input-dialog').popoverX('hide');
         }
         else {
-            $('#input-error').show({});
+            $('#input-error').show({
+                step: function() {
+                    $('#input-dialog').popoverX("refreshPosition");
+                }
+            });
         }
     }
 
@@ -330,6 +332,7 @@ window.addEventListener("load", function() {
             stop(true);
             setStatus("Halted at user request.");
             runButton.textContent = "Continue";
+            running = false;
             $('#input-dialog').popoverX('hide');
             pausedOnInput = true;
             savedOutput = output;
@@ -337,10 +340,6 @@ window.addEventListener("load", function() {
     }
 
     function outputFunc(value) {
-        stateHistory.push({
-            type: "output"
-        });
-
         var shouldScrollToBottomOutputLog = outputLogOuter.clientHeight === (outputLogOuter.scrollHeight - outputLogOuter.scrollTop);
 
         outputList.push(value);
@@ -381,8 +380,8 @@ window.addEventListener("load", function() {
 
         var shouldScrollToBottomRegisterLog = registerLogOuter.clientHeight === (registerLogOuter.scrollHeight - registerLogOuter.scrollTop);
 
-        registerLog.appendChild(document.createTextNode(message));
-        registerLog.appendChild(document.createElement("br"));
+        currentInstructionRegisterLog.appendChild(document.createTextNode(message));
+        currentInstructionRegisterLog.appendChild(document.createElement("br"));
 
         if(shouldScrollToBottomRegisterLog) {
             registerLogOuter.scrollTop = registerLogOuter.scrollHeight;
@@ -429,7 +428,6 @@ window.addEventListener("load", function() {
         else {
             runButton.disabled = true;
             stepButton.disabled = true;
-            stepBackButton.disabled = true;
             microStepButton.disabled = true;
         }
     }
@@ -452,6 +450,8 @@ window.addEventListener("load", function() {
     function runLoop(micro) {
         microStepping = micro;
 
+        setStatus(micro ? "Performed one micro-step" : "Performed one step");
+
         try {
             var step = true;
 
@@ -460,12 +460,6 @@ window.addEventListener("load", function() {
             }
             else {
                 sim.step();
-            }
-
-            if (step) {
-                stateHistory.push({
-                    type: "step"
-                });
             }
         }
         catch (e) {
@@ -508,10 +502,15 @@ window.addEventListener("load", function() {
             $('#datapath-status-bar').removeClass('alert-info').addClass('alert-warning').html("<strong>Note: </strong> Delay is set too low for datapath to update. Increase delay to at least 1000 ms, or set simulator to stepping mode.");
             $("#datapath-display-instructions").css({"opacity": 0.5});
             $("#datapath-diagram").css({"opacity": 0.5});
+            datapath.restart();
         } else {
             $('#datapath-status-bar').removeClass('alert-warning').addClass('alert-info').text(statusInfo.textContent);
             $("#datapath-display-instructions").css({"opacity": 1});
             $("#datapath-diagram").css({"opacity": 1});
+            if(sim) {
+                datapath.setAllRegisters([Utility.hex(sim.mar, 3), Utility.hex(sim.pc, 3), Utility.hex(sim.mbr), Utility.hex(sim.ac), Utility.hex(sim.in), Utility.hex(sim.out), Utility.hex(sim.ir)]);
+                datapath.showInstruction();
+            }
         }
     }
 
@@ -520,6 +519,9 @@ window.addEventListener("load", function() {
         running = false;
 
         datapathWarning(false);
+
+        savedOutput = null;
+        pausedOnInput = false;
 
         if (lastErrorLine !== null) {
             programCodeMirror.removeLineClass(lastErrorLine, "background", "error-line");
@@ -553,30 +555,17 @@ window.addEventListener("load", function() {
         sim.setEventListener("regread", function(e) {
             if(!running || delay >= minDatapathDelay) {
                 datapath.setControlBus(e.register, "read");
-                datapath.setALUBus(e.type);
+                datapath.setALUBus(e.alutype);
 
                 datapath.showDataBusAccess(false, running ? delay/2 : 1000);
-
-                stateHistory.push({
-                    type: "regread",
-                    register: e.register,
-                    value: e.value
-                });
             }
         });
 
         sim.setEventListener("regwrite", function(e) {
-            document.getElementById(e.register).textContent = hex(e.newValue, e.register == "mar" || e.register == "pc" ? 3 : 4);
-
-            stateHistory.push({
-                type: "regwrite",
-                register: e.register,
-                value: e.oldValue,
-                regtype: e.type
-            });
+            document.getElementById(e.register).textContent = Utility.hex(e.newValue, e.register == "mar" || e.register == "pc" ? 3 : 4);
 
             if(!running || delay >= minDatapathDelay) {
-                datapath.setRegister(e.register, hex(e.newValue, e.register == "mar" || e.register == "pc" ? 3 : 4));
+                datapath.setRegister(e.register, Utility.hex(e.newValue, e.register == "mar" || e.register == "pc" ? 3 : 4));
                 datapath.setControlBus(e.register, "write");
 
                 datapath.showDataBusAccess(false, running ? delay/2 : 1000);
@@ -599,16 +588,11 @@ window.addEventListener("load", function() {
         initializeRegisterLog();
         resetRegisters();
 
-        sim.setEventListener("memread", function(e) {
+        sim.setEventListener("memread", function() {
             if(!running || delay >= minDatapathDelay) {
                 datapath.setControlBus("memory", "read");
                 datapath.showDataBusAccess(true, running ? delay/2 : 1000);
             }
-
-            stateHistory.push({
-                type: "memread",
-                address: e.address
-            });
         });
 
         sim.setEventListener("memwrite", function(e) {
@@ -617,19 +601,13 @@ window.addEventListener("load", function() {
                 datapath.showDataBusAccess(true, running ? delay/2 : 1000);
             }
 
-            stateHistory.push({
-                type: "memwrite",
-                address: e.address,
-                value: e.oldCell
-            });
-
             var cell = document.getElementById("cell" + e.address);
-            cell.textContent = hex(e.newCell.contents, false);
+            cell.textContent = Utility.hex(e.newCell.contents, false);
             cell.classList.add("memory-changed");
 
             for (var address in symbolCells) {
                 if (address == e.address) {
-                    symbolCells[address].textContent = hex(e.newCell.contents);
+                    symbolCells[address].textContent = Utility.hex(e.newCell.contents);
                 }
             }
         });
@@ -638,20 +616,33 @@ window.addEventListener("load", function() {
             if(!running || delay >= minDatapathDelay) {
                 datapath.showInstruction();
             }
+
+            var currentInstruction = sim.current();
+
+            currentInstructionRegisterLog = document.createElement("div");
+            currentInstructionRegisterLog.classList.add("instruction-register-log");
+
+            if(currentInstruction && typeof currentInstruction.line !== "undefined") {
+                currentInstructionRegisterLog.dataset.currentLine = currentInstruction.line;
+
+                currentInstructionRegisterLog.addEventListener("mouseover", function() {
+                    var line = parseInt(this.dataset.currentLine);
+                    programCodeMirror.addLineClass(line, "background", "highlighted-line");
+                }, false);
+
+                currentInstructionRegisterLog.addEventListener("mouseout", function() {
+                    var line = parseInt(this.dataset.currentLine);
+                    programCodeMirror.removeLineClass(line, "background", "highlighted-line");
+                }, false);
+            }
+
+            registerLog.appendChild(currentInstructionRegisterLog);
         });
         sim.setEventListener("reglog", regLogFunc);
-        sim.setEventListener("decode", function(old) {
+        sim.setEventListener("decode", function() {
             datapath.setALUBus("decode");
-
-            stateHistory.push({
-                type: "decode",
-                opcode: old
-            });
         });
 
-        sim.setEventListener("halt", function() {
-            stateHistory.push({type: "halt"});
-        });
         stepButton.disabled = false;
         microStepButton.disabled = false;
         stepBackButton.disabled = true;
@@ -667,29 +658,39 @@ window.addEventListener("load", function() {
     });
 
     stepBackButton.addEventListener("click", function() {
-        var action = stateHistory[stateHistory.length - 1];
+        if(pausedOnInput) {
+            savedOutput = null;
+            pausedOnInput = false;
+        }
+
+        var action = sim.stateHistory[sim.stateHistory.length - 1];
         if (action.type != "step")
             sim.step();
-        stateHistory.pop();
-        action = stateHistory.pop();
-        while (action.type != "step" && stateHistory.length > 0) {
+        sim.stateHistory.pop();
+        action = sim.stateHistory.pop();
+
+        if(sim.stateHistory.length > 0) {
+            setStatus("Stepped backwards one step");
+        }
+
+        while (action.type != "step" && sim.stateHistory.length > 0) {
             switch (action.type) {
                 case "regread":
                     datapath.setControlBus(action.register, "read");
                     datapath.showDataBusAccess(false, 1000);
+                    datapath.setALUBus(action.alutype);
                     break;
                 case "regwrite":
                     var oldValue = sim[action.register],
                         newValue = action.value;
                     sim[action.register] = newValue;
 
-                    datapath.setALUBus(action.regtype);
                     datapath.showDataBusAccess(false, 1000);
 
                     datapath.setControlBus(action.register, "write");
-                    datapath.setRegister(action.register, hex(newValue, action.register == "mar" || action.register == "pc" ? 3 : 4));
+                    datapath.setRegister(action.register, Utility.hex(newValue, action.register == "mar" || action.register == "pc" ? 3 : 4));
 
-                    document.getElementById(action.register).textContent = hex(newValue, action.register == "mar" || action.register == "pc" ? 3 : 4);
+                    document.getElementById(action.register).textContent = Utility.hex(newValue, action.register == "mar" || action.register == "pc" ? 3 : 4);
                     if (action.register == "pc") {
                         document.getElementById("cell" + oldValue).classList.remove("current-pc");
                         document.getElementById("cell" + newValue).classList.add("current-pc");
@@ -708,10 +709,10 @@ window.addEventListener("load", function() {
 
                     sim.memory[action.address].contents = action.value;
                     var cell = document.getElementById("cell" + action.address);
-                    cell.textContent = hex(action.value, false);
+                    cell.textContent = Utility.hex(action.value, false);
                     for (var address in symbolCells) {
                         if (address == action.address) {
-                            symbolCells[address].textContent = hex(action.value);
+                            symbolCells[address].textContent = Utility.hex(action.value);
                         }
                     }
                     break;
@@ -725,16 +726,21 @@ window.addEventListener("load", function() {
                     break;
                 case "halt":
                     sim.halted = false;
+                    running = false;
+                    runButton.textContent = "Run";
+                    runButton.disabled = false;
+                    stepButton.disabled = false;
+                    microStepButton.disabled = false;
                     break;
             }
-            action = stateHistory.pop();
+            action = sim.stateHistory.pop();
         }
 
-        if (stateHistory.length === 0) {
+        if (sim.stateHistory.length === 0) {
             stepBackButton.disabled = true;
         }
         else {
-            stateHistory.push({type: "step"});
+            sim.stateHistory.push({type: "step"});
         }
 
         datapath.showInstruction();
@@ -796,7 +802,6 @@ window.addEventListener("load", function() {
         running = false;
         sim.restart();
         resetRegisters();
-        stateHistory = [];
         updateCurrentLine(true);
         runButton.textContent = "Run";
         runButton.disabled = false;
@@ -805,6 +810,8 @@ window.addEventListener("load", function() {
         microStepButton.disabled = false;
         datapathWarning(false);
         datapath.restart();
+        savedOutput = null;
+        pausedOnInput = false;
         setStatus("Restarted simulator (memory contents are still preserved)");
     });
 
@@ -812,6 +819,10 @@ window.addEventListener("load", function() {
         outputType = this.selectedIndex;
         repopulateOutputLog();
     });
+
+    window.addEventListener("resize", function() {
+        handleDatapathUI();
+    }, false);
 
     window.addEventListener("beforeunload", function() {
         window.localStorage.setItem("marie-program", programCodeMirror.getValue());
@@ -890,19 +901,49 @@ window.addEventListener("load", function() {
         window.location.hash = "";
     });
 
-    $(window).on('hashchange', function() {
+    function handleDatapathUI() {
         if(window.location.hash === "#datapath") {
-            $("#datapath-tick").show();
-        } else {
-            $("#datapath-tick").hide();
-        }
-    });
+            if(!datapath.loaded) {
+                console.warn("DataPath SVG object has not loaded yet.");
 
-    if(window.location.hash === "#datapath") {
-        $("#datapath-tick").show();
-    } else {
-        $("#datapath-tick").hide();
+                datapath.onLoad = function() {
+                    handleDatapathUI();
+                };
+                return;
+            }
+
+            $("#datapath-tick").show();
+
+            var dpBoundingRect = datapath.datapath.getBoundingClientRect();
+            var boundingRect = datapath.datapath.contentDocument
+                                                .getElementById("in_register")
+                                                .getBoundingClientRect();
+            $("#place-input-dialog").css({
+                top: dpBoundingRect.top + boundingRect.top,
+                left: dpBoundingRect.left + boundingRect.left,
+                width: boundingRect.width,
+                height: boundingRect.height
+            });
+        } else {
+            var inBoundingRect = document.getElementById("in").getBoundingClientRect();
+
+            $("#datapath-tick").hide();
+            $("#place-input-dialog").css({
+                top: inBoundingRect.top,
+                left: inBoundingRect.left,
+                width: inBoundingRect.width,
+                height: inBoundingRect.height
+            });
+        }
+
+        $("#input-dialog").popoverX("refreshPosition");
     }
 
+    handleDatapathUI();
 
+    $(window).on('hashchange', function() {
+        handleDatapathUI();
+    });
+
+    $("body").removeClass("preload");
 });

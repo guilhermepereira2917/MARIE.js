@@ -4,6 +4,14 @@ html, body {
     font-family: sans-serif;
 }
 
+/* https://css-tricks.com/transitions-only-after-page-load/ */
+.preload * {
+    -webkit-transition: none !important;
+    -moz-transition: none !important;
+    -ms-transition: none !important;
+    -o-transition: none !important;
+}
+
 .container {
     width: 80%;
     margin: 75px auto 0;
@@ -236,6 +244,10 @@ footer {
     background-color: #ADF;
 }
 
+.highlighted-line {
+    background-color: #EEE;
+}
+
 .current-pc {
     background-color: #0F0 !important;
 }
@@ -280,9 +292,12 @@ footer {
 	font-family: sans-serif;
 }
 
-#output-log {
-    border-top: 0.1em solid #ccc;
-	font-family: sans-serif;
+.instruction-register-log {
+    border-bottom: 1px solid grey;
+}
+
+.instruction-register-log:hover {
+    background: #eee;
 }
 
 #output-select {
@@ -469,6 +484,12 @@ codeblock {
 
 #input-dialog * {
     pointer-events: all;
+}
+
+#place-input-dialog {
+    position: absolute;
+    visibility: hidden;
+    z-index: -100;
 }
 
 #bottom-menu{

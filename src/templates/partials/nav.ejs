@@ -5,7 +5,7 @@
                 MARIE.js <span class="version">v<%= version %></span>
             </div>
             <ul class="nav navbar-nav">
-                <li><a href="./"><span class="fa fa-home"></span> Home </a></li>    
+                <li><a href="./"><span class="fa fa-home"></span> Home </a></li>
                 <% if(title == "Home") { %>
                 <li class="dropdown">
                     <a class="dropdown-toggle" data-toggle="dropdown"><span class="fa fa-file"></span> File
@@ -29,7 +29,7 @@
                     <a class="dropdown-toggle" data-toggle="dropdown"><span class="fa fa-eye"></span> View
                     <span class="caret"></span></a>
                     <ul class="dropdown-menu">
-                        <li><a id="dpath"><span id="datapath-tick" class="fa fa-check fa-pull-right"></span> Datapath</a></li>
+                        <li><a id="dpath-menu"><span id="datapath-tick" class="fa fa-check fa-pull-right"></span> Datapath</a></li>
                     </ul>
                 </li>
                 <% } %>
@@ -43,7 +43,9 @@
                         <li><a href="https://mariejssite.wordpress.com/" target="_blank"><span class="fa fa-wordpress"></span> Blog</a></li>
                         <li class="divider"></li>
                         <li><a href="https://gitreports.com/issue/MARIE-js/MARIE.js/" target="_blank"><span class="fa fa-bug"></span> Report an Issue</a></li>
+                        <% if(title == "Home") { %>
                         <li><a id="starttour"><span class="fa fa-ship"></span> Rerun Tour</a></li>
+                        <% } %>
                     </ul>
                 </li>
             </ul>
