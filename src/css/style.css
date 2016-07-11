@@ -256,6 +256,11 @@ footer {
     background-color: #FF0 !important;
 }
 
+#saved-status {
+    color: #AAA;
+    float: right;
+}
+
 #registers {
     padding: 0 0.5em;
     margin: 0 10px;
