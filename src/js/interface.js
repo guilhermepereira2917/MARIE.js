@@ -48,6 +48,7 @@ window.addEventListener("load", function() {
         datapath = new DataPath(datapathEle, datapathInstructionElement),
         outputList = [],
         saveTimeout = null,
+        selectedMemoryCell = null,
         symbolCells = null;
 
     textArea.value = localStorage.getItem("marie-program") || "";
@@ -138,6 +139,85 @@ window.addEventListener("load", function() {
 
         memoryContainer.style.display = "inline-block";
     }
+
+    function finishInputReplaceMemoryCell() {
+        if(selectedMemoryCell === null) {
+            return;
+        }
+
+        var cellString = "cell";
+
+        var ele = document.getElementById(cellString + selectedMemoryCell.toString());
+        var value = ele.firstChild.value;
+
+        while(ele.firstChild) {
+            ele.removeChild(ele.firstChild);
+        }
+
+        var parsedValue = parseInt(value, 16);
+
+        var cell = parseInt(ele.id.substr(cellString.length - ele.id.length));
+
+        if(!isNaN(parsedValue)/* && sim*/) {
+            ele.textContent = Utility.hex(parsedValue);
+
+            var oldValue = sim.memory[cell].contents;
+
+            if(parsedValue === sim.memory[cell].contents) {
+                selectedMemoryCell = null;
+                return;
+            }
+
+            sim.memory[cell].contents = parsedValue;
+
+            // Delete original instruction if it exists
+            if(typeof sim.memory[cell].line != "undefined") {
+                sim.memory[cell].line = undefined;
+                sim.memory[cell].operator = undefined;
+                sim.memory[cell].operand = undefined;
+                sim.memory[cell].label = undefined;
+                sim.program[cell] = undefined;
+            }
+
+            setStatus("Modified memory cell at address " + Utility.lineToMemoryAddress(cell + 1) + " from " +  Utility.hex(oldValue) + " to " + Utility.hex(parsedValue));
+        } else {
+            setStatus("Invalid value '" + value + "'; reverting back to original memory cell contents at address " + Utility.lineToMemoryAddress(cell + 1), true);
+            ele.textContent = Utility.hex(sim.memory[cell].contents);
+        }
+
+        selectedMemoryCell = null;
+    }
+
+    memory.addEventListener("dblclick", function(e) {
+        var cellString = "cell";
+
+        if(e.target && e.target.classList.contains("cell")) {
+            finishInputReplaceMemoryCell();
+            selectedMemoryCell = parseInt(e.target.id.substr(cellString.length - e.target.id.length));
+
+            var input = document.createElement("input");
+            input.type = "text";
+            input.value = e.target.textContent;
+            input.size = 4;
+
+            while (e.target.firstChild) {
+                e.target.removeChild(e.target.firstChild);
+            }
+
+            e.target.appendChild(input);
+            input.select();
+        }
+    });
+
+    memory.addEventListener("keypress", function(e) {
+        if(e.which === 13 && e.target && e.target.parentNode.classList.contains("cell")) {
+            finishInputReplaceMemoryCell();
+        }
+    });
+
+    document.addEventListener("click", function() {
+        finishInputReplaceMemoryCell();
+    });
 
     function populateWatchList(asm, sim) {
         while (watchList.firstChild) {
@@ -481,8 +561,6 @@ window.addEventListener("load", function() {
     function runLoop(micro) {
         microStepping = micro;
 
-        setStatus(micro ? "Performed one micro-step" : "Performed one step");
-
         try {
             var step = true;
 
@@ -691,6 +769,7 @@ window.addEventListener("load", function() {
 
     stepButton.addEventListener("click", function() {
         runLoop();
+        setStatus("Performed one step");
     });
 
     stepBackButton.addEventListener("click", function() {
@@ -786,6 +865,7 @@ window.addEventListener("load", function() {
 
     microStepButton.addEventListener("click", function() {
         runLoop(true);
+        setStatus("Performed one micro-step");
     });
 
     runButton.addEventListener("click", function() {
