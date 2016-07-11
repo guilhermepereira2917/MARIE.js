@@ -220,6 +220,21 @@ window.addEventListener("load", function() {
         }
     }
 
+    // Event delegation
+    registerLog.addEventListener("mouseover", function(e) {
+        if(e.target && e.target.classList.contains("instruction-register-log") && e.target.dataset.currentLine) {
+            var line = parseInt(e.target.dataset.currentLine);
+            programCodeMirror.addLineClass(line, "background", "highlighted-line");
+        }
+    }, false);
+
+    registerLog.addEventListener("mouseout", function(e) {
+        if(e.target && e.target.classList.contains("instruction-register-log") && e.target.dataset.currentLine) {
+            var line = parseInt(e.target.dataset.currentLine);
+            programCodeMirror.removeLineClass(line, "background", "highlighted-line");
+        }
+    }, false);
+
     function updateCurrentLine(clear) {
         if (lastCurrentLine !== null) {
             programCodeMirror.removeLineClass(lastCurrentLine, "background", "current-line");
@@ -350,7 +365,7 @@ window.addEventListener("load", function() {
     }
 
     function outputFunc(value) {
-        var shouldScrollToBottomOutputLog = outputLogOuter.clientHeight === (outputLogOuter.scrollHeight - outputLogOuter.scrollTop);
+        var shouldScrollToBottomOutputLog = outputLogOuter.clientHeight > 0.99 * (outputLogOuter.scrollHeight - outputLogOuter.scrollTop);
 
         outputList.push(value);
 
@@ -383,15 +398,21 @@ window.addEventListener("load", function() {
         }
     }
 
-    function regLogFunc(message) {
+    function regLogFunc(message, notAnRTL) {
         if(!running || delay >= minDatapathDelay) {
             datapath.appendMicroInstruction(message);
         }
 
-        var shouldScrollToBottomRegisterLog = registerLogOuter.clientHeight === (registerLogOuter.scrollHeight - registerLogOuter.scrollTop);
+        var shouldScrollToBottomRegisterLog = registerLogOuter.clientHeight > 0.99 * (registerLogOuter.scrollHeight - registerLogOuter.scrollTop);
 
-        currentInstructionRegisterLog.appendChild(document.createTextNode(message));
-        currentInstructionRegisterLog.appendChild(document.createElement("br"));
+        if(notAnRTL) {
+            currentInstructionRegisterLog.classList.add("finished-instruction");
+            registerLog.appendChild(document.createTextNode(message));
+            registerLog.appendChild(document.createElement("br"));
+        } else {
+            currentInstructionRegisterLog.appendChild(document.createTextNode(message));
+            currentInstructionRegisterLog.appendChild(document.createElement("br"));
+        }
 
         if(shouldScrollToBottomRegisterLog) {
             registerLogOuter.scrollTop = registerLogOuter.scrollHeight;
@@ -632,6 +653,10 @@ window.addEventListener("load", function() {
                     datapath.showInstruction();
                 }
 
+                if(currentInstructionRegisterLog) {
+                    currentInstructionRegisterLog.classList.add("finished-instruction");
+                }
+
                 var currentInstruction = sim.current();
 
                 currentInstructionRegisterLog = document.createElement("div");
@@ -639,20 +664,11 @@ window.addEventListener("load", function() {
 
                 if(currentInstruction && typeof currentInstruction.line !== "undefined") {
                     currentInstructionRegisterLog.dataset.currentLine = currentInstruction.line;
-
-                    currentInstructionRegisterLog.addEventListener("mouseover", function() {
-                        var line = parseInt(this.dataset.currentLine);
-                        programCodeMirror.addLineClass(line, "background", "highlighted-line");
-                    }, false);
-
-                    currentInstructionRegisterLog.addEventListener("mouseout", function() {
-                        var line = parseInt(this.dataset.currentLine);
-                        programCodeMirror.removeLineClass(line, "background", "highlighted-line");
-                    }, false);
                 }
 
                 registerLog.appendChild(currentInstructionRegisterLog);
             });
+
             sim.setEventListener("reglog", regLogFunc);
             sim.setEventListener("decode", function() {
                 datapath.setALUBus("decode");
@@ -764,7 +780,7 @@ window.addEventListener("load", function() {
         }
 
         datapath.showInstruction();
-        regLogFunc("----- stepped back -----");
+        regLogFunc("----- stepped back -----", true);
         updateCurrentLine();
     });
 
