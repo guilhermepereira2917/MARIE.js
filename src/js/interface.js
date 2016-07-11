@@ -1,5 +1,5 @@
 /* globals Utility, getCompletions, MarieAsm, MarieSim, DataPath, saveAs */
-var sim = null;
+
 window.addEventListener("load", function() {
     "use strict";
 
@@ -32,7 +32,7 @@ window.addEventListener("load", function() {
     var minDatapathDelay = parseInt(localStorage.getItem("min-datapath-delay")) || 1000;
 
     var asm = null,
-
+        sim = null,
         interval = null,
         lastErrorLine = null,
         lastCurrentLine = null,
@@ -47,6 +47,7 @@ window.addEventListener("load", function() {
         outputType = HEX,
         datapath = new DataPath(datapathEle, datapathInstructionElement),
         outputList = [],
+        saveTimeout = null,
         symbolCells = null;
 
     textArea.value = localStorage.getItem("marie-program") || "";
@@ -68,6 +69,15 @@ window.addEventListener("load", function() {
             alignWithWord: false,
             completeSingle: false
         });
+
+        if(saveTimeout) {
+            clearTimeout(saveTimeout);
+            saveTimeout = null;
+        }
+
+        $('#saved-status').text("Modified file");
+
+        saveTimeout = setTimeout(saveFile, 10*1000);
     });
 
     function makeMarker() {
@@ -515,143 +525,152 @@ window.addEventListener("load", function() {
     }
 
     assembleButton.addEventListener("click", function() {
-        setStatus("Assembling", false);
-        stop();
-        running = false;
+        assembleButton.textContent = "Assembling...";
+        assembleButton.disabled = true;
+        setStatus("Assembling...", false);
 
-        datapathWarning(false);
+        setTimeout(function() {
+            stop();
+            running = false;
 
-        savedOutput = null;
-        pausedOnInput = false;
+            datapathWarning(false);
 
-        if (lastErrorLine !== null) {
-            programCodeMirror.removeLineClass(lastErrorLine, "background", "error-line");
-            lastErrorLine = null;
-        }
+            savedOutput = null;
+            pausedOnInput = false;
 
-        var assembler = new MarieAsm(programCodeMirror.getValue());
-
-        try {
-            asm = assembler.assemble();
-        } catch (e) {
-            setStatus(e.toString(), true);
-            lastErrorLine = e.lineNumber - 1;
-            programCodeMirror.addLineClass(lastErrorLine, "background", "error-line");
-            console.error(e);
-            return;
-        }
-
-        try {
-            sim = new MarieSim(asm, inputFunc, outputFunc);
-        } catch (e) {
-            setStatus(e.message, true);
-            console.error(e);
-            return;
-        }
-
-        datapath.attachSimulator(sim);
-
-        setStatus("Assembled successfully", false);
-
-        sim.setEventListener("regread", function(e) {
-            if(!running || delay >= minDatapathDelay) {
-                datapath.setControlBus(e.register, "read");
-                datapath.setALUBus(e.alutype);
-
-                datapath.showDataBusAccess(false, running ? delay/2 : 1000);
-            }
-        });
-
-        sim.setEventListener("regwrite", function(e) {
-            document.getElementById(e.register).textContent = Utility.hex(e.newValue, e.register == "mar" || e.register == "pc" ? 3 : 4);
-
-            if(!running || delay >= minDatapathDelay) {
-                datapath.setRegister(e.register, Utility.hex(e.newValue, e.register == "mar" || e.register == "pc" ? 3 : 4));
-                datapath.setControlBus(e.register, "write");
-
-                datapath.showDataBusAccess(false, running ? delay/2 : 1000);
+            if (lastErrorLine !== null) {
+                programCodeMirror.removeLineClass(lastErrorLine, "background", "error-line");
+                lastErrorLine = null;
             }
 
-            if (e.register == "pc") {
-                document.getElementById("cell" + e.oldValue).classList.remove("current-pc");
-                document.getElementById("cell" + e.newValue).classList.add("current-pc");
+            var assembler = new MarieAsm(programCodeMirror.getValue());
+
+            try {
+                asm = assembler.assemble();
+            } catch (e) {
+                setStatus(e.toString(), true);
+                lastErrorLine = e.lineNumber - 1;
+                programCodeMirror.addLineClass(lastErrorLine, "background", "error-line");
+                assembleButton.innerHTML = "<span class='fa fa-th'></span> Assemble";
+                assembleButton.disabled = false;
+                throw e;
             }
 
-            if (e.register == "mar") {
-                document.getElementById("cell" + e.oldValue).classList.remove("current-mar");
-                document.getElementById("cell" + e.newValue).classList.add("current-mar");
-            }
-        });
-
-        populateMemoryView(sim);
-        symbolCells = populateWatchList(asm, sim);
-        initializeOutputLog();
-        initializeRegisterLog();
-        resetRegisters();
-
-        sim.setEventListener("memread", function() {
-            if(!running || delay >= minDatapathDelay) {
-                datapath.setControlBus("memory", "read");
-                datapath.showDataBusAccess(true, running ? delay/2 : 1000);
-            }
-        });
-
-        sim.setEventListener("memwrite", function(e) {
-            if(!running || delay >= minDatapathDelay) {
-                datapath.setControlBus("memory", "write");
-                datapath.showDataBusAccess(true, running ? delay/2 : 1000);
+            try {
+                sim = new MarieSim(asm, inputFunc, outputFunc);
+            } catch (e) {
+                setStatus(e.message, true);
+                assembleButton.innerHTML = "<span class='fa fa-th'></span> Assemble";
+                assembleButton.disabled = false;
+                throw e;
             }
 
-            var cell = document.getElementById("cell" + e.address);
-            cell.textContent = Utility.hex(e.newCell.contents, false);
-            cell.classList.add("memory-changed");
+            datapath.attachSimulator(sim);
 
-            for (var address in symbolCells) {
-                if (address == e.address) {
-                    symbolCells[address].textContent = Utility.hex(e.newCell.contents);
+            sim.setEventListener("regread", function(e) {
+                if(!running || delay >= minDatapathDelay) {
+                    datapath.setControlBus(e.register, "read");
+                    datapath.setALUBus(e.alutype);
+
+                    datapath.showDataBusAccess(false, running ? delay/2 : 1000);
                 }
-            }
-        });
+            });
 
-        sim.setEventListener("newinstruction", function() {
-            if(!running || delay >= minDatapathDelay) {
-                datapath.showInstruction();
-            }
+            sim.setEventListener("regwrite", function(e) {
+                document.getElementById(e.register).textContent = Utility.hex(e.newValue, e.register == "mar" || e.register == "pc" ? 3 : 4);
 
-            var currentInstruction = sim.current();
+                if(!running || delay >= minDatapathDelay) {
+                    datapath.setRegister(e.register, Utility.hex(e.newValue, e.register == "mar" || e.register == "pc" ? 3 : 4));
+                    datapath.setControlBus(e.register, "write");
 
-            currentInstructionRegisterLog = document.createElement("div");
-            currentInstructionRegisterLog.classList.add("instruction-register-log");
+                    datapath.showDataBusAccess(false, running ? delay/2 : 1000);
+                }
 
-            if(currentInstruction && typeof currentInstruction.line !== "undefined") {
-                currentInstructionRegisterLog.dataset.currentLine = currentInstruction.line;
+                if (e.register == "pc") {
+                    document.getElementById("cell" + e.oldValue).classList.remove("current-pc");
+                    document.getElementById("cell" + e.newValue).classList.add("current-pc");
+                }
 
-                currentInstructionRegisterLog.addEventListener("mouseover", function() {
-                    var line = parseInt(this.dataset.currentLine);
-                    programCodeMirror.addLineClass(line, "background", "highlighted-line");
-                }, false);
+                if (e.register == "mar") {
+                    document.getElementById("cell" + e.oldValue).classList.remove("current-mar");
+                    document.getElementById("cell" + e.newValue).classList.add("current-mar");
+                }
+            });
 
-                currentInstructionRegisterLog.addEventListener("mouseout", function() {
-                    var line = parseInt(this.dataset.currentLine);
-                    programCodeMirror.removeLineClass(line, "background", "highlighted-line");
-                }, false);
-            }
+            populateMemoryView(sim);
+            symbolCells = populateWatchList(asm, sim);
+            initializeOutputLog();
+            initializeRegisterLog();
+            resetRegisters();
 
-            registerLog.appendChild(currentInstructionRegisterLog);
-        });
-        sim.setEventListener("reglog", regLogFunc);
-        sim.setEventListener("decode", function() {
-            datapath.setALUBus("decode");
-        });
+            sim.setEventListener("memread", function() {
+                if(!running || delay >= minDatapathDelay) {
+                    datapath.setControlBus("memory", "read");
+                    datapath.showDataBusAccess(true, running ? delay/2 : 1000);
+                }
+            });
 
-        stepButton.disabled = false;
-        microStepButton.disabled = false;
-        stepBackButton.disabled = true;
-        runButton.disabled = false;
-        runButton.textContent = "Run";
-        restartButton.disabled = false;
+            sim.setEventListener("memwrite", function(e) {
+                if(!running || delay >= minDatapathDelay) {
+                    datapath.setControlBus("memory", "write");
+                    datapath.showDataBusAccess(true, running ? delay/2 : 1000);
+                }
 
-        updateCurrentLine(true);
+                var cell = document.getElementById("cell" + e.address);
+                cell.textContent = Utility.hex(e.newCell.contents, false);
+                cell.classList.add("memory-changed");
+
+                for (var address in symbolCells) {
+                    if (address == e.address) {
+                        symbolCells[address].textContent = Utility.hex(e.newCell.contents);
+                    }
+                }
+            });
+
+            sim.setEventListener("newinstruction", function() {
+                if(!running || delay >= minDatapathDelay) {
+                    datapath.showInstruction();
+                }
+
+                var currentInstruction = sim.current();
+
+                currentInstructionRegisterLog = document.createElement("div");
+                currentInstructionRegisterLog.classList.add("instruction-register-log");
+
+                if(currentInstruction && typeof currentInstruction.line !== "undefined") {
+                    currentInstructionRegisterLog.dataset.currentLine = currentInstruction.line;
+
+                    currentInstructionRegisterLog.addEventListener("mouseover", function() {
+                        var line = parseInt(this.dataset.currentLine);
+                        programCodeMirror.addLineClass(line, "background", "highlighted-line");
+                    }, false);
+
+                    currentInstructionRegisterLog.addEventListener("mouseout", function() {
+                        var line = parseInt(this.dataset.currentLine);
+                        programCodeMirror.removeLineClass(line, "background", "highlighted-line");
+                    }, false);
+                }
+
+                registerLog.appendChild(currentInstructionRegisterLog);
+            });
+            sim.setEventListener("reglog", regLogFunc);
+            sim.setEventListener("decode", function() {
+                datapath.setALUBus("decode");
+            });
+
+            stepButton.disabled = false;
+            microStepButton.disabled = false;
+            stepBackButton.disabled = true;
+            runButton.disabled = false;
+            runButton.textContent = "Run";
+            restartButton.disabled = false;
+
+            setStatus("Assembled successfully", false);
+            assembleButton.innerHTML = "<span class='fa fa-th'></span> Assemble";
+            assembleButton.disabled = false;
+
+            updateCurrentLine(true);
+        }, 1);
     });
 
     stepButton.addEventListener("click", function() {
@@ -824,10 +843,33 @@ window.addEventListener("load", function() {
     window.addEventListener("resize", function() {
         handleDatapathUI();
     }, false);
-    
-    function saveFile(){
+
+    function saveFile() {
+        console.log("Saved file");
+        $('#saved-status').text("Saved file");
+
+        if(saveTimeout) {
+            clearTimeout(saveTimeout);
+            saveTimeout = null;
+        }
+
         window.localStorage.setItem("marie-program",programCodeMirror.getValue());
     }
+
+    $(window).bind('keydown', function(event) {
+        if (event.ctrlKey || event.metaKey) {
+            switch (String.fromCharCode(event.which).toLowerCase()) {
+                case 's':
+                    event.preventDefault();
+                    saveFile();
+                    break;
+            }
+        }
+    });
+
+    $("#save").on('click', function() {
+        saveFile();
+    });
 
     window.addEventListener("beforeunload", function() {
         saveFile();
@@ -877,7 +919,7 @@ window.addEventListener("load", function() {
         $('#newfoldermodal').modal('hide');
     });
 
-    $("#savefile").click( function() {
+    $("#exportfile").click( function() {
         var text = programCodeMirror.getValue();
         var filename = "code";
         var blob = new Blob([text], {type: "text/plain;charset=utf-8"});
@@ -951,15 +993,4 @@ window.addEventListener("load", function() {
     });
 
     $("body").removeClass("preload");
-
-
-
-
-    function saveTimeout(){
-        setTimeout(saveFile(), 10*1000);
-    }
-
-    if(saveTimeout) { 
-        clearTimeout(saveTimeout);
-    }
 });
