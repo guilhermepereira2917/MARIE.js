@@ -295,12 +295,14 @@ var DataPath;
 
         var instruction = Utility.intToUint(this.simulator.memory[pc].contents).toString(16);
 
+        var nonOperandOperators = ["clear", "input", "output", "halt"];
+
         for(var op in this.simulator.operators) {
             if(this.simulator.operators[op].opcode === parseInt(instruction[0], 16)) {
                 return {
-                    line: pc,
+                    line: pc + 1,
                     operator: op,
-                    operand: instruction.slice(1, 4)
+                    operand: nonOperandOperators.indexOf(op.toLowerCase()) < 0 ? instruction.slice(1, 4) : undefined
                 };
             }
         }
