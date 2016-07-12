@@ -6,13 +6,17 @@ function getCompletions(editor) {
     var cursor = editor.getCursor();
     var line = editor.getLine(cursor.line);
 
+    var containsForwardSlash = line.indexOf("/") >= 0;
+
     var end = cursor.ch;
     var start = end;
 
+    // move start backwards until it finds a space in the previous character
     while (line.charAt(start - 1).match(/[^,\s]/)) {
         start--;
     }
 
+    // if the cursor is in front of a space, return nothing
     if (start == end) {
         return;
     }
@@ -44,7 +48,7 @@ function getCompletions(editor) {
         case ("operator"):
             Array.prototype.push.apply(list, completions.operators.map(function(x) {
                 return {
-                    text: x + (nonOperandOperators.indexOf(x) < 0 ? ' ' : '\n'),
+                    text: x + (nonOperandOperators.indexOf(x) < 0 || containsForwardSlash ? ' ' : '\n'),
                     className: "completion-operator"
                 };
             }));
@@ -74,12 +78,12 @@ function getCompletions(editor) {
     list = list.filter(function(completion) {
         var x = completion.text.toLowerCase();
         var y = line.substring(start, end).toLowerCase();
-        return x != y && x.indexOf(y) === 0;
+        return x.trim() != y.trim() && x.indexOf(y) === 0;
     });
 
     return {
         list: list,
         from: from,
-        to: to,
+        to: to
     };
 }
