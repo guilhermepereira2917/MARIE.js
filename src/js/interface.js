@@ -1,5 +1,5 @@
 /* globals Utility, getCompletions, MarieAsm, MarieSim, DataPath, saveAs */
-var sim = null;
+
 window.addEventListener("load", function() {
     "use strict";
 
@@ -32,7 +32,7 @@ window.addEventListener("load", function() {
     var minDatapathDelay = parseInt(localStorage.getItem("min-datapath-delay")) || 1000;
 
     var asm = null,
-
+        sim = null,
         interval = null,
         lastErrorLine = null,
         lastCurrentLine = null,
@@ -47,6 +47,8 @@ window.addEventListener("load", function() {
         outputType = HEX,
         datapath = new DataPath(datapathEle, datapathInstructionElement),
         outputList = [],
+        saveTimeout = null,
+        selectedMemoryCell = null,
         symbolCells = null;
 
     textArea.value = localStorage.getItem("marie-program") || "";
@@ -68,6 +70,15 @@ window.addEventListener("load", function() {
             alignWithWord: false,
             completeSingle: false
         });
+
+        if(saveTimeout) {
+            clearTimeout(saveTimeout);
+            saveTimeout = null;
+        }
+
+        $('#saved-status').text("Modified file");
+
+        saveTimeout = setTimeout(saveFile, 10*1000);
     });
 
     function makeMarker() {
@@ -128,6 +139,85 @@ window.addEventListener("load", function() {
 
         memoryContainer.style.display = "inline-block";
     }
+
+    function finishInputReplaceMemoryCell() {
+        if(selectedMemoryCell === null) {
+            return;
+        }
+
+        var cellString = "cell";
+
+        var ele = document.getElementById(cellString + selectedMemoryCell.toString());
+        var value = ele.firstChild.value;
+
+        while(ele.firstChild) {
+            ele.removeChild(ele.firstChild);
+        }
+
+        var parsedValue = parseInt(value, 16);
+
+        var cell = parseInt(ele.id.substr(cellString.length - ele.id.length));
+
+        if(!isNaN(parsedValue)/* && sim*/) {
+            ele.textContent = Utility.hex(parsedValue);
+
+            var oldValue = sim.memory[cell].contents;
+
+            if(parsedValue === sim.memory[cell].contents) {
+                selectedMemoryCell = null;
+                return;
+            }
+
+            sim.memory[cell].contents = parsedValue;
+
+            // Delete original instruction if it exists
+            if(typeof sim.memory[cell].line != "undefined") {
+                sim.memory[cell].line = undefined;
+                sim.memory[cell].operator = undefined;
+                sim.memory[cell].operand = undefined;
+                sim.memory[cell].label = undefined;
+                sim.program[cell] = undefined;
+            }
+
+            setStatus("Modified memory cell at address " + Utility.lineToMemoryAddress(cell + 1) + " from " +  Utility.hex(oldValue) + " to " + Utility.hex(parsedValue));
+        } else {
+            setStatus("Invalid value '" + value + "'; reverting back to original memory cell contents at address " + Utility.lineToMemoryAddress(cell + 1), true);
+            ele.textContent = Utility.hex(sim.memory[cell].contents);
+        }
+
+        selectedMemoryCell = null;
+    }
+
+    memory.addEventListener("dblclick", function(e) {
+        var cellString = "cell";
+
+        if(e.target && e.target.classList.contains("cell")) {
+            finishInputReplaceMemoryCell();
+            selectedMemoryCell = parseInt(e.target.id.substr(cellString.length - e.target.id.length));
+
+            var input = document.createElement("input");
+            input.type = "text";
+            input.value = e.target.textContent;
+            input.size = 4;
+
+            while (e.target.firstChild) {
+                e.target.removeChild(e.target.firstChild);
+            }
+
+            e.target.appendChild(input);
+            input.select();
+        }
+    });
+
+    memory.addEventListener("keypress", function(e) {
+        if(e.which === 13 && e.target && e.target.parentNode.classList.contains("cell")) {
+            finishInputReplaceMemoryCell();
+        }
+    });
+
+    document.addEventListener("click", function() {
+        finishInputReplaceMemoryCell();
+    });
 
     function populateWatchList(asm, sim) {
         while (watchList.firstChild) {
@@ -209,6 +299,21 @@ window.addEventListener("load", function() {
             registerLog.removeChild(registerLog.firstChild);
         }
     }
+
+    // Event delegation
+    registerLog.addEventListener("mouseover", function(e) {
+        if(e.target && e.target.classList.contains("instruction-register-log") && e.target.dataset.currentLine) {
+            var line = parseInt(e.target.dataset.currentLine);
+            programCodeMirror.addLineClass(line, "background", "highlighted-line");
+        }
+    }, false);
+
+    registerLog.addEventListener("mouseout", function(e) {
+        if(e.target && e.target.classList.contains("instruction-register-log") && e.target.dataset.currentLine) {
+            var line = parseInt(e.target.dataset.currentLine);
+            programCodeMirror.removeLineClass(line, "background", "highlighted-line");
+        }
+    }, false);
 
     function updateCurrentLine(clear) {
         if (lastCurrentLine !== null) {
@@ -340,7 +445,7 @@ window.addEventListener("load", function() {
     }
 
     function outputFunc(value) {
-        var shouldScrollToBottomOutputLog = outputLogOuter.clientHeight === (outputLogOuter.scrollHeight - outputLogOuter.scrollTop);
+        var shouldScrollToBottomOutputLog = outputLogOuter.clientHeight > 0.99 * (outputLogOuter.scrollHeight - outputLogOuter.scrollTop);
 
         outputList.push(value);
 
@@ -373,15 +478,21 @@ window.addEventListener("load", function() {
         }
     }
 
-    function regLogFunc(message) {
+    function regLogFunc(message, notAnRTL) {
         if(!running || delay >= minDatapathDelay) {
             datapath.appendMicroInstruction(message);
         }
 
-        var shouldScrollToBottomRegisterLog = registerLogOuter.clientHeight === (registerLogOuter.scrollHeight - registerLogOuter.scrollTop);
+        var shouldScrollToBottomRegisterLog = registerLogOuter.clientHeight > 0.99 * (registerLogOuter.scrollHeight - registerLogOuter.scrollTop);
 
-        currentInstructionRegisterLog.appendChild(document.createTextNode(message));
-        currentInstructionRegisterLog.appendChild(document.createElement("br"));
+        if(notAnRTL) {
+            currentInstructionRegisterLog.classList.add("finished-instruction");
+            registerLog.appendChild(document.createTextNode(message));
+            registerLog.appendChild(document.createElement("br"));
+        } else {
+            currentInstructionRegisterLog.appendChild(document.createTextNode(message));
+            currentInstructionRegisterLog.appendChild(document.createElement("br"));
+        }
 
         if(shouldScrollToBottomRegisterLog) {
             registerLogOuter.scrollTop = registerLogOuter.scrollHeight;
@@ -450,8 +561,6 @@ window.addEventListener("load", function() {
     function runLoop(micro) {
         microStepping = micro;
 
-        setStatus(micro ? "Performed one micro-step" : "Performed one step");
-
         try {
             var step = true;
 
@@ -515,147 +624,152 @@ window.addEventListener("load", function() {
     }
 
     assembleButton.addEventListener("click", function() {
-        setStatus("Assembling", false);
-        stop();
-        running = false;
+        assembleButton.textContent = "Assembling...";
+        assembleButton.disabled = true;
+        setStatus("Assembling...", false);
 
-        datapathWarning(false);
+        setTimeout(function() {
+            stop();
+            running = false;
 
-        savedOutput = null;
-        pausedOnInput = false;
+            datapathWarning(false);
 
-        if (lastErrorLine !== null) {
-            programCodeMirror.removeLineClass(lastErrorLine, "background", "error-line");
-            lastErrorLine = null;
-        }
+            savedOutput = null;
+            pausedOnInput = false;
 
-        var assembler = new MarieAsm(programCodeMirror.getValue());
-
-        try {
-            asm = assembler.assemble();
-        } catch (e) {
-            setStatus(e.toString(), true);
-            lastErrorLine = e.lineNumber - 1;
-            programCodeMirror.addLineClass(lastErrorLine, "background", "error-line");
-            console.error(e);
-            return;
-        }
-
-        try {
-            sim = new MarieSim(asm, inputFunc, outputFunc);
-        } catch (e) {
-            setStatus(e.message, true);
-            console.error(e);
-            return;
-        }
-
-        datapath.attachSimulator(sim);
-
-        setStatus("Assembled successfully", false);
-
-        sim.setEventListener("regread", function(e) {
-            if(!running || delay >= minDatapathDelay) {
-                datapath.setControlBus(e.register, "read");
-                datapath.setALUBus(e.alutype);
-
-                datapath.showDataBusAccess(false, running ? delay/2 : 1000);
-            }
-        });
-
-        sim.setEventListener("regwrite", function(e) {
-            document.getElementById(e.register).textContent = Utility.hex(e.newValue, e.register == "mar" || e.register == "pc" ? 3 : 4);
-
-            if(!running || delay >= minDatapathDelay) {
-                datapath.setRegister(e.register, Utility.hex(e.newValue, e.register == "mar" || e.register == "pc" ? 3 : 4));
-                datapath.setControlBus(e.register, "write");
-
-                datapath.showDataBusAccess(false, running ? delay/2 : 1000);
+            if (lastErrorLine !== null) {
+                programCodeMirror.removeLineClass(lastErrorLine, "background", "error-line");
+                lastErrorLine = null;
             }
 
-            if (e.register == "pc") {
-                document.getElementById("cell" + e.oldValue).classList.remove("current-pc");
-                document.getElementById("cell" + e.newValue).classList.add("current-pc");
+            var assembler = new MarieAsm(programCodeMirror.getValue());
+
+            try {
+                asm = assembler.assemble();
+            } catch (e) {
+                setStatus(e.toString(), true);
+                lastErrorLine = e.lineNumber - 1;
+                programCodeMirror.addLineClass(lastErrorLine, "background", "error-line");
+                assembleButton.innerHTML = "<span class='fa fa-th'></span> Assemble";
+                assembleButton.disabled = false;
+                throw e;
             }
 
-            if (e.register == "mar") {
-                document.getElementById("cell" + e.oldValue).classList.remove("current-mar");
-                document.getElementById("cell" + e.newValue).classList.add("current-mar");
-            }
-        });
-
-        populateMemoryView(sim);
-        symbolCells = populateWatchList(asm, sim);
-        initializeOutputLog();
-        initializeRegisterLog();
-        resetRegisters();
-
-        sim.setEventListener("memread", function() {
-            if(!running || delay >= minDatapathDelay) {
-                datapath.setControlBus("memory", "read");
-                datapath.showDataBusAccess(true, running ? delay/2 : 1000);
-            }
-        });
-
-        sim.setEventListener("memwrite", function(e) {
-            if(!running || delay >= minDatapathDelay) {
-                datapath.setControlBus("memory", "write");
-                datapath.showDataBusAccess(true, running ? delay/2 : 1000);
+            try {
+                sim = new MarieSim(asm, inputFunc, outputFunc);
+            } catch (e) {
+                setStatus(e.message, true);
+                assembleButton.innerHTML = "<span class='fa fa-th'></span> Assemble";
+                assembleButton.disabled = false;
+                throw e;
             }
 
-            var cell = document.getElementById("cell" + e.address);
-            cell.textContent = Utility.hex(e.newCell.contents, false);
-            cell.classList.add("memory-changed");
+            datapath.attachSimulator(sim);
 
-            for (var address in symbolCells) {
-                if (address == e.address) {
-                    symbolCells[address].textContent = Utility.hex(e.newCell.contents);
+            sim.setEventListener("regread", function(e) {
+                if(!running || delay >= minDatapathDelay) {
+                    datapath.setControlBus(e.register, "read");
+                    datapath.setALUBus(e.alutype);
+
+                    datapath.showDataBusAccess(false, running ? delay/2 : 1000);
                 }
-            }
-        });
+            });
 
-        sim.setEventListener("newinstruction", function() {
-            if(!running || delay >= minDatapathDelay) {
-                datapath.showInstruction();
-            }
+            sim.setEventListener("regwrite", function(e) {
+                document.getElementById(e.register).textContent = Utility.hex(e.newValue, e.register == "mar" || e.register == "pc" ? 3 : 4);
 
-            var currentInstruction = sim.current();
+                if(!running || delay >= minDatapathDelay) {
+                    datapath.setRegister(e.register, Utility.hex(e.newValue, e.register == "mar" || e.register == "pc" ? 3 : 4));
+                    datapath.setControlBus(e.register, "write");
 
-            currentInstructionRegisterLog = document.createElement("div");
-            currentInstructionRegisterLog.classList.add("instruction-register-log");
+                    datapath.showDataBusAccess(false, running ? delay/2 : 1000);
+                }
 
-            if(currentInstruction && typeof currentInstruction.line !== "undefined") {
-                currentInstructionRegisterLog.dataset.currentLine = currentInstruction.line;
+                if (e.register == "pc") {
+                    document.getElementById("cell" + e.oldValue).classList.remove("current-pc");
+                    document.getElementById("cell" + e.newValue).classList.add("current-pc");
+                }
 
-                currentInstructionRegisterLog.addEventListener("mouseover", function() {
-                    var line = parseInt(this.dataset.currentLine);
-                    programCodeMirror.addLineClass(line, "background", "highlighted-line");
-                }, false);
+                if (e.register == "mar") {
+                    document.getElementById("cell" + e.oldValue).classList.remove("current-mar");
+                    document.getElementById("cell" + e.newValue).classList.add("current-mar");
+                }
+            });
 
-                currentInstructionRegisterLog.addEventListener("mouseout", function() {
-                    var line = parseInt(this.dataset.currentLine);
-                    programCodeMirror.removeLineClass(line, "background", "highlighted-line");
-                }, false);
-            }
+            populateMemoryView(sim);
+            symbolCells = populateWatchList(asm, sim);
+            initializeOutputLog();
+            initializeRegisterLog();
+            resetRegisters();
 
-            registerLog.appendChild(currentInstructionRegisterLog);
-        });
-        sim.setEventListener("reglog", regLogFunc);
-        sim.setEventListener("decode", function() {
-            datapath.setALUBus("decode");
-        });
+            sim.setEventListener("memread", function() {
+                if(!running || delay >= minDatapathDelay) {
+                    datapath.setControlBus("memory", "read");
+                    datapath.showDataBusAccess(true, running ? delay/2 : 1000);
+                }
+            });
 
-        stepButton.disabled = false;
-        microStepButton.disabled = false;
-        stepBackButton.disabled = true;
-        runButton.disabled = false;
-        runButton.textContent = "Run";
-        restartButton.disabled = false;
+            sim.setEventListener("memwrite", function(e) {
+                if(!running || delay >= minDatapathDelay) {
+                    datapath.setControlBus("memory", "write");
+                    datapath.showDataBusAccess(true, running ? delay/2 : 1000);
+                }
 
-        updateCurrentLine(true);
+                var cell = document.getElementById("cell" + e.address);
+                cell.textContent = Utility.hex(e.newCell.contents, false);
+                cell.classList.add("memory-changed");
+
+                for (var address in symbolCells) {
+                    if (address == e.address) {
+                        symbolCells[address].textContent = Utility.hex(e.newCell.contents);
+                    }
+                }
+            });
+
+            sim.setEventListener("newinstruction", function() {
+                if(!running || delay >= minDatapathDelay) {
+                    datapath.showInstruction();
+                }
+
+                if(currentInstructionRegisterLog) {
+                    currentInstructionRegisterLog.classList.add("finished-instruction");
+                }
+
+                var currentInstruction = sim.current();
+
+                currentInstructionRegisterLog = document.createElement("div");
+                currentInstructionRegisterLog.classList.add("instruction-register-log");
+
+                if(currentInstruction && typeof currentInstruction.line !== "undefined") {
+                    currentInstructionRegisterLog.dataset.currentLine = currentInstruction.line;
+                }
+
+                registerLog.appendChild(currentInstructionRegisterLog);
+            });
+
+            sim.setEventListener("reglog", regLogFunc);
+            sim.setEventListener("decode", function() {
+                datapath.setALUBus("decode");
+            });
+
+            stepButton.disabled = false;
+            microStepButton.disabled = false;
+            stepBackButton.disabled = true;
+            runButton.disabled = false;
+            runButton.textContent = "Run";
+            restartButton.disabled = false;
+
+            setStatus("Assembled successfully", false);
+            assembleButton.innerHTML = "<span class='fa fa-th'></span> Assemble";
+            assembleButton.disabled = false;
+
+            updateCurrentLine(true);
+        }, 1);
     });
 
     stepButton.addEventListener("click", function() {
         runLoop();
+        setStatus("Performed one step");
     });
 
     stepBackButton.addEventListener("click", function() {
@@ -745,12 +859,13 @@ window.addEventListener("load", function() {
         }
 
         datapath.showInstruction();
-        regLogFunc("----- stepped back -----");
+        regLogFunc("----- stepped back -----", true);
         updateCurrentLine();
     });
 
     microStepButton.addEventListener("click", function() {
         runLoop(true);
+        setStatus("Performed one micro-step");
     });
 
     runButton.addEventListener("click", function() {
@@ -824,10 +939,33 @@ window.addEventListener("load", function() {
     window.addEventListener("resize", function() {
         handleDatapathUI();
     }, false);
-    
-    function saveFile(){
+
+    function saveFile() {
+        console.log("Saved file");
+        $('#saved-status').text("Saved file");
+
+        if(saveTimeout) {
+            clearTimeout(saveTimeout);
+            saveTimeout = null;
+        }
+
         window.localStorage.setItem("marie-program",programCodeMirror.getValue());
     }
+
+    $(window).bind('keydown', function(event) {
+        if (event.ctrlKey || event.metaKey) {
+            switch (String.fromCharCode(event.which).toLowerCase()) {
+                case 's':
+                    event.preventDefault();
+                    saveFile();
+                    break;
+            }
+        }
+    });
+
+    $("#save").on('click', function() {
+        saveFile();
+    });
 
     window.addEventListener("beforeunload", function() {
         saveFile();
@@ -877,7 +1015,7 @@ window.addEventListener("load", function() {
         $('#newfoldermodal').modal('hide');
     });
 
-    $("#savefile").click( function() {
+    $("#exportfile").click( function() {
         var text = programCodeMirror.getValue();
         var filename = "code";
         var blob = new Blob([text], {type: "text/plain;charset=utf-8"});
@@ -951,15 +1089,4 @@ window.addEventListener("load", function() {
     });
 
     $("body").removeClass("preload");
-
-
-
-
-    function saveTimeout(){
-        setTimeout(saveFile(), 10*1000);
-    }
-
-    if(saveTimeout) { 
-        clearTimeout(saveTimeout);
-    }
 });
