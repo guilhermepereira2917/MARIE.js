@@ -29,7 +29,67 @@ window.addEventListener("load", function() {
         currentInstructionRegisterLog = null;
 
     const HEX = 0, DEC = 1, ASCII = 2;
-    var minDatapathDelay = parseInt(localStorage.getItem("min-datapath-delay")) || 1000;
+
+    var defaultPrefs = {
+        autocomplete: true,
+        autosave: true,
+        minDelay: 1,
+        maxDelay: 3000,
+        minDatapathDelay: 1000
+    };
+
+    var prefs = $.extend(defaultPrefs);
+
+    function getPrefs() {
+        var autocomplete = localStorage.getItem("autocomplete"),
+            autosave = localStorage.getItem("autosave"),
+            minDelay = localStorage.getItem("min-delay"),
+            maxDelay = localStorage.getItem("max-delay"),
+            minDatapathDelay = localStorage.getItem("min-datapath-delay");
+
+        if(["false", "true"].indexOf(autocomplete) >= 0) {
+            prefs.autocomplete = autocomplete === "true";
+        }
+
+        if(["false", "true"].indexOf(autosave) >= 0) {
+            prefs.autosave = autosave === "true";
+        }
+
+        if(!isNaN(parseInt(minDelay))) {
+            prefs.minDelay = parseInt(minDelay);
+        }
+
+        if(!isNaN(parseInt(maxDelay))) {
+            prefs.maxDelay = parseInt(maxDelay);
+        }
+
+        if(!isNaN(parseInt(minDatapathDelay))) {
+            prefs.minDatapathDelay = parseInt(minDatapathDelay);
+        }
+
+        rangeDelay.min = prefs.minDelay;
+        rangeDelay.max = prefs.maxDelay;
+    }
+
+    function setPrefs() {
+        localStorage.setItem("autocomplete", prefs.autocomplete);
+        localStorage.setItem("autosave", prefs.autosave);
+        localStorage.setItem("min-delay", prefs.minDelay);
+        localStorage.setItem("max-delay", prefs.maxDelay);
+        localStorage.setItem("min-datapath-delay", prefs.minDatapathDelay);
+
+        rangeDelay.min = prefs.minDelay;
+        rangeDelay.max = prefs.maxDelay;
+
+        if(!prefs.autosave && saveTimeout) {
+            clearTimeout(saveTimeout);
+            saveTimeout = null;
+        }
+
+        updateRangeDelay();
+    }
+
+    getPrefs();
 
     var asm = null,
         sim = null,
@@ -38,7 +98,7 @@ window.addEventListener("load", function() {
         lastCurrentLine = null,
         lastBreakPointLine = null,
         breaking = false,
-        delay = 1,
+        delay = prefs.minDelay,
         microStepping = false,
         running = false,
         waiting = false,
@@ -48,10 +108,18 @@ window.addEventListener("load", function() {
         datapath = new DataPath(datapathEle, datapathInstructionElement),
         outputList = [],
         saveTimeout = null,
+        modifiedFile = false,
         selectedMemoryCell = null,
         symbolCells = null;
 
     textArea.value = localStorage.getItem("marie-program") || "";
+
+    if(textArea.value !== "") {
+        $("#saved-status").text("Restored file");
+    } else {
+        textArea.value = "";
+        $("#saved-status").text("New file");
+    }
 
     var programCodeMirror = CodeMirror.fromTextArea(textArea, {
         mode: "marie",
@@ -65,11 +133,13 @@ window.addEventListener("load", function() {
     });
 
     programCodeMirror.on("change", function(cm) {
-        cm.showHint({
-            hint: getCompletions,
-            alignWithWord: false,
-            completeSingle: false
-        });
+        if(prefs.autocomplete) {
+            cm.showHint({
+                hint: getCompletions,
+                alignWithWord: false,
+                completeSingle: false
+            });
+        }
 
         if(saveTimeout) {
             clearTimeout(saveTimeout);
@@ -77,8 +147,13 @@ window.addEventListener("load", function() {
         }
 
         $('#saved-status').text("Modified file");
+        modifiedFile = true;
 
-        saveTimeout = setTimeout(saveFile, 10*1000);
+        if(prefs.autosave) {
+            saveTimeout = setTimeout(function() {
+                saveFile(true);
+            }, 10*1000);
+        }
     });
 
     function makeMarker() {
@@ -479,7 +554,7 @@ window.addEventListener("load", function() {
     }
 
     function regLogFunc(message, notAnRTL) {
-        if(!running || delay >= minDatapathDelay) {
+        if(!running || delay >= prefs.minDatapathDelay) {
             datapath.appendMicroInstruction(message);
         }
 
@@ -608,7 +683,7 @@ window.addEventListener("load", function() {
         }
 
         if(showWarning) {
-            $('#datapath-status-bar').removeClass('alert-info').addClass('alert-warning').html("<strong>Note: </strong> Delay is set too low for datapath to update. Increase delay to at least 1000 ms, or set simulator to stepping mode.");
+            $('#datapath-status-bar').removeClass('alert-info').addClass('alert-warning').html("<strong>Note: </strong> Delay is set too low for datapath to update. Increase delay to at least " + prefs.minDatapathDelay.toString() + " ms, or set simulator to stepping mode.");
             $("#datapath-display-instructions").css({"opacity": 0.5});
             $("#datapath-diagram").css({"opacity": 0.5});
             datapath.restart();
@@ -667,7 +742,7 @@ window.addEventListener("load", function() {
             datapath.attachSimulator(sim);
 
             sim.setEventListener("regread", function(e) {
-                if(!running || delay >= minDatapathDelay) {
+                if(!running || delay >= prefs.minDatapathDelay) {
                     datapath.setControlBus(e.register, "read");
                     datapath.setALUBus(e.alutype);
 
@@ -678,7 +753,7 @@ window.addEventListener("load", function() {
             sim.setEventListener("regwrite", function(e) {
                 document.getElementById(e.register).textContent = Utility.hex(e.newValue, e.register == "mar" || e.register == "pc" ? 3 : 4);
 
-                if(!running || delay >= minDatapathDelay) {
+                if(!running || delay >= prefs.minDatapathDelay) {
                     datapath.setRegister(e.register, Utility.hex(e.newValue, e.register == "mar" || e.register == "pc" ? 3 : 4));
                     datapath.setControlBus(e.register, "write");
 
@@ -703,14 +778,14 @@ window.addEventListener("load", function() {
             resetRegisters();
 
             sim.setEventListener("memread", function() {
-                if(!running || delay >= minDatapathDelay) {
+                if(!running || delay >= prefs.minDatapathDelay) {
                     datapath.setControlBus("memory", "read");
                     datapath.showDataBusAccess(true, running ? delay/2 : 1000);
                 }
             });
 
             sim.setEventListener("memwrite", function(e) {
-                if(!running || delay >= minDatapathDelay) {
+                if(!running || delay >= prefs.minDatapathDelay) {
                     datapath.setControlBus("memory", "write");
                     datapath.showDataBusAccess(true, running ? delay/2 : 1000);
                 }
@@ -727,7 +802,7 @@ window.addEventListener("load", function() {
             });
 
             sim.setEventListener("newinstruction", function() {
-                if(!running || delay >= minDatapathDelay) {
+                if(!running || delay >= prefs.minDatapathDelay) {
                     datapath.showInstruction();
                 }
 
@@ -889,7 +964,7 @@ window.addEventListener("load", function() {
                 inputFunc(savedOutput);
             }
 
-            if(delay < minDatapathDelay) {
+            if(delay < prefs.minDatapathDelay) {
                 datapathWarning(true);
             }
         }
@@ -899,19 +974,18 @@ window.addEventListener("load", function() {
         displayDelayMs.textContent = this.value + " ms";
     });
 
-    rangeDelay.addEventListener("change", function() {
-        delay = parseInt(this.value);
+    function updateRangeDelay() {
+        delay = parseInt(rangeDelay.value);
+        displayDelayMs.textContent = delay + " ms";
 
-        if(!running || delay >= minDatapathDelay) {
-            datapathWarning(false);
-        } else if(running) {
-            datapathWarning(true);
-        }
+        datapathWarning(running && delay < prefs.minDatapathDelay);
 
         if (interval) {
             run();
         }
-    });
+    }
+
+    rangeDelay.addEventListener("change", updateRangeDelay);
 
     restartButton.addEventListener("click", function() {
         stop();
@@ -940,16 +1014,32 @@ window.addEventListener("load", function() {
         handleDatapathUI();
     }, false);
 
-    function saveFile() {
-        console.log("Saved file");
-        $('#saved-status').text("Saved file");
+    function saveFile(autoSave) {
+        window.localStorage.setItem("marie-program", programCodeMirror.getValue());
+
+        var breakpoints = [];
+        var count = programCodeMirror.lineCount(), i;
+        for (i = 0; i < count; i++) {
+            var info = programCodeMirror.lineInfo(i);
+            if (info.gutterMarkers) {
+                breakpoints.push(i);
+            }
+        }
+        window.localStorage.setItem("marie-breakpoints", JSON.stringify(breakpoints));
+
+        modifiedFile = false;
 
         if(saveTimeout) {
             clearTimeout(saveTimeout);
             saveTimeout = null;
         }
-
-        window.localStorage.setItem("marie-program",programCodeMirror.getValue());
+        if(autoSave) {
+            $('#saved-status').text("Autosaved file");
+            console.log("Autosaved file");
+        } else {
+            $('#saved-status').text("Saved file");
+            console.log("Saved file");
+        }
     }
 
     $(window).bind('keydown', function(event) {
@@ -967,20 +1057,15 @@ window.addEventListener("load", function() {
         saveFile();
     });
 
-    window.addEventListener("beforeunload", function() {
-        saveFile();
-
-        var breakpoints = [];
-        var count = programCodeMirror.lineCount(), i;
-        for (i = 0; i < count; i++) {
-            var info = programCodeMirror.lineInfo(i);
-            if (info.gutterMarkers) {
-                breakpoints.push(i);
-            }
+    window.onbeforeunload = function() {
+        if(prefs.autosave) {
+            saveFile();
         }
-        window.localStorage.setItem("marie-breakpoints", JSON.stringify(breakpoints));
+        else if(modifiedFile) {
+            return "You have unsaved changes and autosave is off. Do you want to leave MARIE.js?";
+        }
         return;
-    });
+    };
 
     uploadButton.addEventListener("click", function() {
         fileInput.click();
@@ -994,6 +1079,66 @@ window.addEventListener("load", function() {
         programCodeMirror.redo();
     });
 
+    $("#prefs").click(function() {
+        $("#save-changes").prop("disabled", true);
+        $("#prefs-invalid-input-error").hide();
+        $("#autocomplete").prop("checked", prefs.autocomplete);
+        $("#autosave").prop("checked", prefs.autosave);
+
+        $("#min-delay").val(prefs.minDelay);
+        $("#max-delay").val(prefs.maxDelay);
+        $("#min-datapath-delay").val(prefs.minDatapathDelay);
+
+        $("#prefs-modal").modal("show");
+    });
+
+    $("#min-delay,#max-delay,#min-datapath-delay").off();
+
+    $("#min-delay,#max-delay,#min-datapath-delay").on("input", function() {
+        $("#save-changes").prop("disabled", false);
+    });
+
+    $("#autocomplete,#autosave").off();
+
+    $("#autocomplete,#autosave").on("change", function() {
+        $("#save-changes").prop("disabled", false);
+    });
+
+    $("#save-changes").click(function() {
+        var autocomplete = $("#autocomplete").prop("checked"),
+            autosave = $("#autosave").prop("checked");
+
+        var minDelay = parseInt($("#min-delay").val());
+        var maxDelay = parseInt($("#max-delay").val());
+
+        if(isNaN(minDelay) || isNaN(maxDelay) || minDelay >= maxDelay || minDelay < 0 || maxDelay < 0) {
+            $("#prefs-invalid-input-error").show();
+            return;
+        }
+
+        var minDatapathDelay = parseInt($("#min-datapath-delay").val());
+
+        if(isNaN(minDatapathDelay) || minDatapathDelay < 0) {
+            $("#prefs-invalid-input-error").show();
+            return;
+        }
+
+        prefs.autocomplete = autocomplete;
+        prefs.autosave = autosave;
+        prefs.minDelay = minDelay;
+        prefs.maxDelay = maxDelay;
+        prefs.minDatapathDelay = minDatapathDelay;
+
+        setPrefs();
+
+        $("#prefs-modal").modal("hide");
+    });
+
+    $("#set-to-defaults").click(function() {
+        prefs = $.extend(defaultPrefs);
+        setPrefs();
+    });
+
      $("#download").click( function(){
         var text = programCodeMirror.getValue();
         var filename = "code";
@@ -1001,10 +1146,12 @@ window.addEventListener("load", function() {
         saveAs(blob, filename+".mas");
     });
 
-    $("#newfilebtn").click( function(){
+    $("#newfilebtn").click(function() {
         var clrtxt = "";
         programCodeMirror.setValue(clrtxt);
         programCodeMirror.clearHistory();
+        saveFile();
+        $("#saved-status").text("New file");
     });
 
     $("#clear").click(function(){
