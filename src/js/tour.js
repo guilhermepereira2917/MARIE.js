@@ -9,6 +9,7 @@ $(document).ready(function() {
 
     try {
         var tour = new Tour({
+            onEnd: viewHome,
             steps: [
             {
                 onShow: viewHome,
