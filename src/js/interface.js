@@ -810,13 +810,13 @@ window.addEventListener("load", function() {
                     currentInstructionRegisterLog.classList.add("finished-instruction");
                 }
 
-                var currentInstruction = sim.current();
+                var currentInstruction = sim.memory[sim.pc];
 
                 currentInstructionRegisterLog = document.createElement("div");
                 currentInstructionRegisterLog.classList.add("instruction-register-log");
 
                 if(currentInstruction && typeof currentInstruction.line !== "undefined") {
-                    currentInstructionRegisterLog.dataset.currentLine = currentInstruction.line;
+                    currentInstructionRegisterLog.dataset.currentLine = currentInstruction.line - 1;
                 }
 
                 registerLog.appendChild(currentInstructionRegisterLog);
@@ -1035,10 +1035,10 @@ window.addEventListener("load", function() {
         }
         if(autoSave) {
             $('#saved-status').text("Autosaved file");
-            console.log("Autosaved file");
+            console.log("Autosaved file", (new Date()).toString());
         } else {
             $('#saved-status').text("Saved file");
-            console.log("Saved file");
+            console.log("Saved file", (new Date()).toString());
         }
     }
 
