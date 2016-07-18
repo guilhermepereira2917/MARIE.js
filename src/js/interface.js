@@ -553,9 +553,10 @@ window.addEventListener("load", function() {
         }
     }
 
-    function regLogFunc(message, notAnRTL) {
+    function regLogFunc(message, alu_type, notAnRTL) {
         if(!running || delay >= prefs.minDatapathDelay) {
             datapath.appendMicroInstruction(message);
+            datapath.setALUBus(alu_type);
         }
 
         var shouldScrollToBottomRegisterLog = registerLogOuter.clientHeight > 0.99 * (registerLogOuter.scrollHeight - registerLogOuter.scrollTop);
@@ -744,7 +745,6 @@ window.addEventListener("load", function() {
             sim.setEventListener("regread", function(e) {
                 if(!running || delay >= prefs.minDatapathDelay) {
                     datapath.setControlBus(e.register, "read");
-                    datapath.setALUBus(e.alutype);
 
                     datapath.showDataBusAccess(false, running ? delay/2 : 1000);
                 }
@@ -868,7 +868,7 @@ window.addEventListener("load", function() {
                 case "regread":
                     datapath.setControlBus(action.register, "read");
                     datapath.showDataBusAccess(false, 1000);
-                    datapath.setALUBus(action.alutype);
+                    datapath.setALUBus(action.alu_type);
                     break;
                 case "regwrite":
                     var oldValue = sim[action.register],
@@ -934,7 +934,7 @@ window.addEventListener("load", function() {
         }
 
         datapath.showInstruction();
-        regLogFunc("----- stepped back -----", true);
+        regLogFunc("----- stepped back -----", null, true);
         updateCurrentLine();
     });
 

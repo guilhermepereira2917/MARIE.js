@@ -180,8 +180,9 @@ var MarieSim,
      * @param  {String|Number} source - where to read value from
      * @param  {Number} mask          - (optional) bit masking that allows
      * certain bits to pass through value.
+     * @param {String} alu_type       - (optional) set ALU operation type.
      */
-    MarieSim.prototype.regSet = function(target, source, mask) {
+    MarieSim.prototype.regSet = function(target, source, mask, alu_type) {
         var oldValue;
         if (source == "m") {
             if (this.onRegLog) {
@@ -238,8 +239,7 @@ var MarieSim,
             if (this.onRegRead) {
                 this.onRegRead.call(this, {
                     register: source,
-                    value: this[source],
-                    alutype: "set"
+                    value: this[source]
                 });
             }
 
@@ -247,7 +247,7 @@ var MarieSim,
                 type: "regread",
                 register: source,
                 value: this[source],
-                alutype: "set"
+                alu_type: alu_type
             });
 
             if (this.onMemWrite) {
@@ -271,7 +271,7 @@ var MarieSim,
                         target.toString().toUpperCase(),
                         "←",
                         source.toString(16).toUpperCase()
-                    ].join(" "));
+                    ].join(" "), alu_type);
                 }
                 else {
                     this.onRegLog([
@@ -280,7 +280,7 @@ var MarieSim,
                         source.toString(16).toUpperCase(),
                         "&",
                         mask.toString(16).toUpperCase()
-                    ].join(" "));
+                    ].join(" "), alu_type);
                 }
             }
 
@@ -295,8 +295,7 @@ var MarieSim,
                 if(this.onRegRead) {
                     this.onRegRead.call(this, {
                         register: source,
-                        value: this[source],
-                        alutype: "set"
+                        value: this[source]
                     });
                 }
 
@@ -304,7 +303,7 @@ var MarieSim,
                     type: "regread",
                     register: source,
                     value: this[source],
-                    alutype: "set"
+                    alu_type: alu_type
                 });
             }
 
@@ -331,13 +330,12 @@ var MarieSim,
      *
      * @param  {String} target        - final place to store computed value
      * @param  {String|Number} source - where to read value from
-     * @param  {Boolean} subtract     - if true, perform subtraction; otherwise
-     * perform addition.
+     * @param  {String} alu_type      - perform specified operation
      */
-    MarieSim.prototype.regAdd = function(target, source, subtract) {
+    MarieSim.prototype.regAdd = function(target, source, alu_type) {
         var oldValue = this[target];
 
-        if (subtract) {
+        if (alu_type === "subtract") {
             if (this.onRegLog) {
                 this.onRegLog([
                     target.toString().toUpperCase(),
@@ -345,12 +343,12 @@ var MarieSim,
                     target.toString().toUpperCase(),
                     "-",
                     source.toString(16).toUpperCase()
-                ].join(" "));
+                ].join(" "), "subtract");
             }
 
             this[target] -= typeof source == "string" ? this[source] : source;
         }
-        else {
+        else if (["add", "incr_pc", "is_negative", "is_zero", "is_positive"].indexOf(alu_type) >= 0) {
             if (this.onRegLog) {
                 this.onRegLog([
                     target.toString().toUpperCase(),
@@ -358,19 +356,17 @@ var MarieSim,
                     target.toString().toUpperCase(),
                     "+",
                     source.toString(16).toUpperCase()
-                ].join(" "));
+                ].join(" "), alu_type);
             }
 
             this[target] += typeof source == "string" ? this[source] : source;
         }
 
-
         if(typeof source == "string") {
             if (this.onRegRead) {
                 this.onRegRead.call(this, {
                     register: source,
-                    value: this[source],
-                    alutype: subtract ? "subtract" : "add"
+                    value: this[source]
                 });
             }
 
@@ -378,15 +374,13 @@ var MarieSim,
                 type: "regread",
                 register: source,
                 value: this[source],
-                alutype: subtract ? "subtract" : "add"
+                alu_type: alu_type
             });
-        } else {
-            // source is the target
+        } else { // source is the target
             if (this.onRegRead) {
                 this.onRegRead.call(this, {
                     register: target,
-                    value: this[target],
-                    alutype: target === "pc" ? "incr_pc" : (subtract ? "subtract" : "add")
+                    value: this[target]
                 });
             }
 
@@ -394,7 +388,7 @@ var MarieSim,
                 type: "regread",
                 register: target,
                 value: this[target],
-                alutype: target === "pc" ? "incr_pc" : (subtract ? "subtract" : "add")
+                alu_type: alu_type
             });
         }
 
@@ -496,7 +490,7 @@ var MarieSim,
     MarieSim.prototype.fetch = function*() {
         yield this.regSet("mar", "pc");
         yield this.regSet("ir", "m");
-        yield this.regAdd("pc", 1);
+        yield this.regAdd("pc", 1, "incr_pc");
     };
 
 
@@ -561,7 +555,7 @@ var MarieSim,
             fn: function*() {
                 yield this.regSet("mar", "ir", 0xFFF);
                 yield this.regSet("mbr", "m");
-                yield this.regAdd("ac", "mbr");
+                yield this.regAdd("ac", "mbr", "add");
             }
         },
         subt: {
@@ -570,7 +564,7 @@ var MarieSim,
             fn: function*() {
                 yield this.regSet("mar","ir", 0xFFF);
                 yield this.regSet("mbr", "m");
-                yield this.regAdd("ac", "mbr", true);
+                yield this.regAdd("ac", "mbr", "subtract");
             }
         },
         addi: {
@@ -581,14 +575,14 @@ var MarieSim,
                 yield this.regSet("mbr", "m");
                 yield this.regSet("mar", "mbr");
                 yield this.regSet("mbr", "m");
-                yield this.regAdd("ac", "mbr");
+                yield this.regAdd("ac", "mbr", "add");
             }
         },
         clear: {
             opcode: 0xA,
             operand: false,
             fn: function*() {
-                yield this.regSet("ac", 0);
+                yield this.regSet("ac", 0, undefined, "clear");
             }
         },
         load: {
@@ -694,21 +688,21 @@ var MarieSim,
                 switch (this.ir & 0xF00) {
                     case 0x000:
                         if (this.onRegLog)
-                            this.onRegLog("Is AC < 0? " + (this.ac < 0 ? "Yes!" : "No!"));
+                            this.onRegLog("Is AC < 0? " + (this.ac < 0 ? "Yes!" : "No!"), "is_negative");
                         if (this.ac < 0)
-                            this.regAdd("pc", 1);
+                            this.regAdd("pc", 1, "is_negative");
                         break;
                     case 0x400:
                         if (this.onRegLog)
-                            this.onRegLog("Is AC = 0? " + (this.ac === 0 ? "Yes!" : "No!"));
+                            this.onRegLog("Is AC = 0? " + (this.ac === 0 ? "Yes!" : "No!"), "is_zero");
                         if (this.ac === 0)
-                            this.regAdd("pc", 1);
+                            this.regAdd("pc", 1, "is_zero");
                         break;
                     case 0x800:
                         if (this.onRegLog)
-                            this.onRegLog("Is AC > 0? " + (this.ac > 0 ? "Yes!" : "No!"));
+                            this.onRegLog("Is AC > 0? " + (this.ac > 0 ? "Yes!" : "No!"), "is_positive");
                         if (this.ac > 0)
-                            this.regAdd("pc", 1);
+                            this.regAdd("pc", 1, "is_positive");
                         break;
                     default:
                         throw new MarieSimError("Undefined skipcond operand.", this.ir);
@@ -725,7 +719,7 @@ var MarieSim,
                 yield this.regSet("m", "mbr");
                 yield this.regSet("mbr", "ir", 0xFFF);
                 yield this.regSet("ac", 1);
-                yield this.regAdd("ac", "mbr");
+                yield this.regAdd("ac", "mbr", "add");
                 yield this.regSet("pc", "ac");
             }
         },

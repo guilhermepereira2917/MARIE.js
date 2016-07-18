@@ -218,14 +218,14 @@ var DataPath;
 
         var dpDocument = this.datapath.contentDocument;
 
-        var alu_opcodes = ["set", "add", "subtract", "clear", "<?", "=?", ">?", "incr_pc"];
+        var alu_opcodes = ["set", "add", "subtract", "clear", "is_negative", "is_zero", "is_positive", "incr_pc"];
         var alu_op_int = alu_opcodes.indexOf(type);
 
         if(alu_op_int === -1) {
             alu_op_int = 0;
         }
-        var alu_op = Utility.uintToBinArray(alu_op_int);
 
+        var alu_op = Utility.uintToBinArray(alu_op_int);
         alu_op.reverse();
 
         var acToAluWire = dpDocument.getElementById("ac_to_alu_wire");
