@@ -7,22 +7,51 @@ Current version: `0.6.0`
 MARIE.js is an implementation of a simulator for a 'Machine Architecture that is Really Intuitive and Easy'
 from [The Essentials of Computer Organization and Architecture](https://books.google.com.au/books/about/The_Essentials_of_Computer_Organization.html?id=3kQoAwAAQBAJ&redir_esc=y) (Linda Null, Julia Lobur) in JavaScript.
 
+[Try the simulator](https://marie-js.github.io/MARIE.js/)
+
 ## Setup
-    # Install npm and grunt packages by:
-    sudo apt-get install npm
+This is for web developers who would like to develop the MARIE.js project. If
+this is you, then continue reading below.
+
+MARIE.js is essentially a front-end only site with no servers or databases.
+The tools we use are `npm` and `grunt`, which makes developing this project
+a little easier.
+
+It is recommended that you use a Unix-like operating system to build, test and
+run the code. You'll need to install `npm`, then run the following commands to
+install dependencies, build the release version, and run a localhost server as
+well as opening the default browser directing to the localhost site.
+
     sudo npm install -g grunt-cli
 
-    # Run these commands:
     cd /path/to/repo/MARIE.js
     npm install
     grunt
 
 ## Development
-    # To test and build MARIE.js (you need JRE 8 for grunt test):
+To test and build the development version of MARIE.js, run the following
+commands.
+
     cd /path/to/repo/MARIE.js
     npm install
-    grunt test
+    grunt test # you need JRE 8 for this command
     grunt bar-dev
+
+## Documentation
+We use jsdoc for documenting the code. This can be found within the `doc`
+folder.
+
+If you want to build the documentation website again (if you have, say, made
+some changes to the documentation of the JavaScript code), then run this
+command.
+
+    grunt jsdoc
+
+## Contribute
+If you would like to contribute to this project, simply fork this repository
+then make the changes to the forked repository. Once changes are made, perform a
+pull request to this repository. We'll review the pull request, and if it is
+accepted, we'll add your name to our license.
 
 ## Recommended Commit Tags
     [D] Dependency Update

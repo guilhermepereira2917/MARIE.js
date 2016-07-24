@@ -6,7 +6,7 @@
             <div class="container">
                 <div id="flex">
                     <div id="program-container">
-                        <span>Assembly code: <span id="saved-status">Restored file</span></span>
+                        <span>Assembly code: <span id="saved-status"></span></span>
                         <textarea id="program">Loading...</textarea>
                     </div>
                     <div id="register-container">
@@ -121,18 +121,15 @@
         </div>
 
         <!-- newFile Modal -->
-        <div class="modal fade" id="newfoldermodal" role="dialog">
+        <div class="modal fade " id="newfoldermodal" role="dialog" data-keyboard="true" tabindex="-1">
             <div class="modal-dialog">
                 <!-- Modal content-->
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h4 class="modal-title">MARIE.js | New File</h4>
-                    </div>
-                    <div class="alert alert-danger">
-                        <span class="glyphicon glyphicon-alert"></span> <strong>Warning!</strong> This will create clear all history as well as clearing the codearea.
+                        <h4 class="modal-title">MARIE.js | <span class="fa fa-file-o"></span> New File</h4>
                     </div>
                     <div class="modal-body">
-                        <p>This will create a new file, are you sure you want to proceed?</p>
+                        <p>This will create a new file. Are you sure you want to proceed?</p>
                     </div>
                     <div class="modal-footer">
                         <button id="newfilebtn" type="button" class="btn btn-danger" data-dismiss="modal">Yes</button>
@@ -143,5 +140,33 @@
             </div>
         </div>
         <input type="file" id="fileInput" accept=".mas,.txt">
+
+        <!-- Preferences Modal -->
+        <div class="modal fade" id="prefs-modal" role="dialog" data-keyboard="true" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title">MARIE.js | <span class="fa fa-wrench"></span> Preferences</h4>
+                    </div>
+                    <div id="prefs-invalid-input-error" class="alert alert-danger">
+                        <span class="glyphicon glyphicon-alert"></span> <strong>Invalid input</strong> Please try again.
+                    </div>
+                    <div class="modal-body">
+                        <ul class="list-unstyled">
+                            <li><input type="checkbox" id="autocomplete" /> <label for="autocomplete">Autocomplete</label></li>
+                            <li><input type="checkbox" id="autosave" /> <label for="autosave">Autosave</label></li>
+                            <li><label for="min-delay">Minimum delay:</label> <input type="text" class="form-control" id="min-delay" /></li>
+                            <li><label for="max-delay">Maximum delay:</label> <input type="text" class="form-control" id="max-delay" /></li>
+                            <li><label for="min-datapath-delay">Minimum datapath delay:</label> <input type="text" id="min-datapath-delay" class="form-control" /></li>
+                        </ul>
+                    </div>
+                    <div class="modal-footer">
+                        <button id="save-changes" type="button" class="btn" disabled>Save changes</button>
+                        <button id="cancel-changes" type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                        <button id="set-to-defaults" type="button" class="btn btn-danger pull-left" data-dismiss="modal">Set to defaults</button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </body>
 </html>

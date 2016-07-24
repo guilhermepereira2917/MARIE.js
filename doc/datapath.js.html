@@ -1,4 +1,32 @@
-/* globals Utility */
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: datapath.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: datapath.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/* globals Utility */
 
 var DataPath;
 
@@ -36,7 +64,7 @@ var DataPath;
             }
         });
 
-        if(this.datapath.contentDocument && !this.loaded) {
+        if(this.datapath.contentDocument &amp;&amp; !this.loaded) {
             this.loaded = true;
             console.log("DataPath SVG object loaded");
 
@@ -205,10 +233,10 @@ var DataPath;
         });
 
         var i;
-        for(var j = 0; j < 3; j++) {
-           for(i = 0; i < control_bus[j].childNodes.length; i++) {
+        for(var j = 0; j &lt; 3; j++) {
+           for(i = 0; i &lt; control_bus[j].childNodes.length; i++) {
                 if(control_bus[j].childNodes[i].tagName === "path") {
-                    if(register !== null && (registerIndex + 1) & (1 << j)) {
+                    if(register !== null &amp;&amp; (registerIndex + 1) &amp; (1 &lt;&lt; j)) {
                         if(type === "read") {
                             control_bus[j].childNodes[i].style.stroke = "blue";
                         } else if(type == "write") {
@@ -221,11 +249,11 @@ var DataPath;
             }
         }
 
-        if(this.isMemoryRead && type === "read") {
+        if(this.isMemoryRead &amp;&amp; type === "read") {
             this.isMemoryRead = false;
             memoryReadWire.style.stroke = "black";
             mainMemory.style.stroke = "black";
-        } else if (this.isMemoryWrite && type === "write") {
+        } else if (this.isMemoryWrite &amp;&amp; type === "write") {
             this.isMemoryWrite = false;
             memoryWriteWire.style.stroke = "black";
             mainMemory.style.stroke = "black";
@@ -251,15 +279,15 @@ var DataPath;
                 this.isMemoryWrite = true;
             }
         } else {
-            for(i = 0; i < this.registers.length; i++) {
-                if(i === this.readRegisterIndex && i === this.writeRegisterIndex && type === "write") {
+            for(i = 0; i &lt; this.registers.length; i++) {
+                if(i === this.readRegisterIndex &amp;&amp; i === this.writeRegisterIndex &amp;&amp; type === "write") {
                     registerElements[i].style.stroke = "magenta";
-                } else if(i === this.readRegisterIndex && type === "read") {
+                } else if(i === this.readRegisterIndex &amp;&amp; type === "read") {
                     registerElements[i].style.stroke = "blue";
-                } else if(i === this.writeRegisterIndex && type === "write") {
+                } else if(i === this.writeRegisterIndex &amp;&amp; type === "write") {
                     registerElements[i].style.stroke = "red";
                 }
-                else if(i !== this.readRegisterIndex && i !== this.writeRegisterIndex) {
+                else if(i !== this.readRegisterIndex &amp;&amp; i !== this.writeRegisterIndex) {
                     registerElements[i].style.stroke = "black";
                 }
             }
@@ -405,7 +433,7 @@ var DataPath;
                 return {
                     line: pc + 1,
                     operator: op,
-                    operand: nonOperandOperators.indexOf(op.toLowerCase()) < 0 ? instruction.slice(1, 4) : undefined
+                    operand: nonOperandOperators.indexOf(op.toLowerCase()) &lt; 0 ? instruction.slice(1, 4) : undefined
                 };
             }
         }
@@ -537,7 +565,7 @@ var DataPath;
 
     DataPath.prototype.highlightMicroInstruction = function() {
         var nodes = this.microInstructionsElement.getElementsByTagName("td");
-        if(nodes.length <= this.timeSeqCounter) {
+        if(nodes.length &lt;= this.timeSeqCounter) {
             console.warn("Something went wrong with populating the RTL microinstructions");
             return;
         }
@@ -567,10 +595,10 @@ var DataPath;
             return;
         }
 
-        for(var i = 0; i < 8; i++) {
+        for(var i = 0; i &lt; 8; i++) {
             var ele = this.datapath.contentDocument.getElementById("timing_signal_" + i.toString());
 
-            if(!clear && i === this.timeSeqCounter) {
+            if(!clear &amp;&amp; i === this.timeSeqCounter) {
                 ele.style.fill = "orange";
             } else {
                 ele.style.fill = "black";
@@ -578,3 +606,26 @@ var DataPath;
         }
     };
 }());
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="DataPath.html">DataPath</a></li><li><a href="MarieAsm.html">MarieAsm</a></li><li><a href="MarieAsmError.html">MarieAsmError</a></li><li><a href="MarieSim.html">MarieSim</a></li><li><a href="MarieSimError.html">MarieSimError</a></li></ul><h3>Namespaces</h3><ul><li><a href="Utility.html">Utility</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a> on Sun Jul 24 2016 10:45:25 GMT+1000 (AEST)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
