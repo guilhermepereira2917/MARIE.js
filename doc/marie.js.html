@@ -1,4 +1,32 @@
-/* globals Utility */
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: marie.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: marie.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/* globals Utility */
 
 var MarieSim,
     MarieSimError,
@@ -48,14 +76,14 @@ var MarieSim,
         this.restart();
 
         this.inputCallback = inputFunc || function(output) {
-            output(Utility.uintToInt(parseInt(window.prompt("Input hexadecimal value.", 0), 16) & 0xFFFF));
+            output(Utility.uintToInt(parseInt(window.prompt("Input hexadecimal value.", 0), 16) &amp; 0xFFFF));
         };
 
         this.outputCallback = outputFunc || function(value) {
             window.alert((value >>> 0).toString(16));
         };
 
-        while (this.memory.length < assembled.origin) {
+        while (this.memory.length &lt; assembled.origin) {
             this.memory.push({
                 contents: 0x0000
             });
@@ -67,7 +95,7 @@ var MarieSim,
             throw new MarieSimError("Insufficent memory error", "Failed to load program. Insufficent memory.");
         }
 
-        while (this.memory.length <= 0xFFF) {
+        while (this.memory.length &lt;= 0xFFF) {
             this.memory.push({
                 contents: 0x0000
             });
@@ -288,7 +316,7 @@ var MarieSim,
                         target.toString().toUpperCase(),
                         "←",
                         source.toString(16).toUpperCase(),
-                        "&",
+                        "&amp;",
                         mask.toString(16).toUpperCase()
                     ].join(" "), alu_type);
                 }
@@ -299,7 +327,7 @@ var MarieSim,
 
             oldValue = this[target];
 
-            this[target] = Utility.uintToInt(src & msk);
+            this[target] = Utility.uintToInt(src &amp; msk);
 
             if (typeof source == "string") {
                 if(this.onRegRead) {
@@ -450,7 +478,7 @@ var MarieSim,
      */
     MarieSim.prototype.step = function() {
         var microstep;
-        while (!this.halted && microstep != "paused" && microstep != "step") {
+        while (!this.halted &amp;&amp; microstep != "paused" &amp;&amp; microstep != "step") {
             microstep = this.microStep();
         }
 
@@ -658,15 +686,15 @@ var MarieSim,
                     yield null;
 
                 // For some reason the simulator deals with these numbers in this way
-                if (value > 0x8000 && value <= 0xFFFF) {
+                if (value > 0x8000 &amp;&amp; value &lt;= 0xFFFF) {
                     value = Utility.uintToInt(value);
                 }
 
-                if (value < -0x8000 && value >= -0xFFFF) {
+                if (value &lt; -0x8000 &amp;&amp; value >= -0xFFFF) {
                     value = Utility.intToUint(value);
                 }
 
-                if (value > 0x8000 || value < -0x8000) {
+                if (value > 0x8000 || value &lt; -0x8000) {
                     throw new MarieSimError(
                         "Input is out of bounds",
                         value
@@ -700,11 +728,11 @@ var MarieSim,
             opcode: 0x8,
             operand: true,
             fn: function*() {
-                switch (this.ir & 0xF00) {
+                switch (this.ir &amp; 0xF00) {
                     case 0x000:
                         if (this.onRegLog)
-                            this.onRegLog("Is AC < 0? " + (this.ac < 0 ? "Yes!" : "No!"), "is_negative");
-                        if (this.ac < 0)
+                            this.onRegLog("Is AC &lt; 0? " + (this.ac &lt; 0 ? "Yes!" : "No!"), "is_negative");
+                        if (this.ac &lt; 0)
                             this.regAdd("pc", 1, "is_negative");
                         break;
                     case 0x400:
@@ -827,7 +855,7 @@ var MarieSim,
 
         var i;
 
-        for (i = 0; i < lines.length; i++) {
+        for (i = 0; i &lt; lines.length; i++) {
             var line = lines[i];
 
             if (/^\s*(?:\/.*)?$/.test(line))
@@ -906,7 +934,7 @@ var MarieSim,
             });
         }
 
-        for (i = 0; i < parsed.length; i++) {
+        for (i = 0; i &lt; parsed.length; i++) {
             var instruction = parsed[i];
 
             // Check for assembler directives
@@ -942,15 +970,15 @@ var MarieSim,
 
                 // For some reason the simulator deals with these numbers in this way
 
-                if (constant > 0x8000 && constant <= 0xFFFF) {
+                if (constant > 0x8000 &amp;&amp; constant &lt;= 0xFFFF) {
                     constant = Utility.uintToInt(constant);
                 }
 
-                if (constant < -0x8000 && constant >= -0xFFFF) {
+                if (constant &lt; -0x8000 &amp;&amp; constant >= -0xFFFF) {
                     constant = Utility.intToUint(constant);
                 }
 
-                if (constant > 0x8000 || constant < -0x8000) {
+                if (constant > 0x8000 || constant &lt; -0x8000) {
                     throw new MarieAsmError(
                         "Syntax error",
                         instruction.line,
@@ -973,7 +1001,7 @@ var MarieSim,
             }
 
             var needsOperand = operator.operand;
-            if (needsOperand && !operand) {
+            if (needsOperand &amp;&amp; !operand) {
                 throw new MarieAsmError(
                     "Syntax error",
                     instruction.line,
@@ -1016,7 +1044,7 @@ var MarieSim,
                 }
             }
 
-            instruction.contents = (operator.opcode << 12) | operand;
+            instruction.contents = (operator.opcode &lt;&lt; 12) | operand;
         }
 
         return {
@@ -1026,3 +1054,26 @@ var MarieSim,
         };
     };
 }());
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="DataPath.html">DataPath</a></li><li><a href="MarieAsm.html">MarieAsm</a></li><li><a href="MarieAsmError.html">MarieAsmError</a></li><li><a href="MarieSim.html">MarieSim</a></li><li><a href="MarieSimError.html">MarieSimError</a></li></ul><h3>Namespaces</h3><ul><li><a href="Utility.html">Utility</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a> on Sun Jul 24 2016 10:45:25 GMT+1000 (AEST)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
