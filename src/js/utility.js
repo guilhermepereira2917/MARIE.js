@@ -91,6 +91,7 @@ var Utility = {};
         var padleft = digits - s.length;
         if(padleft < 0) {
             padleft = 0;
+            s = s.substr(digits - s.length, digits);
         }
 
         s = new Array(padleft + 1).join("0") + s;
