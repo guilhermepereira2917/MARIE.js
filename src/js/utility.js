@@ -82,7 +82,7 @@ var Utility = {};
      *
      * @param  {Number} num    - The value to be converted.
      * @param  {Number} digits - (optional) how many hexadecimal digits there
-     * are (used for padding)
+     * are (used for padding and truncating)
      * @return {String} The hexadecimal representation.
      */
     Utility.hex = function(num, digits) {
@@ -91,7 +91,7 @@ var Utility = {};
         var padleft = digits - s.length;
         if(padleft < 0) {
             padleft = 0;
-            s = s.substr(digits - s.length, digits);
+            s = s.substr(s.length - digits, digits);
         }
 
         s = new Array(padleft + 1).join("0") + s;
