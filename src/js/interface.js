@@ -1151,7 +1151,9 @@ window.addEventListener("load", function() {
         programCodeMirror.setValue(clrtxt);
         programCodeMirror.clearHistory();
         saveFile();
+        localStorage.setItem("marie-program",null);
         $("#saved-status").text("New file");
+        location.reload();
     });
 
     $("#clear").click(function(){
