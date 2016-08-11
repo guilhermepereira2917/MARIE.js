@@ -478,8 +478,8 @@ var MarieSim,
                     }
                     yield* myself.fetch();
                     myself.decode();
-                    yield "step";
                     yield* myself.execute();
+                    yield "step";
                 }
             }());
         }

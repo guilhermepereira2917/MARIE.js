@@ -7,11 +7,11 @@ Current version: `0.7.0`
 MARIE.js is an implementation of a simulator for a 'Machine Architecture that is Really Intuitive and Easy'
 from [The Essentials of Computer Organization and Architecture](https://books.google.com.au/books/about/The_Essentials_of_Computer_Organization.html?id=3kQoAwAAQBAJ&redir_esc=y) (Linda Null, Julia Lobur) in JavaScript.
 
-[Try the simulator](https://marie-js.github.io/MARIE.js/)
+**[Try the simulator](https://marie-js.github.io/MARIE.js/)**
 
 ## Setup
-This is for web developers who would like to develop the MARIE.js project. If
-this is you, then continue reading below.
+This is for web developers who would like to develop, build or deploy the
+MARIE.js project. If this is you, then continue reading below.
 
 MARIE.js is essentially a front-end only site with no servers or databases.
 The tools we use are `npm` and `grunt`, which makes developing this project
