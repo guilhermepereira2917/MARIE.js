@@ -40,6 +40,16 @@ window.addEventListener("load", function() {
 
     var prefs = $.extend(defaultPrefs);
 
+    function newfile() {
+        var clrtxt = "";
+        programCodeMirror.setValue(clrtxt);
+        programCodeMirror.clearHistory();
+        saveFile();
+        localStorage.setItem("marie-program",null);
+        $("#saved-status").text("New file");
+        location.reload();
+    }
+
     function getPrefs() {
         var autocomplete = localStorage.getItem("autocomplete"),
             autosave = localStorage.getItem("autosave"),
@@ -1147,13 +1157,7 @@ window.addEventListener("load", function() {
     });
 
     $("#newfilebtn").click(function() {
-        var clrtxt = "";
-        programCodeMirror.setValue(clrtxt);
-        programCodeMirror.clearHistory();
-        saveFile();
-        localStorage.setItem("marie-program",null);
-        $("#saved-status").text("New file");
-        location.reload();
+        newfile();
     });
 
     $("#clear").click(function(){
@@ -1238,4 +1242,19 @@ window.addEventListener("load", function() {
     });
 
     $("body").removeClass("preload");
+
+
+    /*
+    *Templates
+    */
+    $('#template_addition').click(function(){
+        try{
+            newfile(); //calls newFile function in interface.js
+            var fileCode = 'code/addition.txt'.toURL().text; //sets value of .mas file to the variable fileCode
+            programCodeMirror.setValue(fileCode); //setting code template  
+        }
+        catch(ex){
+            console.log(ex);
+        }    
+    });
 });

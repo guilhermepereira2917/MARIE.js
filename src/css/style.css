@@ -510,8 +510,9 @@ codeblock {
     height:50%;
     width:100px;
     text-align: right;
-    background-color: #2e2e2e;
-    color: white;
+    background-color: inherit;
+    color: inherit;
+    bottom:100%;
 }
 
 .completion-origination.CodeMirror-hint,
