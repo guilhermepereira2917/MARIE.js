@@ -48,7 +48,23 @@
                         </div>
                     </div>
                 </div>
-                <div id="status-info">MARIE.js</div>
+                <div class="row">
+                    <div class="col-md-8">
+                        <div id="status-info">MARIE.js</div>
+                    </div>
+                    <div class="col-md-4">
+                        <span id="output-selector">
+                            <b>OUTPUT MODE: </b>
+                            <select id="output-select" class="output-type">
+                                <option>HEX</option>
+                                <option>DEC</option>
+                                <option>ASCII</option>
+                            </select>
+                            
+                        </span>
+                    </div>
+                </div>
+                
                 <div id="memory-display">
                     <table id="memory-headers"></table>
                     <div id="memory-container">
@@ -82,14 +98,6 @@
                         <span id="display-delay-ms">1 ms</span>
                     </span>
                     &nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
-                    <span id="output-selector">
-                        <b>OUTPUT MODE: </b>
-                        <select id="output-select" class="output-type">
-                            <option>HEX</option>
-                            <option>DEC</option>
-                            <option>ASCII</option>
-                        </select>
-                    </span>
                 </div>
             </nav>
         </footer>
