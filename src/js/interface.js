@@ -1153,7 +1153,7 @@ window.addEventListener("load", function() {
         var text = programCodeMirror.getValue();
         var filename = "code";
         var blob = new Blob([text], {type: "text/plain;charset=utf-8"});
-        saveAs(blob, filename+".mas");
+        saveAs(blob, filename+".asmx");
     });
 
     $("#newfilebtn").click(function() {
@@ -1233,6 +1233,8 @@ window.addEventListener("load", function() {
         }
 
         $("#input-dialog").popoverX("refreshPosition");
+
+        
     }
 
     handleDatapathUI();
