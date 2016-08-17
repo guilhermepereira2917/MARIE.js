@@ -156,19 +156,80 @@
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h4 class="modal-title">MARIE.js | <span class="fa fa-wrench"></span> Preferences</h4>
+                        <h3 class="modal-title">MARIE.js | <span class="fa fa-wrench"></span> Preferences</h3>
                     </div>
                     <div id="prefs-invalid-input-error" class="alert alert-danger">
                         <span class="glyphicon glyphicon-alert"></span> <strong>Invalid input</strong> Please try again.
                     </div>
                     <div class="modal-body">
-                        <ul class="list-unstyled">
-                            <li><input type="checkbox" id="autocomplete" /> <label for="autocomplete">Autocomplete</label></li>
-                            <li><input type="checkbox" id="autosave" /> <label for="autosave">Autosave</label></li>
-                            <li><label for="min-delay">Minimum delay:</label> <input type="text" class="form-control" id="min-delay" /></li>
-                            <li><label for="max-delay">Maximum delay:</label> <input type="text" class="form-control" id="max-delay" /></li>
-                            <li><label for="min-datapath-delay">Minimum datapath delay:</label> <input type="text" id="min-datapath-delay" class="form-control" /></li>
-                        </ul>
+                        <table class="pref-table">
+                            <tr>
+                                <td><h4>Auto Settings</h4></td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td><label for="autocomplete">Autocomplete: </label></td>
+                                <td class="prefs-row"><input type="checkbox" id="autocomplete" /></td>
+                            </tr>
+                            <tr>
+                                <td><label for="autosave">Autosave: </label></td>
+                                <td class="prefs-row"><input type="checkbox" id="autosave" /></td>
+                            </tr>
+                            <tr>
+                                <td><h4>Delay Setings</h4></td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td><label for="min-delay">Minimum delay (ms):</label></td>
+                                <td class="prefs-row"><input type="text" class="form-control" id="min-delay" style="text-align: right;"/></td>
+                            </tr>
+                            <tr>
+                                <td><label for="max-delay">Maximum delay (ms):</label></td>
+                                <td class="prefs-row"><input type="text" class="form-control" id="max-delay" style="text-align: right;"/></td>
+                            </tr>
+                            <tr>
+                                <td><label for="min-datapath-delay">Minimum datapath delay (ms):</label></td>
+                                <td class="prefs-row"><input type="text" id="min-datapath-delay" class="form-control" style="text-align: right;"/></td>
+                            </tr>
+                            <tr>
+                                <td><h4>Input/Output Settings</h4></td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td>Binary String Group Length</td>
+                                <td class="prefs-row">
+                                    <select id="bstringLength" style="width: 50%;text-align: right">
+                                        <option value="0">0</option>
+                                        <option value="1">1</option>
+                                        <option value="2">2</option>
+                                        <option value="4">4</option>
+                                        <option value="8">8</option>
+                                    </select>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Default Input Mode:</td>
+                                <td class="prefs-row">
+                                    <select id="defaultInputMode" style="width: 50%;text-align: right">
+                                        <option value="HEX">HEX</option>
+                                        <option value="DEC">DEC</option>
+                                        <option value="ASCII">UNICODE</option>
+                                        <option value="BIN">BINARY</option>
+                                    </select>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Default Output Mode:</td>
+                                <td class="prefs-row">
+                                    <select id="defaultOutputMode" style="width: 50%;text-align: right">
+                                        <option value="HEX">HEX</option>
+                                        <option value="DEC">DEC</option>
+                                        <option value="ASCII">UNICODE</option>
+                                        <option value="BIN">BINARY</option>
+                                    </select>
+                                </td>
+                            </tr>
+                        </table>
                     </div>
                     <div class="modal-footer">
                         <button id="save-changes" type="button" class="btn" disabled>Save changes</button>
