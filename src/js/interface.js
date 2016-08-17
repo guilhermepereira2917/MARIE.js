@@ -532,7 +532,7 @@ window.addEventListener("load", function() {
         $('#input-button').off('click');
         $('#input-button-pause').off('click');
         $('#input-value').off('keypress');
-        $('#input-tyle').val(prefs.defaultInputMode.toLowerCase());
+        $('#input-type').val(localStorage.getItem('defaultInputMode-value').toLowerCase())
         $('#input-value').on('keypress', function(e) {
             if(e.which == 13) {
                 finishInput(output);
@@ -1125,8 +1125,8 @@ window.addEventListener("load", function() {
         $("#max-delay").val(prefs.maxDelay);
         $("#min-datapath-delay").val(prefs.minDatapathDelay);
         $("#bstringLength").val(prefs.binaryStringGroupLength);
-        $("#defaultInputMode").val(prefs.defaultInputMode);
-        $("#defaultOutputMode").val(prefs.defaultOutputMode);
+        $("#defaultInputMode").val(localStorage.getItem("defaultInputMode-value"));
+        $("#defaultOutputMode").val(localStorage.getItem("defaultOutputMode-value"));
         $("#prefs-modal").modal("show");
     });
 
@@ -1153,8 +1153,8 @@ window.addEventListener("load", function() {
         var minDelay = parseInt($("#min-delay").val());
         var maxDelay = parseInt($("#max-delay").val());
         var stringLength = parseInt($("#bstringLength").val());
-        var defaultInputModeVal = $("#defaultInputMode").val();
-        var defaultOutputModeVal = $("#defaultOutputMode").val();
+        var defaultInputMode = $("#defaultInputMode").val();
+        var defaultOutputMode = $("#defaultOutputMode").val();
         if(isNaN(minDelay) || isNaN(maxDelay) || minDelay >= maxDelay || minDelay < 0 || maxDelay < 0) {
             $("#prefs-invalid-input-error").show();
             return;
@@ -1173,13 +1173,14 @@ window.addEventListener("load", function() {
         prefs.maxDelay = maxDelay;
         prefs.minDatapathDelay = minDatapathDelay;
         prefs.binaryStringGroupLength = stringLength;
-        prefs.defaultInputMode = defaultInputModeVal;
-        prefs.defaultOutputMode = defaultOutputModeVal;
+        prefs.defaultInputMode = defaultInputMode;
+        prefs.defaultOutputMode = defaultOutputMode;
         setPrefs();
         $("#output-select").val(prefs.defaultOutputMode);
         $("#prefs-modal").modal("hide");
     });
 
+    $("#output-select").val(localStorage.getItem("defaultOutputMode-value"));
     $("#set-to-defaults").click(function() {
         prefs = $.extend(defaultPrefs);
         setPrefs();
