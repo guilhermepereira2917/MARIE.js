@@ -58,10 +58,8 @@ window.addEventListener("load", function() {
             autosave = localStorage.getItem("autosave"),
             minDelay = localStorage.getItem("min-delay"),
             maxDelay = localStorage.getItem("max-delay"),
-            binaryStringGroupLength = localStorage.getItem("binaryStringGroup-Length"),
-            defaultInputMode = localStorage.getItem("defaultInputMode-value"),
-            defaultOutputMode = localStorage.getItem("defaultOutputMode-value"),
-            minDatapathDelay = localStorage.getItem("min-datapath-delay");
+            binaryStringGroupLength = localStorage.getItem("binaryStringGroup-Length");
+        var minDatapathDelay = localStorage.getItem("min-datapath-delay");
 
         if(["false", "true"].indexOf(autocomplete) >= 0) {
             prefs.autocomplete = autocomplete === "true";
@@ -85,14 +83,6 @@ window.addEventListener("load", function() {
 
         if(!isNaN(parseInt(minDatapathDelay))) {
             prefs.minDatapathDelay = parseInt(minDatapathDelay);
-        }
-
-        if(!isNaN(parseInt(defaultInputMode))) {
-            prefs.defaultInputMode = defaultInputMode;
-        }
-
-        if(!isNaN(parseInt(defaultOutputMode))) {
-            prefs.defaultOutputMode = defaultOutputMode;
         }
 
         rangeDelay.min = prefs.minDelay;
@@ -1020,7 +1010,7 @@ window.addEventListener("load", function() {
             run();
         }
     }
-
+    getPrefs();
     rangeDelay.addEventListener("change", updateRangeDelay);
 
     restartButton.addEventListener("click", function() {
@@ -1125,8 +1115,8 @@ window.addEventListener("load", function() {
         $("#max-delay").val(prefs.maxDelay);
         $("#min-datapath-delay").val(prefs.minDatapathDelay);
         $("#bstringLength").val(prefs.binaryStringGroupLength);
-        $("#defaultInputMode").val(localStorage.getItem("defaultInputMode-value"));
-        $("#defaultOutputMode").val(localStorage.getItem("defaultOutputMode-value"));
+        $("#defaultInputModeSelect").val(localStorage.getItem("defaultInputMode-value"));
+        $("#defaultOutputModeSelect").val(localStorage.getItem("defaultOutputMode-value"));
         $("#prefs-modal").modal("show");
     });
 
@@ -1142,10 +1132,12 @@ window.addEventListener("load", function() {
         $("#save-changes").prop("disabled", false);
     });
     
-    $("#bstringLength,#defaultOutputMode,#defaultInputMode").change(function(){
+    $("#bstringLength,#defaultOutputModeSelect,#defaultInputModeSelect").change(function(){
         $("#save-changes").prop("disabled", false);
     });
-    $("#defaultOutputMode").val(prefs.defaultOutputMode);
+
+    $("#output-select").val(localStorage.getItem("defaultOutputMode-value"));
+
     $("#save-changes").click(function() {
         var autocomplete = $("#autocomplete").prop("checked"),
             autosave = $("#autosave").prop("checked");
@@ -1153,8 +1145,8 @@ window.addEventListener("load", function() {
         var minDelay = parseInt($("#min-delay").val());
         var maxDelay = parseInt($("#max-delay").val());
         var stringLength = parseInt($("#bstringLength").val());
-        var defaultInputMode = $("#defaultInputMode").val();
-        var defaultOutputMode = $("#defaultOutputMode").val();
+        var defaultInputMode = $("#defaultInputModeSelect").val();
+        var defaultOutputMode = $("#defaultOutputModeSelect").val();
         if(isNaN(minDelay) || isNaN(maxDelay) || minDelay >= maxDelay || minDelay < 0 || maxDelay < 0) {
             $("#prefs-invalid-input-error").show();
             return;
@@ -1180,7 +1172,6 @@ window.addEventListener("load", function() {
         $("#prefs-modal").modal("hide");
     });
 
-    $("#output-select").val(localStorage.getItem("defaultOutputMode-value"));
     $("#set-to-defaults").click(function() {
         prefs = $.extend(defaultPrefs);
         setPrefs();
