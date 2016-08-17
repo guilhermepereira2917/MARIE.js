@@ -532,7 +532,7 @@ window.addEventListener("load", function() {
         $('#input-button').off('click');
         $('#input-button-pause').off('click');
         $('#input-value').off('keypress');
-        $('#input-type').val(localStorage.getItem('defaultInputMode-value').toLowerCase())
+        $('#input-type').val(localStorage.getItem('defaultInputMode-value').toLowerCase());
         $('#input-value').on('keypress', function(e) {
             if(e.which == 13) {
                 finishInput(output);
