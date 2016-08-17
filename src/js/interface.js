@@ -28,7 +28,7 @@ window.addEventListener("load", function() {
         datapathInstructionElement = document.getElementById("datapath-display-instructions"),
         currentInstructionRegisterLog = null;
 
-    const HEX = 0, DEC = 1, ASCII = 2;
+    const HEX = 0, DEC = 1, ASCII = 2, BIN = 3;
 
     var defaultPrefs = {
         autocomplete: true,
@@ -347,11 +347,13 @@ window.addEventListener("load", function() {
                 return value;
             case ASCII:
                 return String.fromCharCode(value);
+            case BIN:
+                return Utility.uintToBinGroup(value, 16, 4);
             default:
                 return "Invalid output type.";
         }
     }
-
+    
     function repopulateOutputLog() {
         while (outputLog.firstChild) {
             outputLog.removeChild(outputLog.firstChild);
@@ -462,7 +464,7 @@ window.addEventListener("load", function() {
 
     function finishInput(output) {
         var type = $('#input-type').val(),
-            value = $('#input-value').val();
+            value = $('#input-value').val().split(" ").join("");
         switch (type) {
             case ("hex"):
                 value = parseInt(value, 16);
@@ -475,6 +477,9 @@ window.addEventListener("load", function() {
                 break;
             case ("ascii"):
                 value = value.charCodeAt(0);
+                break;
+            case("bin"):
+                value = parseInt(value, 2);
                 break;
         }
 

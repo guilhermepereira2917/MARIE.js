@@ -14,27 +14,50 @@ var Utility = {};
      * @returns {Array} the binary array representation of unsigned integer.
      */
     Utility.uintToBinArray = function(num, padding) {
-        var bin_array = [];
+        var binArray = [];
         while(num > 0) {
-            bin_array.push(num & 1);
+            binArray.push(num & 1);
             num >>= 1;
         }
 
         if(typeof padding !== "undefined") {
-            padding -= bin_array.length;
+            padding -= binArray.length;
 
             while(padding > 0) {
-                bin_array.push(0);
+                binArray.push(0);
                 padding -= 1;
             }
         }
 
-        bin_array.reverse();
+        binArray.reverse();
 
-        return bin_array;
+        return binArray;
     };
 
+     /**
+     * Converts an unsigned integer into an array of
+     * binary numbers, and then groups into a bit string with bit spacing
+     * @memberof Utility
+     *
+     * @param {Number} num - the unsigned integer to be converted.
+     * @param {Number} padding - how many zeros to pad integer.
+     * @param {Number} bitsize - the length of each bit group.
+     * @returns {bin_string} the binary array representation of unsigned integer.
+     */
+    Utility.uintToBinGroup = function(num, padding, bitSize) {
+        var binArray = Utility.uintToBinArray(num, padding);
+        var binString = "";
 
+        for (var i = 0; i < padding; i++) {
+            binString += binArray[i];
+
+            if(i % bitSize == bitSize - 1){
+                binString += " ";
+            }
+        }
+
+        return binString;
+    };    
     /**
      * Converts signed integer into unsigned integer.
      * @memberof Utility
