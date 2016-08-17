@@ -35,7 +35,10 @@ window.addEventListener("load", function() {
         autosave: true,
         minDelay: 1,
         maxDelay: 3000,
-        minDatapathDelay: 1000
+        binaryStringGroupLength: 4,
+        defaultInputMode: 'HEX',
+        defaultOutputMode: 'HEX',
+        minDatapathDelay: 1000,
     };
 
     var prefs = $.extend(defaultPrefs);
@@ -47,7 +50,7 @@ window.addEventListener("load", function() {
         saveFile();
         localStorage.setItem("marie-program",null);
         $("#saved-status").text("New file");
-        location.reload();
+        location.reload(); //reloads 
     }
 
     function getPrefs() {
@@ -55,6 +58,9 @@ window.addEventListener("load", function() {
             autosave = localStorage.getItem("autosave"),
             minDelay = localStorage.getItem("min-delay"),
             maxDelay = localStorage.getItem("max-delay"),
+            binaryStringGroupLength = localStorage.getItem("binaryStringGroup-Length"),
+            defaultInputMode = localStorage.getItem("defaultInputMode-value"),
+            defaultOutputMode = localStorage.getItem("defaultOutputMode-value"),
             minDatapathDelay = localStorage.getItem("min-datapath-delay");
 
         if(["false", "true"].indexOf(autocomplete) >= 0) {
@@ -73,8 +79,20 @@ window.addEventListener("load", function() {
             prefs.maxDelay = parseInt(maxDelay);
         }
 
+        if(!isNaN(parseInt(binaryStringGroupLength))) {
+            prefs.binaryStringGroupLength = parseInt(binaryStringGroupLength);
+        }
+
         if(!isNaN(parseInt(minDatapathDelay))) {
             prefs.minDatapathDelay = parseInt(minDatapathDelay);
+        }
+
+        if(!isNaN(parseInt(defaultInputMode))) {
+            prefs.defaultInputMode = defaultInputMode;
+        }
+
+        if(!isNaN(parseInt(defaultOutputMode))) {
+            prefs.defaultOutputMode = defaultOutputMode;
         }
 
         rangeDelay.min = prefs.minDelay;
@@ -87,6 +105,9 @@ window.addEventListener("load", function() {
         localStorage.setItem("min-delay", prefs.minDelay);
         localStorage.setItem("max-delay", prefs.maxDelay);
         localStorage.setItem("min-datapath-delay", prefs.minDatapathDelay);
+        localStorage.setItem("binaryStringGroup-Length",prefs.binaryStringGroupLength);
+        localStorage.setItem("defaultOutputMode-value",prefs.defaultOutputMode);
+        localStorage.setItem("defaultInputMode-value",prefs.defaultInputMode);
 
         rangeDelay.min = prefs.minDelay;
         rangeDelay.max = prefs.maxDelay;
@@ -348,7 +369,7 @@ window.addEventListener("load", function() {
             case ASCII:
                 return String.fromCharCode(value);
             case BIN:
-                return Utility.uintToBinGroup(value, 16, 4);
+                return Utility.uintToBinGroup(value, 16, prefs.binaryStringGroupLength);
             default:
                 return "Invalid output type.";
         }
@@ -511,7 +532,7 @@ window.addEventListener("load", function() {
         $('#input-button').off('click');
         $('#input-button-pause').off('click');
         $('#input-value').off('keypress');
-
+        $('#input-tyle').val(prefs.defaultInputMode.toLowerCase());
         $('#input-value').on('keypress', function(e) {
             if(e.which == 13) {
                 finishInput(output);
@@ -1103,7 +1124,9 @@ window.addEventListener("load", function() {
         $("#min-delay").val(prefs.minDelay);
         $("#max-delay").val(prefs.maxDelay);
         $("#min-datapath-delay").val(prefs.minDatapathDelay);
-
+        $("#bstringLength").val(prefs.binaryStringGroupLength);
+        $("#defaultInputMode").val(prefs.defaultInputMode);
+        $("#defaultOutputMode").val(prefs.defaultOutputMode);
         $("#prefs-modal").modal("show");
     });
 
@@ -1118,14 +1141,20 @@ window.addEventListener("load", function() {
     $("#autocomplete,#autosave").on("change", function() {
         $("#save-changes").prop("disabled", false);
     });
-
+    
+    $("#bstringLength,#defaultOutputMode,#defaultInputMode").change(function(){
+        $("#save-changes").prop("disabled", false);
+    });
+    $("#defaultOutputMode").val(prefs.defaultOutputMode);
     $("#save-changes").click(function() {
         var autocomplete = $("#autocomplete").prop("checked"),
             autosave = $("#autosave").prop("checked");
 
         var minDelay = parseInt($("#min-delay").val());
         var maxDelay = parseInt($("#max-delay").val());
-
+        var stringLength = parseInt($("#bstringLength").val());
+        var defaultInputModeVal = $("#defaultInputMode").val();
+        var defaultOutputModeVal = $("#defaultOutputMode").val();
         if(isNaN(minDelay) || isNaN(maxDelay) || minDelay >= maxDelay || minDelay < 0 || maxDelay < 0) {
             $("#prefs-invalid-input-error").show();
             return;
@@ -1143,9 +1172,11 @@ window.addEventListener("load", function() {
         prefs.minDelay = minDelay;
         prefs.maxDelay = maxDelay;
         prefs.minDatapathDelay = minDatapathDelay;
-
+        prefs.binaryStringGroupLength = stringLength;
+        prefs.defaultInputMode = defaultInputModeVal;
+        prefs.defaultOutputMode = defaultOutputModeVal;
         setPrefs();
-
+        $("#output-select").val(prefs.defaultOutputMode);
         $("#prefs-modal").modal("hide");
     });
 

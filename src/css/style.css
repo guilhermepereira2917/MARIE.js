@@ -549,3 +549,13 @@ codeblock {
 .memory-changed {
     color: red;
 }
+
+.prefs-row{
+    padding: 3px;
+    width: 50%;
+    text-align: right;
+}
+
+.pref-table{
+    width: 100%;
+}
