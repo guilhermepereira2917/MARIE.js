@@ -58,8 +58,10 @@ window.addEventListener("load", function() {
             autosave = localStorage.getItem("autosave"),
             minDelay = localStorage.getItem("min-delay"),
             maxDelay = localStorage.getItem("max-delay"),
-            binaryStringGroupLength = localStorage.getItem("binaryStringGroup-Length");
-        var minDatapathDelay = localStorage.getItem("min-datapath-delay");
+            defaultInputMode = localStorage.getItem("defaultInputMode-value"),
+            defaultOutputMode = localStorage.getItem("defaultOutputMode-value"),
+            binaryStringGroupLength = localStorage.getItem("binaryStringGroup-Length"),
+            minDatapathDelay = localStorage.getItem("min-datapath-delay");
 
         if(["false", "true"].indexOf(autocomplete) >= 0) {
             prefs.autocomplete = autocomplete === "true";
@@ -71,6 +73,14 @@ window.addEventListener("load", function() {
 
         if(!isNaN(parseInt(minDelay))) {
             prefs.minDelay = parseInt(minDelay);
+        }
+
+        if(defaultInputMode !== null) {
+            prefs.defaultInputMode = defaultInputMode;
+        }
+
+        if(defaultOutputMode !== null) {
+            prefs.defaultOutputMode = defaultOutputMode;
         }
 
         if(!isNaN(parseInt(maxDelay))) {
@@ -87,6 +97,20 @@ window.addEventListener("load", function() {
 
         rangeDelay.min = prefs.minDelay;
         rangeDelay.max = prefs.maxDelay;
+
+        if(prefs.defaultOutputMode == "HEX"){
+            outputType = HEX;
+        }
+        else if(prefs.defaultOutputMode == "DEC"){
+            outputType = DEC;
+        }
+        else if(prefs.defaultOutputMode == "ASCII"){
+            outputType = ASCII;
+        }
+        else if(prefs.defaultOutputMode == "BIN"){
+            outputType = BIN;
+        }
+       
     }
 
     function setPrefs() {
@@ -108,6 +132,20 @@ window.addEventListener("load", function() {
         }
 
         updateRangeDelay();
+
+
+        if(prefs.defaultOutputMode == "HEX"){
+            outputType = HEX;
+        }
+        else if(prefs.defaultOutputMode == "DEC"){
+            outputType = DEC;
+        }
+        else if(prefs.defaultOutputMode == "ASCII"){
+            outputType = ASCII;
+        }
+        else if(prefs.defaultOutputMode == "BIN"){
+            outputType = BIN;
+        }
     }
 
     getPrefs();
@@ -522,7 +560,7 @@ window.addEventListener("load", function() {
         $('#input-button').off('click');
         $('#input-button-pause').off('click');
         $('#input-value').off('keypress');
-        $('#input-type').val(localStorage.getItem('defaultInputMode-value').toLowerCase());
+        $('#input-type').val(prefs.defaultInputMode.toLowerCase());
         $('#input-value').on('keypress', function(e) {
             if(e.which == 13) {
                 finishInput(output);
@@ -1115,8 +1153,8 @@ window.addEventListener("load", function() {
         $("#max-delay").val(prefs.maxDelay);
         $("#min-datapath-delay").val(prefs.minDatapathDelay);
         $("#bstringLength").val(prefs.binaryStringGroupLength);
-        $("#defaultInputModeSelect").val(localStorage.getItem("defaultInputMode-value"));
-        $("#defaultOutputModeSelect").val(localStorage.getItem("defaultOutputMode-value"));
+        $("#defaultInputModeSelect").val(prefs.defaultInputMode);
+        $("#defaultOutputModeSelect").val(prefs.defaultOutputMode);
         $("#prefs-modal").modal("show");
     });
 
@@ -1136,7 +1174,7 @@ window.addEventListener("load", function() {
         $("#save-changes").prop("disabled", false);
     });
 
-    $("#output-select").val(localStorage.getItem("defaultOutputMode-value"));
+    $("#output-select").val(prefs.defaultOutputMode);
 
     $("#save-changes").click(function() {
         var autocomplete = $("#autocomplete").prop("checked"),
