@@ -1,0 +1,33 @@
+/ Simple Push-Pop Stack Demostrator
+/ by the MARIE.js Team
+/ Copyright (C) 2016. Licensed under the MIT License 
+
+loop, 	Input
+		Store Temp
+		Skipcond 400 	/ 0 - Pop from Stack, any other number push onto stack
+		Jump notPop		/ Push (goto notPop)	
+        JnS Pop			/ Go into Pop subroutine
+        Jump loop		/ Once subroutine is finished go back to start (loop label)
+notPop,	JnS Push		/ Go into Push subroutine
+		Jump loop		/ Once subroutine is finished go back to start (loop label)
+
+StackPointer, HEX 0A0
+Temp, DEC 0
+one, DEC 1
+
+Push,	HEX 000					/ Reset counter
+		Load Temp				/ Load Temp
+		StoreI StackPointer		/ Stores at address indicated by StackPointer
+		Load StackPointer		/ Load Stackpointer, increment by 1 then store it
+		Add one
+        Store StackPointer
+		JumpI Push				/ jumps to Push Label and exits subroutine
+
+Pop,	HEX 000					/ Reset counter
+		Load StackPointer		/ Load StackPointer
+		Subt one				/ Decrease by 1
+        Store StackPointer		/ Store it back into StackPointer
+		LoadI StackPointer		/ Indirectly loads value indicated by StackPointer
+		Output					
+        JumpI Pop				/ jumps to Pop Label and exits subroutine
+		
