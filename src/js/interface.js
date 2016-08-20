@@ -169,6 +169,7 @@ window.addEventListener("load", function() {
         saveTimeout = null,
         modifiedFile = false,
         selectedMemoryCell = null,
+        queryString = window.location.search.substring(1), //returns first query string
         symbolCells = null;
 
     textArea.value = localStorage.getItem("marie-program") || "";
@@ -352,6 +353,7 @@ window.addEventListener("load", function() {
     document.addEventListener("click", function() {
         finishInputReplaceMemoryCell();
     });
+
 
     function populateWatchList(asm, sim) {
         while (watchList.firstChild) {
@@ -1219,7 +1221,7 @@ window.addEventListener("load", function() {
         var text = programCodeMirror.getValue();
         var filename = "code";
         var blob = new Blob([text], {type: "text/plain;charset=utf-8"});
-        saveAs(blob, filename+".asmx");
+        saveAs(blob, filename+".mas");
     });
 
     $("#newfilebtn").click(function() {
@@ -1262,6 +1264,31 @@ window.addEventListener("load", function() {
     $("#close-datapath").click(function() {
         window.location.hash = "";
     });
+
+    function readCode(){
+        var xhr = new XMLHttpRequest();
+
+        xhr.onreadystatechange = function() {
+            if(xhr.readyState === 4){
+                if(xhr.status == 200){
+                    loadContents(xhr.responseText, xhr);
+                }
+            }
+        };
+        xhr.open('GET',fileAddress,true);
+        xhr.send();
+    }
+
+    function loadContents(responseText){
+        programCodeMirror.setValue(responseText);
+    }
+
+    if(queryString !== ""){
+        var fileAddress = "./code/"+queryString+".mas";
+        console.log("Loading from" + fileAddress);
+        programCodeMirror.setValue("");
+        readCode();
+    }
 
     function handleDatapathUI() {
         if(window.location.hash === "#datapath") {
