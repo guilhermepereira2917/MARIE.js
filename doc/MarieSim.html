@@ -40,7 +40,7 @@
 
     
 
-    <h4 class="name" id="MarieSim"><span class="type-signature"></span>new MarieSim<span class="signature">(assembled, inputFunc, outputFunc)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="MarieSim"><span class="type-signature"></span>new MarieSim<span class="signature">(assembled, inputFunc<span class="signature-attributes">opt</span>, outputFunc<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h4>
 
     
 
@@ -71,6 +71,8 @@
         <th>Type</th>
 
         
+        <th>Attributes</th>
+        
 
         
 
@@ -96,6 +98,14 @@
             </td>
 
             
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
 
             
 
@@ -119,10 +129,20 @@
             </td>
 
             
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
 
             
 
-            <td class="description last">(optional) Handle input function calls.</td>
+            <td class="description last">Handle input function calls.</td>
         </tr>
 
     
@@ -142,10 +162,20 @@
             </td>
 
             
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
 
             
 
-            <td class="description last">(optional) Handle output function calls.</td>
+            <td class="description last">Handle output function calls.</td>
         </tr>
 
     
@@ -289,7 +319,7 @@ micro-instruction.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="marie.js.html">marie.js</a>, <a href="marie.js.html#line566">line 566</a>
+        <a href="marie.js.html">marie.js</a>, <a href="marie.js.html#line564">line 564</a>
     </li></ul></dd>
     
 
@@ -396,8 +426,8 @@ is processing).
 
         
 <div class="param-desc">
-    A memory location containing its contents (and the corresponding
-program instruction if it exists).
+    A memory location containing its contents (and the
+corresponding program instruction if it exists).
 </div>
 
 
@@ -475,7 +505,7 @@ fetch-decode-execute cycle.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="marie.js.html">marie.js</a>, <a href="marie.js.html#line517">line 517</a>
+        <a href="marie.js.html">marie.js</a>, <a href="marie.js.html#line515">line 515</a>
     </li></ul></dd>
     
 
@@ -571,7 +601,7 @@ Note: this is a generator function.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="marie.js.html">marie.js</a>, <a href="marie.js.html#line553">line 553</a>
+        <a href="marie.js.html">marie.js</a>, <a href="marie.js.html#line551">line 551</a>
     </li></ul></dd>
     
 
@@ -655,7 +685,7 @@ Note: this is a generator function.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="marie.js.html">marie.js</a>, <a href="marie.js.html#line502">line 502</a>
+        <a href="marie.js.html">marie.js</a>, <a href="marie.js.html#line500">line 500</a>
     </li></ul></dd>
     
 
@@ -738,7 +768,7 @@ Note: this is a generator function.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="marie.js.html">marie.js</a>, <a href="marie.js.html#line470">line 470</a>
+        <a href="marie.js.html">marie.js</a>, <a href="marie.js.html#line468">line 468</a>
     </li></ul></dd>
     
 
@@ -919,7 +949,7 @@ the source to/from the target, and stores it in the target.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="marie.js.html">marie.js</a>, <a href="marie.js.html#line347">line 347</a>
+        <a href="marie.js.html">marie.js</a>, <a href="marie.js.html#line345">line 345</a>
     </li></ul></dd>
     
 
@@ -950,7 +980,7 @@ the source to/from the target, and stores it in the target.
 
     
 
-    <h4 class="name" id="regSet"><span class="type-signature"></span>regSet<span class="signature">(target, source, mask, alu_type)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="regSet"><span class="type-signature"></span>regSet<span class="signature">(target, source, mask<span class="signature-attributes">opt</span>, alu_type<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h4>
 
     
 
@@ -982,6 +1012,8 @@ of the source.
         <th>Type</th>
 
         
+        <th>Attributes</th>
+        
 
         
 
@@ -1007,10 +1039,18 @@ of the source.
             </td>
 
             
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
 
             
 
-            <td class="description last">final place to store value</td>
+            <td class="description last">The final place to store value.</td>
         </tr>
 
     
@@ -1033,10 +1073,18 @@ of the source.
             </td>
 
             
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
 
             
 
-            <td class="description last">where to read value from</td>
+            <td class="description last">Where to read value from?</td>
         </tr>
 
     
@@ -1056,10 +1104,20 @@ of the source.
             </td>
 
             
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
 
             
 
-            <td class="description last">(optional) bit masking that allows
+            <td class="description last">Bit masking that allows
 certain bits to pass through value.</td>
         </tr>
 
@@ -1080,10 +1138,20 @@ certain bits to pass through value.</td>
             </td>
 
             
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
 
             
 
-            <td class="description last">(optional) set ALU operation type.</td>
+            <td class="description last">Set ALU operation type.</td>
         </tr>
 
     
@@ -1295,7 +1363,7 @@ Note: This method blocks until machine execution completes.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="marie.js.html">marie.js</a>, <a href="marie.js.html#line430">line 430</a>
+        <a href="marie.js.html">marie.js</a>, <a href="marie.js.html#line428">line 428</a>
     </li></ul></dd>
     
 
@@ -1326,7 +1394,7 @@ Note: This method blocks until machine execution completes.
 
     
 
-    <h4 class="name" id="setEventListener"><span class="type-signature"></span>setEventListener<span class="signature">(event, callback)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="setEventListener"><span class="type-signature"></span>setEventListener<span class="signature">(event, callback<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h4>
 
     
 
@@ -1358,6 +1426,8 @@ the event is fired.
         <th>Type</th>
 
         
+        <th>Attributes</th>
+        
 
         
 
@@ -1383,6 +1453,14 @@ the event is fired.
             </td>
 
             
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
 
             
 
@@ -1400,20 +1478,28 @@ the event is fired.
             
                 
 <span class="param-type">function</span>
-|
-
-<span class="param-type">null</span>
 
 
             
             </td>
 
             
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
 
             
 
             <td class="description last">Function to call back once event fires.
-If null is specified, then the event will not call any function.</td>
+If not specified (or is a falsy value), then the event firing will not
+call any function.</td>
         </tr>
 
     
@@ -1537,7 +1623,7 @@ step.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="marie.js.html">marie.js</a>, <a href="marie.js.html#line451">line 451</a>
+        <a href="marie.js.html">marie.js</a>, <a href="marie.js.html#line449">line 449</a>
     </li></ul></dd>
     
 
@@ -1690,7 +1776,7 @@ JSON object.
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a> on Wed Aug 17 2016 13:39:09 GMT+1000 (AEST)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a> on Sun Aug 21 2016 10:15:42 GMT+1000 (AEST)
 </footer>
 
 <script> prettyPrint(); </script>

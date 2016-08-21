@@ -236,7 +236,11 @@ footer {
     background-color: #ECC;
 }
 
-.current-line {
+.current-instruction {
+    background-color: #99E;
+}
+
+.next-instruction {
     background-color: #5E5;
 }
 
