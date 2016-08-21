@@ -34,15 +34,17 @@ var Utility = {};
         return binArray;
     };
 
-     /**
+
+    /**
      * Converts an unsigned integer into an array of
-     * binary numbers, and then groups into a bit string with bit spacing
+     * binary numbers, and then converts into a bit string with even spacing
+     * between each group of binary digits.
      * @memberof Utility
      *
-     * @param {Number} num - the unsigned integer to be converted.
-     * @param {Number} padding - how many zeros to pad integer.
-     * @param {Number} bitsize - the length of each bit group.
-     * @returns {bin_string} the binary array representation of unsigned integer.
+     * @param {Number} num - The unsigned integer to be converted.
+     * @param {Number} padding - How many zeros to pad integer.
+     * @param {Number} bitSize - The length of each bit group.
+     * @returns {String} The binary array representation of unsigned integer.
      */
     Utility.uintToBinGroup = function(num, padding, bitSize) {
         var binArray = Utility.uintToBinArray(num, padding);
@@ -57,13 +59,15 @@ var Utility = {};
         }
 
         return binString;
-    };    
+    };
+
+
     /**
      * Converts signed integer into unsigned integer.
      * @memberof Utility
      *
      * @param  {Number} int  - The signed integer to be converted.
-     * @param  {Number} nbit - (optional) the number of bits the integer takes.
+     * @param  {Number} [nbit=16] - The number of bits the integer takes.
      * @return {Number}      The unsigned integer representation of signed
      * integer.
      */
@@ -86,7 +90,7 @@ var Utility = {};
      * @memberof Utility
      *
      * @param  {Number} uint - The unsigned integer to be converted.
-     * @param  {Number} nbit - (optional) the number of bits the integer takes.
+     * @param  {Number} [nbit=16] - The number of bits the integer takes.
      * @return {Number}      The signed integer representation of unsigned
      * integer.
      */
@@ -103,9 +107,9 @@ var Utility = {};
      * Converts decimal value into hexadecimal string.
      * @memberof Utility
      *
-     * @param  {Number} num    - The value to be converted.
-     * @param  {Number} digits - (optional) how many hexadecimal digits there
-     * are (used for padding and truncating)
+     * @param  {Number} num         - The value to be converted.
+     * @param  {Number} [digits=4]  - How many hexadecimal digits are there?
+     * (used for padding and truncating)
      * @return {String} The hexadecimal representation.
      */
     Utility.hex = function(num, digits) {
@@ -120,5 +124,47 @@ var Utility = {};
         s = new Array(padleft + 1).join("0") + s;
 
         return s;
+    };
+
+
+    /**
+     * Converts mask to bracket notation seen in MARIE.
+     * @memberof Utility
+     *
+     * @param {Number} mask     - The value to be converted.
+     * @param {Number} [digits=4]   - How many hexadecimal digits are
+     * there?
+     * @return {String} The bracket notation of mask.
+     */
+    Utility.maskToBracketNotation = function(mask, digits) {
+        digits = digits || 4;
+        var start, end, counter = 0, list = [], range=false;
+
+        while(4 * digits !== counter) {
+            if(mask & 1) {
+                if(!range) {
+                    range = true;
+                    start = counter;
+                }
+            } else {
+                if(range) {
+                    range = false;
+                    end = counter - 1;
+
+                    if(start !== end) {
+                        list.push([end, "-", start].join(''));
+                    } else {
+                        list.push(start);
+                    }
+                }
+            }
+
+            mask >>= 1;
+            counter ++;
+        }
+
+        list.reverse();
+
+        return "[" + list.join(", ") + "]";
     };
 }());

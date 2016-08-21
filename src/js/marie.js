@@ -36,8 +36,8 @@ var MarieSim,
      * @class MarieSim
      *
      * @param {object} assembled - The assembled program produced by MarieAsm.
-     * @param {function} inputFunc - (optional) Handle input function calls.
-     * @param {function} outputFunc - (optional) Handle output function calls.
+     * @param {function} [inputFunc] - Handle input function calls.
+     * @param {function} [outputFunc] - Handle output function calls.
      * @throws MarieSimError
      */
     MarieSim = function(assembled, inputFunc, outputFunc) {
@@ -132,9 +132,9 @@ var MarieSim,
      * @function
      * @memberof MarieSim
      * @param  {string} event    Which event to set callback function to.
-     * @param  {function|null} callback Function to call back once event fires.
-     * If null is specified, then the event will not call any function.
-     *
+     * @param  {function} [callback] Function to call back once event fires.
+     * If not specified (or is a falsy value), then the event firing will not
+     * call any function.
      */
     MarieSim.prototype.setEventListener = function(event, callback) {
         switch (event) {
@@ -173,11 +173,11 @@ var MarieSim,
      *
      * @function
      * @memberof MarieSim
-     * @return {Object}  A memory location containing its contents (and the corresponding
-     * program instruction if it exists).
+     * @return {Object}  A memory location containing its contents (and the
+     * corresponding program instruction if it exists).
      */
     MarieSim.prototype.current = function() {
-        return this.memory[this.pc - 1];
+        return this.memory[this.pc];
     };
 
     /**
@@ -186,11 +186,11 @@ var MarieSim,
      *
      * @function
      * @memberof MarieSim
-     * @param  {String} target        - final place to store value
-     * @param  {String|Number} source - where to read value from
-     * @param  {Number} mask          - (optional) bit masking that allows
+     * @param  {String} target        - The final place to store value.
+     * @param  {String|Number} source - Where to read value from?
+     * @param  {Number} [mask]          - Bit masking that allows
      * certain bits to pass through value.
-     * @param {String} alu_type       - (optional) set ALU operation type.
+     * @param {String} [alu_type]       - Set ALU operation type.
      */
     MarieSim.prototype.regSet = function(target, source, mask, alu_type) {
         var oldValue;
@@ -287,9 +287,7 @@ var MarieSim,
                     this.onRegLog([
                         target.toString().toUpperCase(),
                         "←",
-                        source.toString(16).toUpperCase(),
-                        "&",
-                        mask.toString(16).toUpperCase()
+                        source.toString(16).toUpperCase() + Utility.maskToBracketNotation(mask)
                     ].join(" "), alu_type);
                 }
             }
@@ -451,7 +449,7 @@ var MarieSim,
     MarieSim.prototype.step = function() {
         var microstep;
         while (!this.halted && microstep != "paused" && microstep != "step") {
-            microstep = this.microStep();
+            microstep = this.microStep(true);
         }
 
         this.stateHistory.push({
@@ -520,7 +518,7 @@ var MarieSim,
         for (var op in MarieSim.prototype.operators) {
             if (MarieSim.prototype.operators[op].opcode == opcode) {
                 if (this.onRegLog) {
-                    this.onRegLog(["Decoded opcode", opcode.toString(16).toUpperCase(), "as", op].join(" "));
+                    this.onRegLog(["Decoded opcode", opcode.toString(16).toUpperCase(), "in IR[15-12] as", op].join(" "));
                 }
 
                 this.stateHistory.push({

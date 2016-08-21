@@ -28,7 +28,7 @@ window.addEventListener("load", function() {
         datapathInstructionElement = document.getElementById("datapath-display-instructions"),
         currentInstructionRegisterLog = null;
 
-    const HEX = 0, DEC = 1, ASCII = 2, BIN = 3;
+    const HEX = 0, DEC = 1, UNICODE = 2, BIN = 3;
 
     var defaultPrefs = {
         autocomplete: true,
@@ -50,7 +50,7 @@ window.addEventListener("load", function() {
         saveFile();
         localStorage.setItem("marie-program",null);
         $("#saved-status").text("New file");
-        location.reload(); //reloads 
+        location.reload(); //reloads
     }
 
     function getPrefs() {
@@ -95,22 +95,7 @@ window.addEventListener("load", function() {
             prefs.minDatapathDelay = parseInt(minDatapathDelay);
         }
 
-        rangeDelay.min = prefs.minDelay;
-        rangeDelay.max = prefs.maxDelay;
-
-        if(prefs.defaultOutputMode == "HEX"){
-            outputType = HEX;
-        }
-        else if(prefs.defaultOutputMode == "DEC"){
-            outputType = DEC;
-        }
-        else if(prefs.defaultOutputMode == "ASCII"){
-            outputType = ASCII;
-        }
-        else if(prefs.defaultOutputMode == "BIN"){
-            outputType = BIN;
-        }
-       
+        updatePrefs();
     }
 
     function setPrefs() {
@@ -119,10 +104,14 @@ window.addEventListener("load", function() {
         localStorage.setItem("min-delay", prefs.minDelay);
         localStorage.setItem("max-delay", prefs.maxDelay);
         localStorage.setItem("min-datapath-delay", prefs.minDatapathDelay);
-        localStorage.setItem("binaryStringGroup-Length",prefs.binaryStringGroupLength);
-        localStorage.setItem("defaultOutputMode-value",prefs.defaultOutputMode);
-        localStorage.setItem("defaultInputMode-value",prefs.defaultInputMode);
+        localStorage.setItem("binaryStringGroup-Length", prefs.binaryStringGroupLength);
+        localStorage.setItem("defaultInputMode-value", prefs.defaultInputMode);
+        localStorage.setItem("defaultOutputMode-value", prefs.defaultOutputMode);
 
+        updatePrefs();
+    }
+
+    function updatePrefs() {
         rangeDelay.min = prefs.minDelay;
         rangeDelay.max = prefs.maxDelay;
 
@@ -133,22 +122,29 @@ window.addEventListener("load", function() {
 
         updateRangeDelay();
 
-
-        if(prefs.defaultOutputMode == "HEX"){
+        if(prefs.defaultOutputMode == "HEX") {
             outputType = HEX;
         }
-        else if(prefs.defaultOutputMode == "DEC"){
+        else if(prefs.defaultOutputMode == "DEC") {
             outputType = DEC;
         }
-        else if(prefs.defaultOutputMode == "ASCII"){
-            outputType = ASCII;
+        else if(prefs.defaultOutputMode == "UNICODE") {
+            outputType = UNICODE;
         }
-        else if(prefs.defaultOutputMode == "BIN"){
+        else if(prefs.defaultOutputMode == "BIN") {
             outputType = BIN;
         }
-    }
 
-    getPrefs();
+        if(changedInputMode) {
+            $('#input-type').val(prefs.defaultInputMode);
+            changedInputMode = false;
+        }
+
+        if(changedOutputMode) {
+            $("#output-select").val(prefs.defaultOutputMode);
+            changedOutputMode = false;
+        }
+    }
 
     var asm = null,
         sim = null,
@@ -156,6 +152,7 @@ window.addEventListener("load", function() {
         lastErrorLine = null,
         lastCurrentLine = null,
         lastBreakPointLine = null,
+        currentInstructionLine = null,
         breaking = false,
         delay = prefs.minDelay,
         microStepping = false,
@@ -164,13 +161,18 @@ window.addEventListener("load", function() {
         pausedOnInput = false,
         savedOutput = null,
         outputType = HEX,
+        changedInputMode = true,
+        changedOutputMode = true,
         datapath = new DataPath(datapathEle, datapathInstructionElement),
         outputList = [],
         saveTimeout = null,
         modifiedFile = false,
+        viewingInstruction = false,
         selectedMemoryCell = null,
-        queryString = window.location.search.substring(1), //returns first query string
+        queryString = window.location.search.substring(1), // returns first query string
         symbolCells = null;
+
+    getPrefs();
 
     textArea.value = localStorage.getItem("marie-program") || "";
 
@@ -396,7 +398,7 @@ window.addEventListener("load", function() {
                 return Utility.hex(value);
             case DEC:
                 return value;
-            case ASCII:
+            case UNICODE:
                 return String.fromCharCode(value);
             case BIN:
                 return Utility.uintToBinGroup(value, 16, prefs.binaryStringGroupLength);
@@ -404,7 +406,7 @@ window.addEventListener("load", function() {
                 return "Invalid output type.";
         }
     }
-    
+
     function repopulateOutputLog() {
         while (outputLog.firstChild) {
             outputLog.removeChild(outputLog.firstChild);
@@ -442,20 +444,38 @@ window.addEventListener("load", function() {
     registerLog.addEventListener("mouseover", function(e) {
         if(e.target && e.target.classList.contains("instruction-register-log") && e.target.dataset.currentLine) {
             var line = parseInt(e.target.dataset.currentLine);
-            programCodeMirror.addLineClass(line, "background", "highlighted-line");
+
+            if(!isNaN(line)) {
+                if(currentInstructionLine !== undefined && currentInstructionLine !== null) {
+                    programCodeMirror.removeLineClass(currentInstructionLine - 1, "background", "highlighted-line");
+                }
+
+                programCodeMirror.addLineClass(line, "background", "highlighted-line");
+
+                viewingInstruction = true;
+            }
         }
     }, false);
 
     registerLog.addEventListener("mouseout", function(e) {
         if(e.target && e.target.classList.contains("instruction-register-log") && e.target.dataset.currentLine) {
             var line = parseInt(e.target.dataset.currentLine);
-            programCodeMirror.removeLineClass(line, "background", "highlighted-line");
+
+            if(!isNaN(line)) {
+                programCodeMirror.removeLineClass(line, "background", "highlighted-line");
+
+                if(currentInstructionLine !== undefined && currentInstructionLine !== null) {
+                    programCodeMirror.addLineClass(currentInstructionLine - 1, "background", "highlighted-line");
+                }
+
+                viewingInstruction = false;
+            }
         }
     }, false);
 
     function updateCurrentLine(clear) {
         if (lastCurrentLine !== null) {
-            programCodeMirror.removeLineClass(lastCurrentLine, "background", "current-line");
+            programCodeMirror.removeLineClass(lastCurrentLine, "background", "next-instruction");
             lastCurrentLine = null;
         }
 
@@ -465,14 +485,29 @@ window.addEventListener("load", function() {
         }
 
         if (clear) {
+            /* Remove background line classes from all lines to ensure that no
+            line has any highlighting. Perhaps there is a better of doing this,
+            but please note that the user may have changed some code, thus
+            the last line variables may not point to the lines that still have
+            highlighting. */
+
+            var numOfLines = programCodeMirror.lineCount();
+
+            for(var i = 1; i <= numOfLines; i++) {
+                programCodeMirror.removeLineClass(i, "background", "active-break-point");
+                programCodeMirror.removeLineClass(i, "background", "next-instruction");
+                programCodeMirror.removeLineClass(i, "background", "highlighted-line");
+            }
+
             return;
         }
 
         var current = sim.current();
         var line = current ? current.line : null;
-        if (current && line) {
-            line--; // Compensate for zero-based lines
-            programCodeMirror.addLineClass(line, "background", "current-line");
+
+        if (line !== undefined && line !== null) {
+            line --; // compensate for zero based lines
+            programCodeMirror.addLineClass(line, "background", "next-instruction");
             lastCurrentLine = line;
             var info = programCodeMirror.lineInfo(line);
             if (info.gutterMarkers) {
@@ -517,19 +552,16 @@ window.addEventListener("load", function() {
         var type = $('#input-type').val(),
             value = $('#input-value').val().split(" ").join("");
         switch (type) {
-            case ("hex"):
+            case ("HEX"):
                 value = parseInt(value, 16);
                 break;
-            case ("dec"):
+            case ("DEC"):
                 value = parseInt(value, 10);
                 break;
-            case ("oct"):
-                value = parseInt(value, 8);
-                break;
-            case ("ascii"):
+            case ("UNICODE"):
                 value = value.charCodeAt(0);
                 break;
-            case("bin"):
+            case("BIN"):
                 value = parseInt(value, 2);
                 break;
         }
@@ -562,7 +594,7 @@ window.addEventListener("load", function() {
         $('#input-button').off('click');
         $('#input-button-pause').off('click');
         $('#input-value').off('keypress');
-        $('#input-type').val(prefs.defaultInputMode.toLowerCase());
+
         $('#input-value').on('keypress', function(e) {
             if(e.which == 13) {
                 finishInput(output);
@@ -691,7 +723,12 @@ window.addEventListener("load", function() {
 
         if (interval)
             window.clearInterval(interval);
-        interval = window.setInterval(runLoop, delay);
+
+        // Don't pass in setInterval callback arguments into runLoop function.
+        interval = window.setInterval(function() {
+            runLoop();
+        }, delay);
+
         runButton.textContent = "Pause";
         runButton.disabled = false;
         stepButton.disabled = true;
@@ -703,9 +740,9 @@ window.addEventListener("load", function() {
     function runLoop(micro) {
         microStepping = micro;
 
-        try {
-            var step = true;
+        var step = true;
 
+        try {
             if (micro) {
                 step = sim.microStep() == "step";
             }
@@ -726,8 +763,11 @@ window.addEventListener("load", function() {
             runButton.textContent = "Halted";
             throw e;
         }
+
         updateCurrentLine();
+
         stepBackButton.disabled = false;
+
         if (sim.halted) {
             stop();
             runButton.textContent = "Halted";
@@ -741,6 +781,8 @@ window.addEventListener("load", function() {
 
             runButton.textContent = "Continue";
             setStatus("Machine paused at break point.");
+        } else {
+            return step;
         }
     }
 
@@ -872,6 +914,17 @@ window.addEventListener("load", function() {
                     datapath.showInstruction();
                 }
 
+                if(!viewingInstruction && currentInstructionLine !== undefined && currentInstructionLine !== null) {
+                    programCodeMirror.removeLineClass(currentInstructionLine - 1, "background", "highlighted-line");
+                }
+
+                var current = sim.current();
+                currentInstructionLine = current ? current.line : null;
+
+                if(!viewingInstruction && currentInstructionLine !== undefined && currentInstructionLine !== null) {
+                    programCodeMirror.addLineClass(currentInstructionLine - 1, "background", "highlighted-line");
+                }
+
                 if(currentInstructionRegisterLog) {
                     currentInstructionRegisterLog.classList.add("finished-instruction");
                 }
@@ -910,7 +963,10 @@ window.addEventListener("load", function() {
 
     stepButton.addEventListener("click", function() {
         runLoop();
-        setStatus("Performed one step");
+
+        if(!sim.halted) {
+            setStatus("Performed one step");
+        }
     });
 
     stepBackButton.addEventListener("click", function() {
@@ -1005,8 +1061,15 @@ window.addEventListener("load", function() {
     });
 
     microStepButton.addEventListener("click", function() {
-        runLoop(true);
-        setStatus("Performed one micro-step");
+        var step = runLoop(true);
+
+        if(!sim.halted) {
+            if(step) {
+                setStatus("Completed instruction. Click Microstep to proceed to the next one.");
+            } else {
+                setStatus("Performed one micro-step");
+            }
+        }
     });
 
     runButton.addEventListener("click", function() {
@@ -1146,6 +1209,9 @@ window.addEventListener("load", function() {
     });
 
     $("#prefs").click(function() {
+        changedInputMode = false;
+        changedOutputMode = false;
+
         $("#save-changes").prop("disabled", true);
         $("#prefs-invalid-input-error").hide();
         $("#autocomplete").prop("checked", prefs.autocomplete);
@@ -1160,23 +1226,29 @@ window.addEventListener("load", function() {
         $("#prefs-modal").modal("show");
     });
 
-    $("#min-delay,#max-delay,#min-datapath-delay").off();
+    $("#min-delay, #max-delay, #min-datapath-delay").off();
 
-    $("#min-delay,#max-delay,#min-datapath-delay").on("input", function() {
+    $("#min-delay, #max-delay, #min-datapath-delay").on("input", function() {
         $("#save-changes").prop("disabled", false);
     });
 
-    $("#autocomplete,#autosave").off();
+    $("#autocomplete, #autosave").off();
 
-    $("#autocomplete,#autosave").on("change", function() {
-        $("#save-changes").prop("disabled", false);
-    });
-    
-    $("#bstringLength,#defaultOutputModeSelect,#defaultInputModeSelect").change(function(){
+    $("#autocomplete, #autosave").on("change", function() {
         $("#save-changes").prop("disabled", false);
     });
 
-    $("#output-select").val(prefs.defaultOutputMode);
+    $("#bstringLength, #defaultOutputModeSelect, #defaultInputModeSelect").change(function(e) {
+        $("#save-changes").prop("disabled", false);
+
+        var target = $(e.target);
+
+        if(target.is("#defaultInputModeSelect")) {
+            changedInputMode = true;
+        } else if(target.is("#defaultOutputModeSelect")) {
+            changedOutputMode = true;
+        }
+    });
 
     $("#save-changes").click(function() {
         var autocomplete = $("#autocomplete").prop("checked"),
@@ -1208,7 +1280,7 @@ window.addEventListener("load", function() {
         prefs.defaultInputMode = defaultInputMode;
         prefs.defaultOutputMode = defaultOutputMode;
         setPrefs();
-        $("#output-select").val(prefs.defaultOutputMode);
+
         $("#prefs-modal").modal("hide");
     });
 
@@ -1327,7 +1399,7 @@ window.addEventListener("load", function() {
 
         $("#input-dialog").popoverX("refreshPosition");
 
-        
+
     }
 
     handleDatapathUI();
@@ -1346,10 +1418,10 @@ window.addEventListener("load", function() {
         try{
             newfile(); //calls newFile function in interface.js
             var fileCode = 'code/addition.txt'.toURL().text; //sets value of .mas file to the variable fileCode
-            programCodeMirror.setValue(fileCode); //setting code template  
+            programCodeMirror.setValue(fileCode); //setting code template
         }
         catch(ex){
             console.log(ex);
-        }    
+        }
     });
 });

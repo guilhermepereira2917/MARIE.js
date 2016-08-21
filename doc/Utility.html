@@ -106,7 +106,7 @@
 
     
 
-    <h4 class="name" id=".hex"><span class="type-signature">(static) </span>hex<span class="signature">(num, digits)</span><span class="type-signature"> &rarr; {String}</span></h4>
+    <h4 class="name" id=".hex"><span class="type-signature">(static) </span>hex<span class="signature">(num, digits<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {String}</span></h4>
 
     
 
@@ -137,7 +137,11 @@
         <th>Type</th>
 
         
+        <th>Attributes</th>
+        
 
+        
+        <th>Default</th>
         
 
         <th class="last">Description</th>
@@ -162,7 +166,19 @@
             </td>
 
             
+                <td class="attributes">
+                
 
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                </td>
             
 
             <td class="description last">The value to be converted.</td>
@@ -185,11 +201,27 @@
             </td>
 
             
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
 
+                
+
+                
+                </td>
             
 
-            <td class="description last">(optional) how many hexadecimal digits there
-are (used for padding and truncating)</td>
+            
+                <td class="default">
+                
+                    4
+                
+                </td>
+            
+
+            <td class="description last">How many hexadecimal digits are there?
+(used for padding and truncating)</td>
         </tr>
 
     
@@ -230,7 +262,7 @@ are (used for padding and truncating)</td>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="utility.js.html">utility.js</a>, <a href="utility.js.html#line111">line 111</a>
+        <a href="utility.js.html">utility.js</a>, <a href="utility.js.html#line115">line 115</a>
     </li></ul></dd>
     
 
@@ -283,7 +315,7 @@ are (used for padding and truncating)</td>
 
     
 
-    <h4 class="name" id=".intToUint"><span class="type-signature">(static) </span>intToUint<span class="signature">(int, nbit)</span><span class="type-signature"> &rarr; {Number}</span></h4>
+    <h4 class="name" id=".intToUint"><span class="type-signature">(static) </span>intToUint<span class="signature">(int, nbit<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {Number}</span></h4>
 
     
 
@@ -314,7 +346,11 @@ are (used for padding and truncating)</td>
         <th>Type</th>
 
         
+        <th>Attributes</th>
+        
 
+        
+        <th>Default</th>
         
 
         <th class="last">Description</th>
@@ -339,7 +375,19 @@ are (used for padding and truncating)</td>
             </td>
 
             
+                <td class="attributes">
+                
 
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                </td>
             
 
             <td class="description last">The signed integer to be converted.</td>
@@ -362,10 +410,26 @@ are (used for padding and truncating)</td>
             </td>
 
             
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
 
+                
+
+                
+                </td>
             
 
-            <td class="description last">(optional) the number of bits the integer takes.</td>
+            
+                <td class="default">
+                
+                    16
+                
+                </td>
+            
+
+            <td class="description last">The number of bits the integer takes.</td>
         </tr>
 
     
@@ -406,7 +470,7 @@ are (used for padding and truncating)</td>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="utility.js.html">utility.js</a>, <a href="utility.js.html#line70">line 70</a>
+        <a href="utility.js.html">utility.js</a>, <a href="utility.js.html#line74">line 74</a>
     </li></ul></dd>
     
 
@@ -446,6 +510,215 @@ integer.
     <dd>
         
 <span class="param-type">Number</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id=".maskToBracketNotation"><span class="type-signature">(static) </span>maskToBracketNotation<span class="signature">(mask, digits<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {String}</span></h4>
+
+    
+
+
+
+<div class="description">
+    Converts mask to bracket notation seen in MARIE.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+        <th>Default</th>
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>mask</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Number</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                </td>
+            
+
+            <td class="description last">The value to be converted.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>digits</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Number</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    4
+                
+                </td>
+            
+
+            <td class="description last">How many hexadecimal digits are
+there?</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="utility.js.html">utility.js</a>, <a href="utility.js.html#line139">line 139</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    The bracket notation of mask.
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">String</span>
 
 
     </dd>
@@ -637,7 +910,7 @@ binary numbers.
 
     
 
-    <h4 class="name" id=".uintToBinGroup"><span class="type-signature">(static) </span>uintToBinGroup<span class="signature">(num, padding, bitsize)</span><span class="type-signature"> &rarr; {bin_string}</span></h4>
+    <h4 class="name" id=".uintToBinGroup"><span class="type-signature">(static) </span>uintToBinGroup<span class="signature">(num, padding, bitSize)</span><span class="type-signature"> &rarr; {String}</span></h4>
 
     
 
@@ -645,7 +918,8 @@ binary numbers.
 
 <div class="description">
     Converts an unsigned integer into an array of
-binary numbers, and then groups into a bit string with bit spacing
+binary numbers, and then converts into a bit string with even spacing
+between each group of binary digits.
 </div>
 
 
@@ -697,7 +971,7 @@ binary numbers, and then groups into a bit string with bit spacing
 
             
 
-            <td class="description last">the unsigned integer to be converted.</td>
+            <td class="description last">The unsigned integer to be converted.</td>
         </tr>
 
     
@@ -720,14 +994,14 @@ binary numbers, and then groups into a bit string with bit spacing
 
             
 
-            <td class="description last">how many zeros to pad integer.</td>
+            <td class="description last">How many zeros to pad integer.</td>
         </tr>
 
     
 
         <tr>
             
-                <td class="name"><code>bitsize</code></td>
+                <td class="name"><code>bitSize</code></td>
             
 
             <td class="type">
@@ -743,7 +1017,7 @@ binary numbers, and then groups into a bit string with bit spacing
 
             
 
-            <td class="description last">the length of each bit group.</td>
+            <td class="description last">The length of each bit group.</td>
         </tr>
 
     
@@ -784,7 +1058,7 @@ binary numbers, and then groups into a bit string with bit spacing
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="utility.js.html">utility.js</a>, <a href="utility.js.html#line47">line 47</a>
+        <a href="utility.js.html">utility.js</a>, <a href="utility.js.html#line49">line 49</a>
     </li></ul></dd>
     
 
@@ -811,7 +1085,7 @@ binary numbers, and then groups into a bit string with bit spacing
 
         
 <div class="param-desc">
-    the binary array representation of unsigned integer.
+    The binary array representation of unsigned integer.
 </div>
 
 
@@ -822,7 +1096,7 @@ binary numbers, and then groups into a bit string with bit spacing
     </dt>
     <dd>
         
-<span class="param-type">bin_string</span>
+<span class="param-type">String</span>
 
 
     </dd>
@@ -837,7 +1111,7 @@ binary numbers, and then groups into a bit string with bit spacing
 
     
 
-    <h4 class="name" id=".uintToInt"><span class="type-signature">(static) </span>uintToInt<span class="signature">(uint, nbit)</span><span class="type-signature"> &rarr; {Number}</span></h4>
+    <h4 class="name" id=".uintToInt"><span class="type-signature">(static) </span>uintToInt<span class="signature">(uint, nbit<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {Number}</span></h4>
 
     
 
@@ -868,7 +1142,11 @@ binary numbers, and then groups into a bit string with bit spacing
         <th>Type</th>
 
         
+        <th>Attributes</th>
+        
 
+        
+        <th>Default</th>
         
 
         <th class="last">Description</th>
@@ -893,7 +1171,19 @@ binary numbers, and then groups into a bit string with bit spacing
             </td>
 
             
+                <td class="attributes">
+                
 
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                </td>
             
 
             <td class="description last">The unsigned integer to be converted.</td>
@@ -916,10 +1206,26 @@ binary numbers, and then groups into a bit string with bit spacing
             </td>
 
             
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
 
+                
+
+                
+                </td>
             
 
-            <td class="description last">(optional) the number of bits the integer takes.</td>
+            
+                <td class="default">
+                
+                    16
+                
+                </td>
+            
+
+            <td class="description last">The number of bits the integer takes.</td>
         </tr>
 
     
@@ -960,7 +1266,7 @@ binary numbers, and then groups into a bit string with bit spacing
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="utility.js.html">utility.js</a>, <a href="utility.js.html#line93">line 93</a>
+        <a href="utility.js.html">utility.js</a>, <a href="utility.js.html#line97">line 97</a>
     </li></ul></dd>
     
 
@@ -1031,7 +1337,7 @@ integer.
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a> on Wed Aug 17 2016 13:39:09 GMT+1000 (AEST)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a> on Sun Aug 21 2016 10:15:42 GMT+1000 (AEST)
 </footer>
 
 <script> prettyPrint(); </script>
