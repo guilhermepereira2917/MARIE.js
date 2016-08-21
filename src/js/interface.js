@@ -518,6 +518,19 @@ window.addEventListener("load", function() {
         }
     }
 
+    function updateCurrentInstructionLine() {
+        if(!viewingInstruction && currentInstructionLine !== undefined && currentInstructionLine !== null) {
+            programCodeMirror.removeLineClass(currentInstructionLine - 1, "background", "highlighted-line");
+        }
+
+        var current = sim.current();
+        currentInstructionLine = current ? current.line : null;
+
+        if(!viewingInstruction && currentInstructionLine !== undefined && currentInstructionLine !== null) {
+            programCodeMirror.addLineClass(currentInstructionLine - 1, "background", "highlighted-line");
+        }
+    }
+
     function initializeOutputLog() {
         while (outputLog.firstChild) {
             outputLog.removeChild(outputLog.firstChild);
@@ -914,16 +927,7 @@ window.addEventListener("load", function() {
                     datapath.showInstruction();
                 }
 
-                if(!viewingInstruction && currentInstructionLine !== undefined && currentInstructionLine !== null) {
-                    programCodeMirror.removeLineClass(currentInstructionLine - 1, "background", "highlighted-line");
-                }
-
-                var current = sim.current();
-                currentInstructionLine = current ? current.line : null;
-
-                if(!viewingInstruction && currentInstructionLine !== undefined && currentInstructionLine !== null) {
-                    programCodeMirror.addLineClass(currentInstructionLine - 1, "background", "highlighted-line");
-                }
+                updateCurrentInstructionLine();
 
                 if(currentInstructionRegisterLog) {
                     currentInstructionRegisterLog.classList.add("finished-instruction");
@@ -1058,6 +1062,7 @@ window.addEventListener("load", function() {
         datapath.showInstruction();
         regLogFunc("----- stepped back -----", null, true);
         updateCurrentLine();
+        updateCurrentInstructionLine();
     });
 
     microStepButton.addEventListener("click", function() {
