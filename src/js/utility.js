@@ -163,6 +163,17 @@ var Utility = {};
             counter ++;
         }
 
+        if(range) {
+            range = false;
+            end = counter - 1;
+
+            if(start !== end) {
+                list.push([end, "-", start].join(''));
+            } else {
+                list.push(start);
+            }
+        }
+
         list.reverse();
 
         return "[" + list.join(", ") + "]";
