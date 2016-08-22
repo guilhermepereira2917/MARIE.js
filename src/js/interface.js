@@ -1349,17 +1349,21 @@ window.addEventListener("load", function() {
             if(xhr.readyState === 4){
                 if(xhr.status == 200){
                     loadContents(xhr.responseText, xhr);
+                    console.log('File Sucessfully Loaded')
+                }
+                else if(xhr.status == 404){
+                    $('#warn-missing-file').show();
                 }
             }
         };
         xhr.open('GET',fileAddress,true);
         xhr.send();
     }
+    $('#warn-missing-file').hide();
 
     function loadContents(responseText){
         programCodeMirror.setValue(responseText);
     }
-
     if(queryString !== ""){
         var fileAddress = "./code/"+queryString+".mas";
         console.log("Loading from" + fileAddress);
