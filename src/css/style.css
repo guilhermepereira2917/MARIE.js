@@ -452,6 +452,15 @@ codeblock {
     z-index: -100;
 }
 
+#top-menu{
+    font-size: 14px;
+    border-width: 1px;
+    border-radius: 4px;
+    background-color: #2e2e2e;
+    color: #fff;
+    padding: 10px 10px 10px 10px;
+}
+
 #bottom-menu{
     font-size: 14px;
     border-width: 1px;
