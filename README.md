@@ -1,6 +1,6 @@
 # MARIE.js
 
-[![Build Status](https://travis-ci.org/MARIE-js/MARIE.js.svg?branch=master)](https://travis-ci.org/MARIE-js/MARIE.js) [![Gitter chat](https://badges.gitter.im/MARIE-js/gitter.png)] [![npm version](https://badge.fury.io/js/npm.svg)](https://badge.fury.io/js/npm)
+[![Build Status](https://travis-ci.org/MARIE-js/MARIE.js.svg?branch=master)](https://travis-ci.org/MARIE-js/MARIE.js) [![Gitter chat](https://badges.gitter.im/MARIE-js/gitter.png)](https://badges.gitter.im/MARIE-js/) [![npm version](https://badge.fury.io/js/npm.svg)](https://badge.fury.io/js/npm)
 ==============
 Current version: `0.8.5`
 
