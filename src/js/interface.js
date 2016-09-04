@@ -731,23 +731,28 @@ window.addEventListener("load", function() {
     }
 
     function run() {
-        if (waiting)
-            return;
+        try{
+            if (waiting)
+                return;
 
-        if (interval)
-            window.clearInterval(interval);
+            if (interval)
+                window.clearInterval(interval);
 
-        // Don't pass in setInterval callback arguments into runLoop function.
-        interval = window.setInterval(function() {
-            runLoop();
-        }, delay);
+            // Don't pass in setInterval callback arguments into runLoop function.
+            interval = window.setInterval(function() {
+                runLoop();
+            }, delay);
 
-        runButton.textContent = "Pause";
-        runButton.disabled = false;
-        stepButton.disabled = true;
-        stepBackButton.disabled = true;
-        microStepButton.disabled = true;
-        setStatus("Running...");
+            runButton.textContent = "Pause";
+            runButton.disabled = false;
+            stepButton.disabled = true;
+            stepBackButton.disabled = true;
+            microStepButton.disabled = true;
+            setStatus("Running...");
+        }
+        catch(ex){
+            throw MarieSimError(ex,0)
+        }
     }
 
     function runLoop(micro) {
