@@ -731,7 +731,6 @@ window.addEventListener("load", function() {
     }
 
     function run() {
-        try{
             if (waiting)
                 return;
 
@@ -749,10 +748,6 @@ window.addEventListener("load", function() {
             stepBackButton.disabled = true;
             microStepButton.disabled = true;
             setStatus("Running...");
-        }
-        catch(ex){
-            throw MarieSimError(ex,0)
-        }
     }
 
     function runLoop(micro) {
