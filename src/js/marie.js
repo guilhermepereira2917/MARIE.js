@@ -194,6 +194,8 @@ var MarieSim,
      */
     MarieSim.prototype.regSet = function(target, source, mask, alu_type) {
         var oldValue;
+
+        
         if (source == "m") {
             if (this.onRegLog) {
                 this.onRegLog([
@@ -202,6 +204,7 @@ var MarieSim,
                     "M[MAR]"
                 ].join(" "));
             }
+
 
             oldValue = this[target];
             this[target] = Utility.uintToInt(this.memory[this.mar].contents);
@@ -217,12 +220,14 @@ var MarieSim,
                 address: this.mar
             });
 
+        
+
             if (this.onRegWrite) {
                 this.onRegWrite.call(this, {
-                    register: target,
-                    oldValue: oldValue,
-                    newValue: this[target]
-                });
+                register: target,
+                oldValue: oldValue,
+                newValue: this[target]
+              });
             }
 
             this.stateHistory.push({
@@ -298,6 +303,12 @@ var MarieSim,
             oldValue = this[target];
 
             this[target] = Utility.uintToInt(src & msk);
+
+            if(target == "pc"){
+                if(0 <= this[target] && this[target] >= 4096){
+                    throw new MarieSimError("RuntimeError: the address " + (this[target]).toString() + " is out of bounds",0);
+                }
+            }
 
             if (typeof source == "string") {
                 if(this.onRegRead) {
