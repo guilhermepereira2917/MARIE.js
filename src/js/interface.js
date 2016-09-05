@@ -1435,17 +1435,22 @@ window.addEventListener("load", function() {
     $("body").removeClass("preload");
 
 
-    /*
-    *Templates
-    */
-    $('#template_addition').click(function(){
-        try{
-            newfile(); //calls newFile function in interface.js
-            var fileCode = 'code/addition.txt'.toURL().text; //sets value of .mas file to the variable fileCode
-            programCodeMirror.setValue(fileCode); //setting code template
+
+    $('#submitToU').click(function(){
+        if ($('#touAgree').is(":checked")){
+            localStorage.setItem("tosAgreed",1);
+            $('#tosModal').modal('hide');
         }
-        catch(ex){
-            console.log(ex);
+        else{
+            $('#touError').html('Error! Please agree to the ToU before clicking OK');
         }
     });
+
+    
+});
+
+$(document).ready(function(){
+    if(localStorage.getItem("tosAgreed") === null || localStorage.getItem("tosAgreed") === 0){
+        $('#tosModal').modal('show');
+    }
 });
