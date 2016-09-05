@@ -236,11 +236,7 @@ footer {
     background-color: #ECC;
 }
 
-.current-instruction {
-    background-color: #99E;
-}
-
-.next-instruction {
+.current-line {
     background-color: #5E5;
 }
 
@@ -344,7 +340,56 @@ footer {
     height: 60px
 }
 
-
+/*
+NAVBAR TEST CODE
+*/
+#custom-bootstrap-menu.navbar-default .navbar-brand {
+    color: rgba(255, 255, 255, 1);
+    cursor: default;
+}
+#custom-bootstrap-menu.navbar-default {
+    font-size: 14px;
+    background-color: rgba(46, 46, 46, 1);
+    border-width: 1px;
+    border-radius: 4px;
+    cursor: default;
+}
+#custom-bootstrap-menu.navbar-default .navbar-nav>li>a {
+    color: rgba(255, 255, 255, 1);
+    background-color: rgba(248, 248, 248, 0);
+    cursor: default;
+}
+#custom-bootstrap-menu.navbar-default .navbar-nav>li>a:hover,
+#custom-bootstrap-menu.navbar-default .navbar-nav>li>a:focus {
+    color: rgba(255, 255, 255, 1);
+    background-color: rgba(69, 69, 69, 1);
+    cursor: default;
+}
+#custom-bootstrap-menu.navbar-default .navbar-nav>.active>a,
+#custom-bootstrap-menu.navbar-default .navbar-nav>.active>a:hover,
+#custom-bootstrap-menu.navbar-default .navbar-nav>.active>a:focus {
+    color: rgba(255, 255, 255, 1);
+    background-color: rgba(0, 138, 0, 1);
+    cursor: default;
+}
+#custom-bootstrap-menu.navbar-default .navbar-toggle {
+    border-color: #008a00;
+    cursor: default;
+}
+#custom-bootstrap-menu.navbar-default .navbar-toggle:hover,
+#custom-bootstrap-menu.navbar-default .navbar-toggle:focus {
+    background-color: #008a00;
+    cursor: default;
+}
+#custom-bootstrap-menu.navbar-default .navbar-toggle .icon-bar {
+    background-color: #008a00;
+    cursor: default;
+}
+#custom-bootstrap-menu.navbar-default .navbar-toggle:hover .icon-bar,
+#custom-bootstrap-menu.navbar-default .navbar-toggle:focus .icon-bar {
+    background-color: #2e2e2e;
+    cursor: default;
+}
 
 #forkme_banner {
     display: block;
@@ -452,7 +497,7 @@ codeblock {
     z-index: -100;
 }
 
-#top-menu{
+.top-menu{
     font-size: 14px;
     border-width: 1px;
     border-radius: 4px;
