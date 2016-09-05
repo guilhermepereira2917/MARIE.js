@@ -15,7 +15,6 @@ var MarieSim,
      *
      * @see MarieSim
      * @param  {string} name       The name of the error.
-     * @param  {number} lineNumber Which line caused the error.
      * @param  {string} message    The error message.
      */
     MarieSimError = function(name, message) {
@@ -304,9 +303,9 @@ var MarieSim,
 
             this[target] = Utility.uintToInt(src & msk);
 
-            if(target == "pc"){
-                if(0 <= this[target] && this[target] >= 4096){
-                    throw new MarieSimError("RuntimeError: the address " + (this[target]).toString() + " is out of bounds",0);
+            if(target == "pc") {
+                if(0 <= this[target] && this[target] >= 4096) {
+                    throw new MarieSimError("RuntimeError", "The address " + (this[target]).toString() + " is out of bounds.");
                 }
             }
 
@@ -381,6 +380,12 @@ var MarieSim,
             }
 
             this[target] += typeof source == "string" ? this[source] : source;
+
+            if(target == "pc") {
+                if(0 <= this[target] && this[target] >= 4096) {
+                    throw new MarieSimError("RuntimeError", "The address " + (this[target]).toString() + " is out of bounds.");
+                }
+            }
         }
 
         if(typeof source == "string") {
