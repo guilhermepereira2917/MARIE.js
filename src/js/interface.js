@@ -766,11 +766,8 @@ window.addEventListener("load", function() {
         catch (e) {
             // prevents catastrophic failure if an error occurs (whether it is MARIE or some other JavaScript error)
             setStatus(e.toString(), true);
-            lastErrorLine = e.lineNumber;
-            if (lastErrorLine) {
-                lastErrorLine--;
-                programCodeMirror.addLineClass(lastErrorLine, "background", "error-line");
-            }
+            
+            stepBackButton.disabled = true;
 
             stop();
             runButton.textContent = "Halted";
@@ -882,13 +879,31 @@ window.addEventListener("load", function() {
                 }
 
                 if (e.register == "pc") {
-                    document.getElementById("cell" + e.oldValue).classList.remove("current-pc");
-                    document.getElementById("cell" + e.newValue).classList.add("current-pc");
+                    if(0 <= e.oldValue && e.oldValue <= 4095) {
+                        document.getElementById("cell" + e.oldValue).classList.remove("current-pc");
+                    } else {
+                        console.warn("Address", e.oldValue, "for PC is out of bounds, and consequently it cannot update the memory view.");
+                    }
+
+                    if(0 <= e.newValue && e.newValue <= 4095) {
+                        document.getElementById("cell" + e.newValue).classList.add("current-pc");
+                    } else {
+                        console.warn("Address", e.newValue, "for PC is out of bounds, and consequently it cannot update the memory view.");
+                    }
                 }
 
                 if (e.register == "mar") {
-                    document.getElementById("cell" + e.oldValue).classList.remove("current-mar");
-                    document.getElementById("cell" + e.newValue).classList.add("current-mar");
+                    if(0 <= e.oldValue && e.oldValue <= 4095) {
+                        document.getElementById("cell" + e.oldValue).classList.remove("current-mar");
+                    } else {
+                        console.warn("Address", e.oldValue, "for MAR is out of bounds, and consequently it cannot update the memory view.");
+                    }
+
+                    if(0 <= e.newValue && e.newValue <= 4095) {
+                        document.getElementById("cell" + e.newValue).classList.add("current-mar");
+                    } else {
+                        console.warn("Address", e.newValue, "for MAR is out of bounds, and consequently it cannot update the memory view.");
+                    }
                 }
             });
 
