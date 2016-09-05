@@ -304,7 +304,7 @@ var MarieSim,
             this[target] = Utility.uintToInt(src & msk);
 
             if(target == "pc") {
-                if(0 <= this[target] && this[target] >= 4095) {
+                if(0 <= this[target] && this[target] >= 4096) {
                     throw new MarieSimError("RuntimeError", "The address " + (this[target]).toString() + " is out of bounds.");
                 }
             }
