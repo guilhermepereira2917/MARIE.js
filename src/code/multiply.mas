@@ -25,3 +25,6 @@ loop,    Load num
 Load num
 Output
 Halt
+
+X, DEC 0
+Y, DEC 0
