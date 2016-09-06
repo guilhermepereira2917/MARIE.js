@@ -24,7 +24,7 @@ $(document).ready(function() {
                 backdrop: true,
                 element: "#program-container",
                 title: "Coding Area",
-                content: "This is where you type your code here"
+                content: "This is where you type your code here, you can debug your code by opening 'Watchlist' and clicking to the right of the line number to add breakpoints. Green line shows current excution, grey line shows 'fetch' line "
             },
             {
                 onShow: viewHome,
@@ -32,7 +32,7 @@ $(document).ready(function() {
                 backdrop: true,
                 element: "#register-container",
                 title: "Registers",
-                content: "This shows you the register values"
+                content: "This area shows you the register values, we have the Accumlator (AC), Program Counter (PC), IR"
             },
             {
                 onShow: viewHome,
@@ -40,7 +40,7 @@ $(document).ready(function() {
                 backdrop: true,
                 element: "#tab-container",
                 title: "Values and Outputs",
-                content: "This shows you the output in Register Log, Output Values and how the data is being transferred in RTL"
+                content: "This shows you the output in Register Log, Output Values and how the data is being transferred in RTL, MAR, MBR and Input/Output"
             },
             {
                 onShow: viewHome,
@@ -48,28 +48,35 @@ $(document).ready(function() {
                 backdrop: true,
                 element: "#status-info",
                 title: "Status bar",
-                content: "Shows you current status: also shows error messages"
+                content: "This is the status bar, this area shows you error messages to help you debug your code"
+            },
+            {
+                onShow: viewHome,
+                smartPlacement: true,
+                element: "#output-select",
+                title: "Select Output Type",
+                content: "Change the output type here with the options (HEX - Base 8, DEC - Base 10, ASCII - Base 16) . This by default is set to HEX. ",
             },
             {
                 onShow: viewHome,
                 smartPlacement: true,
                 element: "#bottom-menu",
                 title: "Control Bar",
-                content: "This is the bar used for stepping through the code, and building it"
+                content: "This is the control bar used for controlling the execution and the assembling of the code"
             },
             {
                 onShow: viewHome,
                 smartPlacement: true,
                 element: "#assemble",
                 title: "Assembling the Code",
-                content: "Build the code here"
+                content: "This button builds the code"
             },
             {
                 onShow: viewHome,
                 smartPlacement: true,
                 element: "#step",
                 title: "Step",
-                content: "Step Through the Code using this button"
+                content: "This steps one line through the code"
             },
             {
                 onShow: viewHome,
@@ -105,13 +112,6 @@ $(document).ready(function() {
                 element: "#delay-slider",
                 title: "Delay Slider",
                 content: "This slider sets the timing of the execution of each step"
-            },
-            {
-                onShow: viewHome,
-                smartPlacement: true,
-                element: "#output-select",
-                title: "Select Output Type",
-                content: "Change the output type here with the options (HEX - Base 8, DEC - Base 10, ASCII - Base 16) . This by default is set to HEX. ",
             },
             {
                 onShow: viewDatapath,

@@ -301,13 +301,18 @@ var MarieSim,
 
             oldValue = this[target];
 
-            this[target] = Utility.uintToInt(src & msk);
-
             if(target == "pc") {
-                if(0 <= this[target] && this[target] >= 4096) {
+                if(this[target] >= 4096) {
                     throw new MarieSimError("RuntimeError", "The address " + (this[target]).toString() + " is out of bounds.");
                 }
+                else if(0 <= this[target]){
+                    throw new MarieSimError("RuntimeError", "The address -" + (this[target]).toString() + " is out of bounds.");
+                }
             }
+
+            this[target] = Utility.uintToInt(src & msk);
+
+            
 
             if (typeof source == "string") {
                 if(this.onRegRead) {
@@ -382,10 +387,14 @@ var MarieSim,
             this[target] += typeof source == "string" ? this[source] : source;
 
             if(target == "pc") {
-                if(0 <= this[target] && this[target] >= 4096) {
+                if(this[target] >= 4096) {
                     throw new MarieSimError("RuntimeError", "The address " + (this[target]).toString() + " is out of bounds.");
                 }
+                else if(0 <= this[target]){
+                    throw new MarieSimError("RuntimeError", "The address -" + (this[target]).toString() + " is out of bounds.");
+                }
             }
+
         }
 
         if(typeof source == "string") {
