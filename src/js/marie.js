@@ -305,7 +305,7 @@ var MarieSim,
                 if(this[target] >= 4096) {
                     throw new MarieSimError("RuntimeError", "The address " + (this[target]).toString() + " is out of bounds.");
                 }
-                else if(0 < this[target]){
+                else if(this[target] < 0){
                     throw new MarieSimError("RuntimeError", "The address -" + (this[target]).toString() + " is out of bounds.");
                 }
             }
@@ -390,7 +390,7 @@ var MarieSim,
                 if(this[target] >= 4096) {
                     throw new MarieSimError("RuntimeError", "The address " + (this[target]).toString() + " is out of bounds.");
                 }
-                else if(0 < this[target]){
+                else if(this[target] < 0){
                     throw new MarieSimError("RuntimeError", "The address -" + (this[target]).toString() + " is out of bounds.");
                 }
             }
