@@ -279,6 +279,12 @@ var MarieSim,
             });
         }
         else {
+            if(target == "pc") {
+                if(this[target] >= 4096 || this[target] < 0) {
+                    throw new MarieSimError("RuntimeError","the address " + this[target].toString() + " is out of bounds");
+                }
+            }
+
             if (this.onRegLog) {
                 if (mask === undefined) {
                     this.onRegLog([
@@ -301,18 +307,15 @@ var MarieSim,
 
             oldValue = this[target];
 
-            if(target == "pc") {
-                if(this[target] >= 4096) {
-                    throw new MarieSimError("RuntimeError", "The address " + (this[target]).toString() + " is out of bounds.");
-                }
-                else if(this[target] < 0){
-                    throw new MarieSimError("RuntimeError", "The address -" + (this[target]).toString() + " is out of bounds.");
-                }
-            }
+
 
             this[target] = Utility.uintToInt(src & msk);
 
-            
+            if(target == "pc") {
+                if(this[target] >= 4096 || this[target] < 0) {
+                    throw new MarieSimError("RuntimeError","the address " + this[target].toString() + " is out of bounds");
+                }
+            }
 
             if (typeof source == "string") {
                 if(this.onRegRead) {
@@ -383,18 +386,15 @@ var MarieSim,
                     source.toString(16).toUpperCase()
                 ].join(" "), alu_type);
             }
-
+            
             this[target] += typeof source == "string" ? this[source] : source;
+                    
+        }
 
-            if(target == "pc") {
-                if(this[target] >= 4096) {
-                    throw new MarieSimError("RuntimeError", "The address " + (this[target]).toString() + " is out of bounds.");
-                }
-                else if(this[target] < 0){
-                    throw new MarieSimError("RuntimeError", "The address -" + (this[target]).toString() + " is out of bounds.");
-                }
+        if(target == "pc") {
+            if(this[target] >= 4096 || this[target] < 0) {
+                throw new MarieSimError("RuntimeError","the address " + this[target].toString() + " is out of bounds");
             }
-
         }
 
         if(typeof source == "string") {
