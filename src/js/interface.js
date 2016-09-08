@@ -1453,4 +1453,20 @@ $(document).ready(function(){
     if(localStorage.getItem("tosAgreed") === null || localStorage.getItem("tosAgreed") === 0){
         $('#tosModal').modal('show');
     }
+
+
+    $('[data-toggle="tooltip"]').tooltip(); 
 });
+
+
+/*
+* Code used to debug/test out bootstrap popover 
+var currentMode = $(this).attr('class');
+
+if(currentMode == 'cell current-mar'){
+    $(this).attr('data-toggle', 'tooltip') //data-toggle="tooltip"
+    $(this).attr('data-container', 'body') //data-container="body"
+    $(this).attr('data-placement', 'bottom') //data-placement="bottom"
+    $(this).attr('data-original-title', 'Current MAR')//title=""
+}
+*/
