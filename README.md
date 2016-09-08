@@ -37,6 +37,45 @@ commands.
     grunt test # you need JRE 8 for this command
     grunt bar-dev
 
+## To Do List
+### Improving MARIE.js Codebase
+- [ ] further integration of stepping simulator one step backwards
+- [ ] Add explanation of instruction when using Autocomplete
+- [x] Remove unnecessary CSS
+
+### Documentation
+- [ ] Document other files using jsdoc
+- [ ] Comment the code whenever it is needed
+- [ ] Extend Usability of Wiki and eBook
+
+### Testing
+- [ ] Add unit testing
+
+### UI
+- [ ] move output mode back to inside output log element
+- [x] rename "Register log" to "RTL log"
+- [ ] add legend to memory view (yellow=MAR, green=PC)
+- [ ] change between cells by using arrow keys (once the user is focusing in one memory cell)
+- [ ] remove fading in tabs (reason: unnecessary animation)
+- [ ] fix overflow ellipsis in instruction display within datapath view
+- [ ] fix overflow scrolling in datapath view
+- [x] add time from now message in save file status (e.g. "saved file now","saved file a few minutes ago")`
+- [x] add option for autosaving in preferences (set save timer after file modification)
+- [ ] add warning message for importing files
+- [ ] add placeholder in logs if it is empty
+- [ ] responsive dropdown menu
+- [ ] fix dropdown menu bug with iOS devices
+- [ ] clearly indicate to the user that the status bar is what it is
+- [ ] show default placeholder values in preference settings in input textboxes
+- [ ] selecting code should not block the highlighted lines
+- [ ] add an assembled code tab to the left pane to show how the line numbers are converted into memory
+addresses
+- [ ] add option in menu to clear all breakpoints
+- [x] set lighter grey background to disabled action buttons
+- [ ] Use Slickgrid or work out how to use less DOM changes for logs
+- [ ] Add time sequence numbers to RTL instructions (e.g. T0)
+- [x] Force cursor to be default when hovering over links in navigation menu
+
 ## Documentation
 We use jsdoc for documenting the code. This can be found within the `doc`
 folder.

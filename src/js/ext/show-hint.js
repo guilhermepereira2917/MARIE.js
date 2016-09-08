@@ -346,6 +346,7 @@
       else if (node.offsetTop + node.offsetHeight > this.hints.scrollTop + this.hints.clientHeight)
         this.hints.scrollTop = node.offsetTop + node.offsetHeight - this.hints.clientHeight + 3;
       CodeMirror.signal(this.data, "select", this.data.list[this.selectedHint], node);
+      
     },
 
     screenAmount: function() {
