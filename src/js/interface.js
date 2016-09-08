@@ -1457,7 +1457,7 @@ $(document).ready(function(){
 
 });
 
-
+//Function which displays a tooltip upon hovering over a memory cell
 $('#memory td').hover(function(){
     var currentMode = $(this).attr('class');
 

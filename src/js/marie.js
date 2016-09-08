@@ -397,6 +397,13 @@ var MarieSim,
             }
         }
 
+
+
+        if(this[target] > 32767 || this[target] < -32768){
+            throw new MarieSimError("OverflowError","the value " + this[target].toString() + "  is beyond the calculable range");
+        }
+
+
         if(typeof source == "string") {
             if (this.onRegRead) {
                 this.onRegRead.call(this, {
