@@ -3561,6 +3561,7 @@ tbody.collapse.in {
   line-height: 1.42857143;
   color: #333333;
   white-space: nowrap;
+  cursor: default;
 }
 .dropdown-menu > li > a:hover,
 .dropdown-menu > li > a:focus {
@@ -4281,6 +4282,7 @@ select[multiple].input-group-sm > .input-group-btn > .btn {
   font-size: 18px;
   line-height: 20px;
   height: 50px;
+  cursor: default;
 }
 .navbar-brand:hover,
 .navbar-brand:focus {
