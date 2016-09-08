@@ -419,8 +419,8 @@ button:hover {
     height: 2.5em;
 }
 button[disabled=disabled], button:disabled {
-    background-color: #2e2e2e;
-    border: #2e2e2e;
+    background-color: #545454;
+    border: #545454;
     color: #fff;
     height: 2.5em;
 }
