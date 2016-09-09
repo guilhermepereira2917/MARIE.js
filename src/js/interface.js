@@ -539,7 +539,7 @@ window.addEventListener("load", function() {
     }
 
     $('#input-dialog').on('shown.bs.modal', function () {
-        $('#input-value').focus();
+        $('#input-value').val('').focus();
     });
 
     var placeInputDialog = document.createElement("div");
