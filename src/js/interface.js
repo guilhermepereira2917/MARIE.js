@@ -1437,13 +1437,8 @@ window.addEventListener("load", function() {
 
 
     $('#submitToU').click(function(){
-        if ($('#touAgree').is(":checked")){
-            localStorage.setItem("tosAgreed",1);
-            $('#tosModal').modal('hide');
-        }
-        else{
-            $('#touError').html('Error! Please agree to the ToU before clicking OK');
-        }
+        localStorage.setItem("tosAgreed",1);
+        $('#tosModal').modal('hide');
     });
 
     
