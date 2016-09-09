@@ -539,7 +539,7 @@ window.addEventListener("load", function() {
     }
 
     $('#input-dialog').on('shown.bs.modal', function () {
-        $('#input-value').focus();
+        $('#input-value').val('').focus();
     });
 
     var placeInputDialog = document.createElement("div");
@@ -1437,13 +1437,8 @@ window.addEventListener("load", function() {
 
 
     $('#submitToU').click(function(){
-        if ($('#touAgree').is(":checked")){
-            localStorage.setItem("tosAgreed",1);
-            $('#tosModal').modal('hide');
-        }
-        else{
-            $('#touError').html('Error! Please agree to the ToU before clicking OK');
-        }
+        localStorage.setItem("tosAgreed",1);
+        $('#tosModal').modal('hide');
     });
 
     
