@@ -19,8 +19,10 @@ window.addEventListener("load", function() {
         outputSelect = document.getElementById("output-select"),
         outputLog = document.getElementById("output-log"),
         outputLogOuter = document.getElementById("output-log-outer"),
+        outputLogTab = document.querySelector("#tab-container a[href='#output-log-outer']"),
         registerLog = document.getElementById("register-log"),
         registerLogOuter = document.getElementById("register-log-outer"),
+        registerLogTab = document.querySelector("#tab-container a[href='#register-log-outer']"),
         watchList = document.getElementById("watch-list"),
         uploadButton = document.getElementById("upload"),
         fileInput = document.getElementById("fileInput"),
@@ -473,6 +475,43 @@ window.addEventListener("load", function() {
         }
     }, false);
 
+    function updateBottomDataAttr(e) {
+        var target = e.target;
+
+        // check if at the bottom
+        var atBottom = target.clientHeight > 0.99 * (target.scrollHeight - target.scrollTop);
+
+        // set the data attr based on if scrolled to the bottom or not
+        if (atBottom) {
+            target.setAttribute("data-stick-to-bottom", "true");
+        } else {
+            target.setAttribute("data-stick-to-bottom", "false");
+        }
+    }
+
+    // update if should stick to the bottom for Output log
+    outputLogOuter.addEventListener("scroll", updateBottomDataAttr);
+
+    // update if should stick to the bottom for RTL log
+    registerLogOuter.addEventListener("scroll", updateBottomDataAttr);
+
+    function scrollToBottom(e) {
+        // get the tab content (not the tab link)
+        var tabContent = document.querySelector(e.target.getAttribute('href'));
+        // get the stick to bottom attr
+        var shouldScrollToBottomRegisterLog = tabContent.getAttribute('data-stick-to-bottom') == 'true';
+
+        // scroll to the bottom if it should
+        if(shouldScrollToBottomRegisterLog) {
+            tabContent.scrollTop = tabContent.scrollHeight;
+        }
+    }
+
+    // Stick to the bottom for Output Log
+    $(outputLogTab).on('shown.bs.tab', scrollToBottom);
+    // Stick to the bottom for Register Log
+    $(registerLogTab).on('shown.bs.tab', scrollToBottom);
+
     function updateCurrentLine(clear) {
         if (lastCurrentLine !== null) {
             programCodeMirror.removeLineClass(lastCurrentLine, "background", "next-instruction");
@@ -631,7 +670,7 @@ window.addEventListener("load", function() {
     }
 
     function outputFunc(value) {
-        var shouldScrollToBottomOutputLog = outputLogOuter.clientHeight > 0.99 * (outputLogOuter.scrollHeight - outputLogOuter.scrollTop);
+        var shouldScrollToBottomOutputLog = outputLogOuter.getAttribute("data-stick-to-bottom") == "true";
 
         outputList.push(value);
 
@@ -670,7 +709,7 @@ window.addEventListener("load", function() {
             datapath.setALUBus(alu_type);
         }
 
-        var shouldScrollToBottomRegisterLog = registerLogOuter.clientHeight > 0.99 * (registerLogOuter.scrollHeight - registerLogOuter.scrollTop);
+        var shouldScrollToBottomRegisterLog = registerLogOuter.getAttribute("data-stick-to-bottom") == "true";
 
         if(notAnRTL) {
             currentInstructionRegisterLog.classList.add("finished-instruction");
