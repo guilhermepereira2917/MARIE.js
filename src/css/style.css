@@ -305,6 +305,10 @@ footer {
     background: #eee;
 }
 
+.output-selector{
+    position: fixed;
+}
+
 #output-select {
     margin: 0.5em 0;
 }

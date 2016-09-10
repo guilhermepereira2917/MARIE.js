@@ -398,7 +398,7 @@ var MarieSim,
         }
 
 
-
+        //this fixes the bug, where the user tries to go beyond HEX-FFFF
         if(this[target] > 32767 || this[target] < -32768){
             throw new MarieSimError("OverflowError","the value " + this[target].toString() + "  is beyond the calculable range");
         }
@@ -479,14 +479,19 @@ var MarieSim,
      * @memberof MarieSim
      */
     MarieSim.prototype.step = function() {
-        var microstep;
-        while (!this.halted && microstep != "paused" && microstep != "step") {
-            microstep = this.microStep(true);
-        }
+        try{
+            var microstep;
+            while (!this.halted && microstep != "paused" && microstep != "step") {
+                microstep = this.microStep(true);
+            }
 
-        this.stateHistory.push({
-            type: "step"
-        });
+            this.stateHistory.push({
+                type: "step"
+            });
+        }
+        catch(ex){
+            throw new MarieSimError(ex)
+        }
     };
 
 
