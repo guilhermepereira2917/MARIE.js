@@ -235,6 +235,10 @@ window.addEventListener("load", function() {
         });
     }
 
+    function clearGutters(){
+        programCodeMirror.clearGutter("breakpoints");
+    }
+
     function populateMemoryView(sim) {
         while (memory.firstChild) {
             memory.removeChild(memory.firstChild);
@@ -1424,6 +1428,10 @@ window.addEventListener("load", function() {
         programCodeMirror.setValue("");
         readCode();
     }
+    
+    $('#clearBreakPoints').click(function(){
+        clearGutters();
+    });
 
     function handleDatapathUI() {
         if(window.location.hash === "#datapath") {
@@ -1481,6 +1489,7 @@ window.addEventListener("load", function() {
     });
 
     
+
 });
 
 $(document).ready(function(){
