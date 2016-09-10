@@ -490,7 +490,7 @@ var MarieSim,
             });
         }
         catch(ex){
-            throw new MarieSimError(ex)
+            throw new MarieSimError(ex);
         }
     };
 
