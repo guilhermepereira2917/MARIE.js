@@ -1400,6 +1400,7 @@ window.addEventListener("load", function() {
         window.location.hash = "";
     });
 
+    //readCode() does a GET request for the the file based on the URL
     function readCode(){
         var xhr = new XMLHttpRequest();
 
@@ -1419,16 +1420,18 @@ window.addEventListener("load", function() {
     }
     $('#warn-missing-file').hide();
 
+    //loadContents() works in conjunction with readCode(), if the server responds with a Code 200
     function loadContents(responseText){
         programCodeMirror.setValue(responseText);
     }
+
     if(queryString !== ""){
         var fileAddress = "./code/"+queryString+".mas";
         console.log("Loading from" + fileAddress);
         programCodeMirror.setValue("");
         readCode();
     }
-    
+
     $('#clearBreakPoints').click(function(){
         clearGutters();
     });
@@ -1496,20 +1499,9 @@ $(document).ready(function(){
     if(localStorage.getItem("tosAgreed") === null || localStorage.getItem("tosAgreed") === 0){
         $('#tosModal').modal('show');
     }
-
-
 });
 
-//Function which displays a tooltip upon hovering over a memory cell
-$('#memory td').hover(function(){
-    var currentMode = $(this).attr('class');
-
-    if(currentMode == 'cell current-mar'){
-        $(this).attr('data-toggle', 'tooltip'); //data-toggle="tooltip"
-        $(this).attr('data-container', 'body'); //data-container="body"
-        $(this).attr('data-placement', 'bottom'); //data-placement="bottom"
-        $(this).attr('data-original-title', 'Current MAR'); //title=""
-    }
-
+//enabling bootstrap-tooltip
+$(document).ready(function(){
     $('[data-toggle="tooltip"]').tooltip(); 
 });
