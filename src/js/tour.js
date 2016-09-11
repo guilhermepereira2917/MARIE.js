@@ -48,7 +48,7 @@ $(document).ready(function() {
                 backdrop: true,
                 element: "#status-info",
                 title: "Status bar",
-                content: "This is the status bar, this area shows you error messages to help you debug your code"
+                content: "This is the status bar, this area shows you error messages or statuses to help you debug your code. Some examples include: RunTime Error, OverflowError, etc. "
             },
             {
                 onShow: viewHome,

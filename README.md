@@ -11,6 +11,7 @@ from [The Essentials of Computer Organization and Architecture](https://books.go
 
 ## Setup
 Latest Stable: [https://github.com/MARIE-js/MARIE.js/releases/latest](https://github.com/MARIE-js/MARIE.js/releases/latest])
+
 Latest Release: [https://github.com/MARIE-js/MARIE.js/archive/master.zip](https://github.com/MARIE-js/MARIE.js/archive/master.zip)
 
 This is for web developers who would like to develop, build or deploy the
@@ -59,7 +60,7 @@ then make the changes to the forked repository. Once changes are made, perform a
 pull request to this repository. We'll review the pull request, and if it is
 accepted, we'll add your name to our license.
 
-## Recommended Commit Tags
+## Recommended Commit/Pull Request Tags
     [D] Dependency Update
     [HF] HotFix
     [P] Patch
