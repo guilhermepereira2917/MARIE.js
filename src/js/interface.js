@@ -1505,7 +1505,3 @@ $(document).ready(function(){
 $(document).ready(function(){
     $('[data-toggle="tooltip"]').tooltip(); 
 });
-
-function useless(){
-    return "This is useless"
-}
