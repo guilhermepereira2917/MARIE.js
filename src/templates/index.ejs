@@ -242,12 +242,46 @@
                 </div>
             </div>
 
-            
+
         </div>
+
+                    <!-- downloadFile Modal -->
+                    <div class="modal fade" id="dFileModal" role="dialog" data-keyboard="true" tabindex="-1">
+                        <div class="modal-dialog">
+                          <!-- Modal content-->
+                          <div class="modal-content">
+                              <div class="modal-header">
+                                  <h4 class="modal-title">Download File</h4>
+                              </div>
+                              <div class="modal-body">
+                                <div class="row">
+                                  <div class="col-md-8 text-left">
+                                      <input type="text" class="form-control" id="name" />
+                                  </div>
+                                  <div class="col-md-4">
+                                    <select id="downloadMode" style="width: 100%;height: 34px">
+                                        <option value="mas">mas</option>
+                                        <option value="txt">txt</option>
+                                    </select>
+                                  </div>
+                                </div>
+                              </div>
+                              <div class="modal-footer">
+                                  <div class="row">
+                                    <div class="col-md-8 text-left"></div>
+                                    <div class="col-md-4">
+                                          <button id="downloadbtn" class="btn btn-default" >Download</button>
+                                    </div>
+                                  </div>
+                              </div>
+                          </div>
+                        </div>
+                    </div>
+
         <!-- ToU Agreement Modal -->
             <div class="modal fade" id="tosModal" role="dialog" data-backdrop="static">
                 <div class="modal-dialog">
-                
+
                 <!-- Modal content-->
                 <div class="modal-content">
                     <div class="modal-header">
@@ -265,7 +299,7 @@
                         <div class="row">
                             <div class="col-md-8 text-left">
                                 By clicking "I agree",<br>
-                                you agree to the Terms of Use agreement. 
+                                you agree to the Terms of Use agreement.
                             </div>
                             <div class="col-md-4">
                                 <button id="submitToU" class="btn btn-default" >I agree</button>
@@ -273,8 +307,9 @@
                         </div>
                     </div>
                 </div>
-                
+
                 </div>
             </div>
+
     </body>
 </html>
