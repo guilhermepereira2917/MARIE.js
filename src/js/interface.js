@@ -18,7 +18,6 @@ window.addEventListener("load", function() {
         statusInfo = document.getElementById("status-info"),
         outputSelect = document.getElementById("output-select"),
         outputLog = document.getElementById("output-log"),
-        outputLogOuter = document.getElementById("output-log-outer"),
         outputLogTab = document.querySelector("#tab-container a[href='#output-log-outer']"),
         registerLog = document.getElementById("register-log"),
         registerLogOuter = document.getElementById("register-log-outer"),
@@ -674,7 +673,7 @@ window.addEventListener("load", function() {
     }
 
     function outputFunc(value) {
-        var shouldScrollToBottomOutputLog = outputLogOuter.getAttribute("data-stick-to-bottom") == "true";
+        var shouldScrollToBottomOutputLog = outputLog.getAttribute("data-stick-to-bottom") == "true";
 
         outputList.push(value);
 
@@ -682,7 +681,7 @@ window.addEventListener("load", function() {
         outputLog.appendChild(document.createElement("br"));
 
         if(shouldScrollToBottomOutputLog) {
-            outputLog.scrollTop = outputLogOuter.scrollHeight;
+            outputLog.scrollTop = outputLog.scrollHeight;
         }
     }
 
@@ -809,7 +808,7 @@ window.addEventListener("load", function() {
         catch (e) {
             // prevents catastrophic failure if an error occurs (whether it is MARIE or some other JavaScript error)
             setStatus(e.toString(), true);
-            
+
             stepBackButton.disabled = true;
 
             stop();
@@ -1491,7 +1490,7 @@ window.addEventListener("load", function() {
         $('#tosModal').modal('hide');
     });
 
-    
+
 
 });
 
@@ -1503,5 +1502,5 @@ $(document).ready(function(){
 
 //enabling bootstrap-tooltip
 $(document).ready(function(){
-    $('[data-toggle="tooltip"]').tooltip(); 
+    $('[data-toggle="tooltip"]').tooltip();
 });
