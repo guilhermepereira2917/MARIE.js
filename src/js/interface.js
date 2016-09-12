@@ -494,7 +494,7 @@ window.addEventListener("load", function() {
     }
 
     // update if should stick to the bottom for Output log
-    outputLogOuter.addEventListener("scroll", updateBottomDataAttr);
+    outputLog.addEventListener("scroll", updateBottomDataAttr);
 
     // update if should stick to the bottom for RTL log
     registerLogOuter.addEventListener("scroll", updateBottomDataAttr);
@@ -682,7 +682,7 @@ window.addEventListener("load", function() {
         outputLog.appendChild(document.createElement("br"));
 
         if(shouldScrollToBottomOutputLog) {
-            outputLogOuter.scrollTop = outputLogOuter.scrollHeight;
+            outputLog.scrollTop = outputLogOuter.scrollHeight;
         }
     }
 
@@ -1505,3 +1505,7 @@ $(document).ready(function(){
 $(document).ready(function(){
     $('[data-toggle="tooltip"]').tooltip(); 
 });
+
+function useless(){
+    return "This is useless"
+}
