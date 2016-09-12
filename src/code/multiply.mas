@@ -28,3 +28,5 @@ Halt
 
 X, DEC 0
 Y, DEC 0
+num, DEC 0
+one, DEC 1

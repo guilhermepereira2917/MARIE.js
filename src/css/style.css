@@ -282,19 +282,40 @@ footer {
     background-color: #F9F9F9;
 }
 
-#output-log-outer, #register-log-outer, #watch-list-outer {
+#output-log-outer{
     flex: 1 0 0;
-    padding: 0 0.5em;
+    padding: 0 0.5em 100px;
     box-sizing: border-box;
     border: 0.1em solid #ccc;
-    overflow-y: scroll;
+    overflow: hidden;
     background-color: #FFF;
 }
 
-#output-log, #register-log {
+#register-log-outer, #watch-list-outer {
+    flex: 1 0 0;
+    padding: 0 0.5em 1em;
+    box-sizing: border-box;
+    border: 0.1em solid #ccc;
+    overflow: scroll;
+    background-color: #FFF;
+}
+
+#output-log{
+    max-height: 100%;
     padding: 0.5em 1em;
     text-align: right;
 	font-family: sans-serif;
+    overflow-y: scroll;
+    height: 100%;
+    min-height: 100%;
+    max-height: 100%
+}
+
+#register-log {
+    padding: 0.5em 1em;
+    text-align: right;
+	font-family: sans-serif;
+    
 }
 
 .finished-instruction {
