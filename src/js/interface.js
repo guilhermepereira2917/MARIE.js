@@ -1352,10 +1352,25 @@ window.addEventListener("load", function() {
     });
 
      $("#download").click( function(){
-        var text = programCodeMirror.getValue();
-        var filename = "code";
-        var blob = new Blob([text], {type: "text/plain;charset=utf-8"});
-        saveAs(blob, filename+".mas");
+       $('#dFileModal').modal('show');
+    });
+
+    $('#downloadbtn').click( function(){
+         var text = programCodeMirror.getValue();
+         var filename = $("#name").val();
+         var fileType = $('#downloadMode option:selected').val();
+
+         var extension = "";
+
+         if (fileType === "mas"){
+           extension = ".mas";
+         }
+         else if (fileType === "txt"){
+           extension = ".txt";
+         }
+
+         var blob = new Blob([text], {type: "text/plain;charset=utf-8"});
+         saveAs(blob, filename+extension);
     });
 
     $("#newfilebtn").click(function() {
