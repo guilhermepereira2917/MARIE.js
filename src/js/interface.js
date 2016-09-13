@@ -1362,7 +1362,7 @@ window.addEventListener("load", function() {
 
          var extension = "";
 
-         if(filename == "" || filename == null){
+         if(filename === "" || filename === null){
            filename = "code";
            console.warn("No File Name detected reverting to code+extension");
          }
