@@ -1518,9 +1518,10 @@ $(document).ready(function(){
     if(localStorage.getItem("tosAgreed") === null || localStorage.getItem("tosAgreed") === 0){
         $('#tosModal').modal('show');
     }
-});
 
-//enabling bootstrap-tooltip
-$(document).ready(function(){
     $('[data-toggle="tooltip"]').tooltip();
+
+    if(localStorage.getItem("tosAgreed") === null || localStorage.getItem("tosAgreed") === 0){
+        $('#tosModal').modal('show');
+    }
 });
