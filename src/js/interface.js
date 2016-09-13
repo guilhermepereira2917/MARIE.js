@@ -1362,15 +1362,23 @@ window.addEventListener("load", function() {
 
          var extension = "";
 
+         if(filename === "" || filename === null){
+           filename = "code";
+           console.warn("No File Name detected reverting to code+extension");
+         }
          if (fileType === "mas"){
            extension = ".mas";
+
          }
          else if (fileType === "txt"){
            extension = ".txt";
          }
+         var fullFileName = filename + extension;
+         console.log(fullFileName);
 
          var blob = new Blob([text], {type: "text/plain;charset=utf-8"});
-         saveAs(blob, filename+extension);
+         saveAs(blob, fullFileName);
+         $('#dFileModal').modal('hide');
     });
 
     $("#newfilebtn").click(function() {
@@ -1386,10 +1394,7 @@ window.addEventListener("load", function() {
     });
 
     $("#exportfile").click( function() {
-        var text = programCodeMirror.getValue();
-        var filename = "code";
-        var blob = new Blob([text], {type: "text/plain;charset=utf-8"});
-        saveAs(blob, filename+".mas");
+      $('#dFileModal').modal('show');
     });
 
     $("#fileInput").change(function() {
