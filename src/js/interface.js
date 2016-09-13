@@ -25,15 +25,37 @@ window.addEventListener('load', () => {
   const fileInput = document.getElementById('fileInput');
   const datapathEle = document.getElementById('datapath-diagram');
   const datapathInstructionElement = document.getElementById('datapath-display-instructions');
-  const currentInstructionRegisterLog = null;
-
-  let saveTimeout = null;
-  let modifiedFile = null;
-
+  let currentInstructionRegisterLog = null;
+  // types consts
   const HEX = 0;
   const DEC = 1;
   const UNICODE = 2;
   const BIN = 3;
+  // pref consts
+  let saveTimeout = null;
+  let modifiedFile = false;
+  let asm = null;
+  let sim = null;
+  let interval = null;
+  let lastErrorLine = null;
+  let lastCurrentLine = null;
+  let lastBreakPointLine = null;
+  let currentInstructionLine = null;
+  let breaking = false;
+  let microStepping = false;
+  let running = false;
+  let waiting = false;
+  let savedOutput = null;
+  let pausedOnInput = false;
+  let outputType = HEX;
+  let changedInputMode = true;
+  let changedOutputMode = true;
+  const datapath = new DataPath(datapathEle, datapathInstructionElement);
+  let outputList = [];
+  let viewingInstruction = false;
+  let selectedMemoryCell = null;
+  const queryString = window.location.search.substring(1); // returns first query string
+  let symbolCells = null;
 
   const defaultPrefs = {
     autocomplete: true,
@@ -47,6 +69,7 @@ window.addEventListener('load', () => {
   };
 
   let prefs = $.extend(defaultPrefs);
+  let delay = prefs.minDelay;
 
   function makeMarker() {
     const marker = document.createElement('div');
@@ -70,8 +93,9 @@ window.addEventListener('load', () => {
     window.localStorage.setItem('marie-program', programCodeMirror.getValue());
 
     const breakpoints = [];
-    const count = programCodeMirror.lineCount(), i;
-    for (i = 0; i < count; i++) {
+    const count = programCodeMirror.lineCount();
+    let i = count;
+    for (i = 0; i < count; i += 1) {
       const info = programCodeMirror.lineInfo(i);
       if (info.gutterMarkers) {
         breakpoints.push(i);
@@ -128,15 +152,47 @@ window.addEventListener('load', () => {
     location.reload(); // reloads
   }
 
+  function updatePrefs() {
+    rangeDelay.min = prefs.minDelay;
+    rangeDelay.max = prefs.maxDelay;
+
+    if (!prefs.autosave && saveTimeout) {
+      clearTimeout(saveTimeout);
+      saveTimeout = null;
+    }
+
+    updateRangeDelay();
+
+    if (prefs.defaultOutputMode === 'HEX') {
+      outputType = HEX;
+    } else if (prefs.defaultOutputMode === 'DEC') {
+      outputType = DEC;
+    } else if (prefs.defaultOutputMode === 'UNICODE') {
+      outputType = UNICODE;
+    } else if (prefs.defaultOutputMode === 'BIN') {
+      outputType = BIN;
+    }
+
+    if (changedInputMode) {
+      $('#input-type').val(prefs.defaultInputMode);
+      changedInputMode = false;
+    }
+
+    if (changedOutputMode) {
+      $('#output-select').val(prefs.defaultOutputMode);
+      changedOutputMode = false;
+    }
+  }
+
   function getPrefs() {
-    let autocomplete = localStorage.getItem('autocomplete');
-      autosave = localStorage.getItem('autosave');
-      minDelay = localStorage.getItem('min-delay');
-      maxDelay = localStorage.getItem('max-delay');
-      defaultInputMode = localStorage.getItem('defaultInputMode-value');
-      defaultOutputMode = localStorage.getItem('defaultOutputMode-value');
-      binaryStringGroupLength = localStorage.getItem('binaryStringGroup-Length');
-      minDatapathDelay = localStorage.getItem('min-datapath-delay');
+    const autocomplete = localStorage.getItem('autocomplete');
+    const autosave = localStorage.getItem('autosave');
+    const minDelay = localStorage.getItem('min-delay');
+    const maxDelay = localStorage.getItem('max-delay');
+    const defaultInputMode = localStorage.getItem('defaultInputMode-value');
+    const defaultOutputMode = localStorage.getItem('defaultOutputMode-value');
+    const binaryStringGroupLength = localStorage.getItem('binaryStringGroup-Length');
+    const minDatapathDelay = localStorage.getItem('min-datapath-delay');
 
     if (['false', 'true'].indexOf(autocomplete) >= 0) {
       prefs.autocomplete = autocomplete === 'true';
@@ -146,8 +202,8 @@ window.addEventListener('load', () => {
       prefs.autosave = autosave === 'true';
     }
 
-    if (!isNaN(parseInt(minDelay))) {
-      prefs.minDelay = parseInt(minDelay);
+    if (!isNaN(parseInt(minDelay, 10))) {
+      prefs.minDelay = parseInt(minDelay, 10);
     }
 
     if (defaultInputMode !== null) {
@@ -158,16 +214,16 @@ window.addEventListener('load', () => {
       prefs.defaultOutputMode = defaultOutputMode;
     }
 
-    if (!isNaN(parseInt(maxDelay))) {
-      prefs.maxDelay = parseInt(maxDelay);
+    if (!isNaN(parseInt(maxDelay, 10))) {
+      prefs.maxDelay = parseInt(maxDelay, 10);
     }
 
-    if (!isNaN(parseInt(binaryStringGroupLength))) {
-      prefs.binaryStringGroupLength = parseInt(binaryStringGroupLength);
+    if (!isNaN(parseInt(binaryStringGroupLength, 10))) {
+      prefs.binaryStringGroupLength = parseInt(binaryStringGroupLength, 10);
     }
 
-    if (!isNaN(parseInt(minDatapathDelay))) {
-      prefs.minDatapathDelay = parseInt(minDatapathDelay);
+    if (!isNaN(parseInt(minDatapathDelay, 10))) {
+      prefs.minDatapathDelay = parseInt(minDatapathDelay, 10);
     }
 
     updatePrefs();
@@ -185,67 +241,6 @@ window.addEventListener('load', () => {
 
     updatePrefs();
   }
-
-  function updatePrefs() {
-    rangeDelay.min = prefs.minDelay;
-    rangeDelay.max = prefs.maxDelay;
-
-    if (!prefs.autosave && saveTimeout) {
-      clearTimeout(saveTimeout);
-      saveTimeout = null;
-    }
-
-    updateRangeDelay();
-
-    if (prefs.defaultOutputMode == 'HEX') {
-      outputType = HEX;
-    }
-    else if (prefs.defaultOutputMode == 'DEC') {
-      outputType = DEC;
-    }
-    else if (prefs.defaultOutputMode == 'UNICODE') {
-      outputType = UNICODE;
-    }
-    else if (prefs.defaultOutputMode == 'BIN') {
-      outputType = BIN;
-    }
-
-    if (changedInputMode) {
-      $('#input-type').val(prefs.defaultInputMode);
-      changedInputMode = false;
-    }
-
-    if (changedOutputMode) {
-      $('#output-select').val(prefs.defaultOutputMode);
-      changedOutputMode = false;
-    }
-  }
-
-  let asm = null;
-  let sim = null;
-  let interval = null;
-  let lastErrorLine = null;
-  let lastCurrentLine = null;
-  let lastBreakPointLine = null;
-  let currentInstructionLine = null;
-  let breaking = false;
-  let delay = prefs.minDelay;
-  let microStepping = false;
-  let running = false;
-  let waiting = false;
-  let savedOutput = null;
-  let pausedOnInput = false;
-  let outputType = HEX;
-  let changedInputMode = true;
-  let changedOutputMode = true;
-  const datapath = new DataPath(datapathEle, datapathInstructionElement);
-  let outputList = [];
-  let saveTimeout = null;
-  let modifiedFile = false;
-  let viewingInstruction = false;
-  let selectedMemoryCell = null;
-  const queryString = window.location.search.substring(1); // returns first query string
-  let symbolCells = null;
 
   getPrefs();
 
@@ -279,12 +274,18 @@ window.addEventListener('load', () => {
       memoryHeaders.removeChild(memoryHeaders.firstChild);
     }
 
-        // Populate headers
-    let i, j, th, tr, cell, header;
+    // Populate headers
+    let i;
+    let j;
+    let th;
+    let tr;
+    let cell;
+    let header;
+
     const headers = document.createElement('tr');
     th = document.createElement('th');
     headers.appendChild(th);
-    for (i = 0; i < 16; i++) {
+    for (i = 0; i < 16; i += 1) {
       th = document.createElement('th');
       th.appendChild(document.createTextNode('+' + Utility.hex(i, 1)));
       headers.appendChild(th);
@@ -300,7 +301,7 @@ window.addEventListener('load', () => {
       header.appendChild(document.createTextNode(Utility.hex(i, 3)));
       tr.appendChild(header);
 
-      for (j = 0; j < 16; j++) {
+      for (j = 0; j < 16; j+=1) {
         cell = document.createElement('td');
         cell.id = 'cell' + (i + j);
         cell.className = 'cell';
@@ -330,7 +331,7 @@ window.addEventListener('load', () => {
 
     const parsedValue = parseInt(value, 16);
 
-    const cell = parseInt(ele.id.substr(cellString.length - ele.id.length));
+    const cell = parseInt(ele.id.substr(cellString.length - ele.id.length), 10);
 
     if (!isNaN(parsedValue)/* && sim*/) {
       ele.textContent = Utility.hex(parsedValue);
@@ -345,7 +346,7 @@ window.addEventListener('load', () => {
       sim.memory[cell].contents = parsedValue;
 
             // Delete original instruction if it exists
-      if (typeof sim.memory[cell].line != 'undefined') {
+      if (typeof sim.memory[cell].line !== 'undefined') {
         sim.memory[cell].line = undefined;
         sim.memory[cell].operator = undefined;
         sim.memory[cell].operand = undefined;
@@ -367,7 +368,7 @@ window.addEventListener('load', () => {
 
     if (e.target && e.target.classList.contains('cell')) {
       finishInputReplaceMemoryCell();
-      selectedMemoryCell = parseInt(e.target.id.substr(cellString.length - e.target.id.length));
+      selectedMemoryCell = parseInt(e.target.id.substr(cellString.length - e.target.id.length), 10);
 
       const input = document.createElement('input');
       input.type = 'text';
@@ -456,15 +457,16 @@ window.addEventListener('load', () => {
   }
 
   function resetRegisters() {
-    document.getElementById('ac').textContent = Utility.hex(sim.ac),
-    document.getElementById('ir').textContent = Utility.hex(sim.ir),
-    document.getElementById('mar').textContent = Utility.hex(sim.mar, 3),
-    document.getElementById('mbr').textContent = Utility.hex(sim.mbr),
-    document.getElementById('pc').textContent = Utility.hex(sim.pc, 3),
-    document.getElementById('in').textContent = Utility.hex(sim.in),
-    document.getElementById('out').textContent = Utility.hex(sim.out),
+    document.getElementById('ac').textContent = Utility.hex(sim.ac);
+    document.getElementById('ir').textContent = Utility.hex(sim.ir);
+    document.getElementById('mar').textContent = Utility.hex(sim.mar, 3);
+    document.getElementById('mbr').textContent = Utility.hex(sim.mbr);
+    document.getElementById('pc').textContent = Utility.hex(sim.pc, 3);
+    document.getElementById('in').textContent = Utility.hex(sim.in);
+    document.getElementById('out').textContent = Utility.hex(sim.out);
 
-    datapath.setAllRegisters([Utility.hex(sim.mar, 3), Utility.hex(sim.pc, 3), Utility.hex(sim.mbr), Utility.hex(sim.ac), Utility.hex(sim.in), Utility.hex(sim.out), Utility.hex(sim.ir)]);
+    datapath.setAllRegisters([Utility.hex(sim.mar, 3), Utility.hex(sim.pc, 3), Utility.hex(sim.mbr),
+      Utility.hex(sim.ac), Utility.hex(sim.in), Utility.hex(sim.out), Utility.hex(sim.ir)]);
 
     $('.current-pc').removeClass('current-pc');
     $('.current-mar').removeClass('current-mar');
@@ -480,7 +482,7 @@ window.addEventListener('load', () => {
     // Event delegation
   registerLog.addEventListener('mouseover', (e) => {
     if (e.target && e.target.classList.contains('instruction-register-log') && e.target.dataset.currentLine) {
-      const line = parseInt(e.target.dataset.currentLine);
+      const line = parseInt(e.target.dataset.currentLine, 10);
 
       if (!isNaN(line)) {
         if (currentInstructionLine !== undefined && currentInstructionLine !== null) {
@@ -496,7 +498,7 @@ window.addEventListener('load', () => {
 
   registerLog.addEventListener('mouseout', (e) => {
     if (e.target && e.target.classList.contains('instruction-register-log') && e.target.dataset.currentLine) {
-      const line = parseInt(e.target.dataset.currentLine);
+      const line = parseInt(e.target.dataset.currentLine, 10);
 
       if (!isNaN(line)) {
         programCodeMirror.removeLineClass(line, 'background', 'highlighted-line');
@@ -534,7 +536,7 @@ window.addEventListener('load', () => {
         // get the tab content (not the tab link)
     const tabContent = document.querySelector(e.target.getAttribute('href'));
         // get the stick to bottom attr
-    const shouldScrollToBottomRegisterLog = tabContent.getAttribute('data-stick-to-bottom') == 'true';
+    const shouldScrollToBottomRegisterLog = tabContent.getAttribute('data-stick-to-bottom') === 'true';
 
         // scroll to the bottom if it should
     if (shouldScrollToBottomRegisterLog) {
@@ -567,7 +569,7 @@ window.addEventListener('load', () => {
 
       const numOfLines = programCodeMirror.lineCount();
 
-      for (let i = 1; i <= numOfLines; i++) {
+      for (let i = 1; i <= numOfLines; i += 1) {
         programCodeMirror.removeLineClass(i, 'background', 'active-break-point');
         programCodeMirror.removeLineClass(i, 'background', 'next-instruction');
         programCodeMirror.removeLineClass(i, 'background', 'highlighted-line');
@@ -580,7 +582,7 @@ window.addEventListener('load', () => {
     let line = current ? current.line : null;
 
     if (line !== undefined && line !== null) {
-      line--; // compensate for zero based lines
+      line -= 1; // compensate for zero based lines
       programCodeMirror.addLineClass(line, 'background', 'next-instruction');
       lastCurrentLine = line;
       const info = programCodeMirror.lineInfo(line);
@@ -593,14 +595,16 @@ window.addEventListener('load', () => {
   }
 
   function updateCurrentInstructionLine() {
-    if (!viewingInstruction && currentInstructionLine !== undefined && currentInstructionLine !== null) {
+    if (!viewingInstruction && currentInstructionLine !== undefined
+      && currentInstructionLine !== null) {
       programCodeMirror.removeLineClass(currentInstructionLine - 1, 'background', 'highlighted-line');
     }
 
     const current = sim.current();
     currentInstructionLine = current ? current.line : null;
 
-    if (!viewingInstruction && currentInstructionLine !== undefined && currentInstructionLine !== null) {
+    if (!viewingInstruction && currentInstructionLine !== undefined
+      && currentInstructionLine !== null) {
       programCodeMirror.addLineClass(currentInstructionLine - 1, 'background', 'highlighted-line');
     }
   }
@@ -630,14 +634,15 @@ window.addEventListener('load', () => {
   });
 
   $('#input-value').keypress((e) => {
-    if (e.which == 13) {
+    if (e.which === 13) {
       $('#input-dialog').popoverX('hide');
     }
   });
 
   function finishInput(output) {
-    let type = $('#input-type').val();
-      value = $('#input-value').val().split(' ').join('');
+    const type = $('#input-type').val();
+    let value = $('#input-value').val().split(' ').join('');
+
     switch (type) {
       case ('HEX'):
         value = parseInt(value, 16);
@@ -660,8 +665,7 @@ window.addEventListener('load', () => {
         stopWaiting();
       });
       $('#input-dialog').popoverX('hide');
-    }
-    else {
+    } else {
       $('#input-error').show({
         step() {
           $('#input-dialog').popoverX('refreshPosition');
@@ -683,7 +687,7 @@ window.addEventListener('load', () => {
     $('#input-value').off('keypress');
 
     $('#input-value').on('keypress', (e) => {
-      if (e.which == 13) {
+      if (e.which === 13) {
         finishInput(output);
       }
     });
@@ -705,7 +709,7 @@ window.addEventListener('load', () => {
   }
 
   function outputFunc(value) {
-    const shouldScrollToBottomOutputLog = outputLog.getAttribute('data-stick-to-bottom') == 'true';
+    const shouldScrollToBottomOutputLog = outputLog.getAttribute('data-stick-to-bottom') === 'true';
 
     outputList.push(value);
 
@@ -738,13 +742,13 @@ window.addEventListener('load', () => {
     }
   }
 
-  function regLogFunc(message, alu_type, notAnRTL) {
+  function regLogFunc(message, aluType, notAnRTL) {
     if (!running || delay >= prefs.minDatapathDelay) {
       datapath.appendMicroInstruction(message);
-      datapath.setALUBus(alu_type);
+      datapath.setALUBus(aluType);
     }
 
-    const shouldScrollToBottomRegisterLog = registerLogOuter.getAttribute('data-stick-to-bottom') == 'true';
+    const shouldScrollToBottomRegisterLog = registerLog.getAttribute('data-stick-to-bottom') === 'true';
 
     if (notAnRTL) {
       currentInstructionRegisterLog.classList.add('finished-instruction');
@@ -756,7 +760,7 @@ window.addEventListener('load', () => {
     }
 
     if (shouldScrollToBottomRegisterLog) {
-      registerLogOuter.scrollTop = registerLogOuter.scrollHeight;
+      registerLog.scrollTop = registerLogOuter.scrollHeight;
     }
   }
 
@@ -786,8 +790,9 @@ window.addEventListener('load', () => {
   }
 
   function stop(pause) {
-    if (waiting)
+    if (waiting) {
       return;
+    }
 
     if (interval) {
       window.clearInterval(interval);
@@ -796,8 +801,7 @@ window.addEventListener('load', () => {
     if (pause) {
       stepButton.disabled = false;
       microStepButton.disabled = false;
-    }
-    else {
+    } else {
       runButton.disabled = true;
       stepButton.disabled = true;
       microStepButton.disabled = true;
@@ -805,11 +809,13 @@ window.addEventListener('load', () => {
   }
 
   function run() {
-    if (waiting)
+    if (waiting) {
       return;
+    }
 
-    if (interval)
+    if (interval) {
       window.clearInterval(interval);
+    }
 
             // Don't pass in setInterval callback arguments into runLoop function.
     interval = window.setInterval(() => {
@@ -824,6 +830,25 @@ window.addEventListener('load', () => {
     setStatus('Running...');
   }
 
+  function datapathWarning(showWarning) {
+    if ($('#datapath-status-bar').hasClass('alert-danger')) {
+      return;
+    }
+
+    if (showWarning) {
+      $('#datapath-status-bar').removeClass('alert-info').addClass('alert-warning').html('<strong> Note: </strong> Delay is set too low for datapath to update. Increase delay to at least ' + prefs.minDatapathDelay.toString() + ' ms, or set simulator to stepping mode.');
+      datapath.restart();
+    } else {
+      $('#datapath-status-bar').removeClass('alert-warning').addClass('alert-info').text(statusInfo.textContent);
+      if (sim) {
+        datapath.setAllRegisters([Utility.hex(sim.mar, 3), Utility.hex(sim.pc, 3),
+          Utility.hex(sim.mbr), Utility.hex(sim.ac), Utility.hex(sim.in),
+          Utility.hex(sim.out), Utility.hex(sim.ir)]);
+        datapath.showInstruction();
+      }
+    }
+  }
+
   function runLoop(micro) {
     microStepping = micro;
 
@@ -831,22 +856,21 @@ window.addEventListener('load', () => {
 
     try {
       if (micro) {
-        step = sim.microStep() == 'step';
-      }
-      else {
+        step = sim.microStep() === 'step';
+      } else {
         sim.step();
       }
+    } catch (e) {
+      // prevents catastrophic failure if an error occurs
+      // (whether it is MARIE or some other JavaScript error)
+      setStatus(e.toString(), true);
+
+      stepBackButton.disabled = true;
+
+      stop();
+      runButton.textContent = 'Halted';
+      throw e;
     }
-        catch (e) {
-            // prevents catastrophic failure if an error occurs (whether it is MARIE or some other JavaScript error)
-          setStatus(e.toString(), true);
-
-          stepBackButton.disabled = true;
-
-          stop();
-          runButton.textContent = 'Halted';
-          throw e;
-        }
 
     updateCurrentLine();
 
@@ -856,8 +880,7 @@ window.addEventListener('load', () => {
       stop();
       runButton.textContent = 'Halted';
       setStatus('Machine halted normally.');
-    }
-    else if (breaking) {
+    } else if (breaking) {
       stop(true);
       running = false;
 
@@ -870,26 +893,7 @@ window.addEventListener('load', () => {
     }
   }
 
-  function datapathWarning(showWarning) {
-    if ($('#datapath-status-bar').hasClass('alert-danger')) {
-      return;
-    }
 
-    if (showWarning) {
-      $('#datapath-status-bar').removeClass('alert-info').addClass('alert-warning').html('<strong>Note: </strong> Delay is set too low for datapath to update. Increase delay to at least ' + prefs.minDatapathDelay.toString() + ' ms, or set simulator to stepping mode.');
-      $('#datapath-display-instructions').css({ 'opacity': 0.5 });
-      $('#datapath-diagram').css({ 'opacity': 0.5 });
-      datapath.restart();
-    } else {
-      $('#datapath-status-bar').removeClass('alert-warning').addClass('alert-info').text(statusInfo.textContent);
-      $('#datapath-display-instructions').css({ 'opacity': 1 });
-      $('#datapath-diagram').css({ 'opacity': 1 });
-      if (sim) {
-        datapath.setAllRegisters([Utility.hex(sim.mar, 3), Utility.hex(sim.pc, 3), Utility.hex(sim.mbr), Utility.hex(sim.ac), Utility.hex(sim.in), Utility.hex(sim.out), Utility.hex(sim.ir)]);
-        datapath.showInstruction();
-      }
-    }
-  }
 
   assembleButton.addEventListener('click', () => {
     assembleButton.textContent = 'Assembling...';
@@ -999,13 +1003,13 @@ window.addEventListener('load', () => {
           datapath.setControlBus('memory', 'write');
           datapath.showDataBusAccess(true, running ? delay / 2 : 1000);
         }
-
-        const cell = document.getElementById('cell' + e.address);
+        const val = 'cell' + $(e.address);
+        const cell = document.getElementById(val);
         cell.textContent = Utility.hex(e.newCell.contents, false);
         cell.classList.add('memory-changed');
 
         for (const address in symbolCells) {
-          if (address == e.address) {
+          if (address === e.address) {
             symbolCells[address].textContent = Utility.hex(e.newCell.contents);
           }
         }
@@ -1083,7 +1087,7 @@ window.addEventListener('load', () => {
         case 'regread':
           datapath.setControlBus(action.register, 'read');
           datapath.showDataBusAccess(false, 1000);
-          datapath.setALUBus(action.alu_type);
+          datapath.setALUBus(action.aluType);
           break;
         case 'regwrite':
           var oldValue = sim[action.register],
