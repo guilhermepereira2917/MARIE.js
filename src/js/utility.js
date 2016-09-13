@@ -1,7 +1,9 @@
 /** @namespace */
-const Utility = {};
+var Utility = {};
 
-(function () {
+(function() {
+
+
     /**
      * Converts an unsigned integer into an array of
      * binary numbers.
@@ -11,26 +13,26 @@ const Utility = {};
      * @param {Number} padding - how many zeros to pad integer.
      * @returns {Array} the binary array representation of unsigned integer.
      */
-  Utility.uintToBinArray = function (num, padding) {
-    const binArray = [];
-    while (num > 0) {
-      binArray.push(num & 1);
-      num >>= 1;
-    }
+    Utility.uintToBinArray = function(num, padding) {
+        var binArray = [];
+        while(num > 0) {
+            binArray.push(num & 1);
+            num >>= 1;
+        }
 
-    if (typeof padding !== 'undefined') {
-      padding -= binArray.length;
+        if(typeof padding !== "undefined") {
+            padding -= binArray.length;
 
-      while (padding > 0) {
-        binArray.push(0);
-        padding -= 1;
-      }
-    }
+            while(padding > 0) {
+                binArray.push(0);
+                padding -= 1;
+            }
+        }
 
-    binArray.reverse();
+        binArray.reverse();
 
-    return binArray;
-  };
+        return binArray;
+    };
 
 
     /**
@@ -44,20 +46,20 @@ const Utility = {};
      * @param {Number} bitSize - The length of each bit group.
      * @returns {String} The binary array representation of unsigned integer.
      */
-  Utility.uintToBinGroup = function (num, padding, bitSize) {
-    const binArray = Utility.uintToBinArray(num, padding);
-    let binString = '';
+    Utility.uintToBinGroup = function(num, padding, bitSize) {
+        var binArray = Utility.uintToBinArray(num, padding);
+        var binString = "";
 
-    for (let i = 0; i < padding; i++) {
-      binString += binArray[i];
+        for (var i = 0; i < padding; i++) {
+            binString += binArray[i];
 
-      if (i % bitSize == bitSize - 1) {
-        binString += ' ';
-      }
-    }
+            if(i % bitSize == bitSize - 1){
+                binString += " ";
+            }
+        }
 
-    return binString;
-  };
+        return binString;
+    };
 
 
     /**
@@ -69,18 +71,18 @@ const Utility = {};
      * @return {Number}      The unsigned integer representation of signed
      * integer.
      */
-  Utility.intToUint = function (int, nbit) {
-    const u = new Uint32Array(1);
-    nbit = +nbit || 16;
-    if (nbit > 32) throw new RangeError('intToUint only supports ints up to 32 bits');
-    u[0] = int;
-    if (nbit < 32) { // don't accidentally sign again
-      int = Math.pow(2, nbit) - 1;
-      return u[0] & int;
-    } else {
-      return u[0];
-    }
-  };
+    Utility.intToUint = function(int, nbit) {
+        var u = new Uint32Array(1);
+        nbit = +nbit || 16;
+        if (nbit > 32) throw new RangeError('intToUint only supports ints up to 32 bits');
+        u[0] = int;
+        if (nbit < 32) { // don't accidentally sign again
+            int = Math.pow(2, nbit) - 1;
+            return u[0] & int;
+        } else {
+            return u[0];
+        }
+    };
 
 
     /**
@@ -92,13 +94,13 @@ const Utility = {};
      * @return {Number}      The signed integer representation of unsigned
      * integer.
      */
-  Utility.uintToInt = function (uint, nbit) {
-    nbit = +nbit || 16;
-    if (nbit > 32) throw new RangeError('uintToInt only supports ints up to 32 bits');
-    uint <<= 32 - nbit;
-    uint >>= 32 - nbit;
-    return uint;
-  };
+    Utility.uintToInt = function(uint, nbit) {
+        nbit = +nbit || 16;
+        if (nbit > 32) throw new RangeError('uintToInt only supports ints up to 32 bits');
+        uint <<= 32 - nbit;
+        uint >>= 32 - nbit;
+        return uint;
+    };
 
 
     /**
@@ -110,19 +112,19 @@ const Utility = {};
      * (used for padding and truncating)
      * @return {String} The hexadecimal representation.
      */
-  Utility.hex = function (num, digits) {
-    digits = digits || 4;
-    let s = (num >>> 0).toString(16).toUpperCase();
-    let padleft = digits - s.length;
-    if (padleft < 0) {
-      padleft = 0;
-      s = s.substr(s.length - digits, digits);
-    }
+    Utility.hex = function(num, digits) {
+        digits = digits || 4;
+        var s = (num >>> 0).toString(16).toUpperCase();
+        var padleft = digits - s.length;
+        if(padleft < 0) {
+            padleft = 0;
+            s = s.substr(s.length - digits, digits);
+        }
 
-    s = new Array(padleft + 1).join('0') + s;
+        s = new Array(padleft + 1).join("0") + s;
 
-    return s;
-  };
+        return s;
+    };
 
 
     /**
@@ -134,46 +136,46 @@ const Utility = {};
      * there?
      * @return {String} The bracket notation of mask.
      */
-  Utility.maskToBracketNotation = function (mask, digits) {
-    digits = digits || 4;
-    let start, end, counter = 0, list = [], range = false;
+    Utility.maskToBracketNotation = function(mask, digits) {
+        digits = digits || 4;
+        var start, end, counter = 0, list = [], range=false;
 
-    while (4 * digits !== counter) {
-      if (mask & 1) {
-        if (!range) {
-          range = true;
-          start = counter;
+        while(4 * digits !== counter) {
+            if(mask & 1) {
+                if(!range) {
+                    range = true;
+                    start = counter;
+                }
+            } else {
+                if(range) {
+                    range = false;
+                    end = counter - 1;
+
+                    if(start !== end) {
+                        list.push([end, "-", start].join(''));
+                    } else {
+                        list.push(start);
+                    }
+                }
+            }
+
+            mask >>= 1;
+            counter ++;
         }
-      } else {
-        if (range) {
-          range = false;
-          end = counter - 1;
 
-          if (start !== end) {
-            list.push([end, '-', start].join(''));
-          } else {
-            list.push(start);
-          }
+        if(range) {
+            range = false;
+            end = counter - 1;
+
+            if(start !== end) {
+                list.push([end, "-", start].join(''));
+            } else {
+                list.push(start);
+            }
         }
-      }
 
-      mask >>= 1;
-      counter++;
-    }
+        list.reverse();
 
-    if (range) {
-      range = false;
-      end = counter - 1;
-
-      if (start !== end) {
-        list.push([end, '-', start].join(''));
-      } else {
-        list.push(start);
-      }
-    }
-
-    list.reverse();
-
-    return '[' + list.join(', ') + ']';
-  };
+        return "[" + list.join(", ") + "]";
+    };
 }());
