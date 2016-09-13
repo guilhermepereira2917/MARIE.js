@@ -194,7 +194,7 @@ var MarieSim,
     MarieSim.prototype.regSet = function(target, source, mask, alu_type) {
         var oldValue;
 
-        
+
         if (source == "m") {
             if (this.onRegLog) {
                 this.onRegLog([
@@ -219,7 +219,7 @@ var MarieSim,
                 address: this.mar
             });
 
-        
+
 
             if (this.onRegWrite) {
                 this.onRegWrite.call(this, {
@@ -386,9 +386,9 @@ var MarieSim,
                     source.toString(16).toUpperCase()
                 ].join(" "), alu_type);
             }
-            
+
             this[target] += typeof source == "string" ? this[source] : source;
-                    
+
         }
 
         if(target == "pc") {
@@ -820,7 +820,7 @@ var MarieSim,
 
         this.lineNumber = lineNumber;
         this.toString = function() {
-            return [name, " on line ", lineNumber, ". ", message].join("");
+            return [name, ":L", lineNumber, " - ", message].join("");
         };
     };
 
@@ -875,7 +875,7 @@ var MarieSim,
             if (originationDirective) {
                 if (parsed.length !== 0) {
                     throw new MarieAsmError(
-                        "Syntax error",
+                        "SyntaxError",
                         (i + 1),
                         "Unexpected origination directive."
                     );
@@ -890,9 +890,9 @@ var MarieSim,
             var matches = line.match(/^(?:([^,\/]+),)?\s*([^\s,]+?)(?:\s+([^\s,]+?))?\s*(?:\/.*)?$/);
 
             if (!matches) {
-                // Syntax error
+                // SyntaxError
                 throw new MarieAsmError(
-                    "Syntax error",
+                    "SyntaxError",
                     (i + 1),
                     "Incorrect form."
                 );
@@ -906,7 +906,7 @@ var MarieSim,
             if (label) {
                 if (label.match(/^\d.*$/))
                     throw new MarieAsmError(
-                        "Syntax error",
+                        "SyntaxError",
                         (i + 1),
                         "Labels cannot start with a number."
                     );
@@ -914,7 +914,7 @@ var MarieSim,
                     var entry = parsed.filter(checkLabel.bind(null, label));
 
                     throw new MarieAsmError(
-                        "Label error",
+                        "LabelError",
                         (i + 1),
                         [
                             "Labels must be unique. The label '",
@@ -961,7 +961,7 @@ var MarieSim,
             if (directiveBase) {
                 if (instruction.operand === undefined) {
                     throw new MarieAsmError(
-                        "Syntax error",
+                        "SyntaxError",
                         instruction.line,
                         "Expected operand."
                     );
@@ -969,7 +969,7 @@ var MarieSim,
                 var constant = parseInt(instruction.operand, directiveBase);
                 if (isNaN(constant)) {
                     throw new MarieAsmError(
-                        "Syntax error",
+                        "SyntaxError",
                         instruction.line,
                         "Failed to parse operand."
                     );
@@ -987,7 +987,7 @@ var MarieSim,
 
                 if (constant > 0x8000 || constant < -0x8000) {
                     throw new MarieAsmError(
-                        "Syntax error",
+                        "SyntaxError",
                         instruction.line,
                         "Literal out of bounds."
                     );
@@ -1001,7 +1001,7 @@ var MarieSim,
 
             if (!operator) {
                 throw new MarieAsmError(
-                    "Syntax error",
+                    "SyntaxError",
                     instruction.line,
                     ["Unknown operator ", instruction.operator, "."].join("")
                 );
@@ -1010,7 +1010,7 @@ var MarieSim,
             var needsOperand = operator.operand;
             if (needsOperand && !operand) {
                 throw new MarieAsmError(
-                    "Syntax error",
+                    "SyntaxError",
                     instruction.line,
                     "Expected operand."
                 );
@@ -1019,7 +1019,7 @@ var MarieSim,
             if (operand) {
                 if (!needsOperand) {
                     throw new MarieAsmError(
-                        "Syntax error",
+                        "SyntaxError",
                         instruction.line,
                         ["Unexpected operand ", instruction.operand, "."].join("")
                     );
@@ -1031,7 +1031,7 @@ var MarieSim,
 
                     if (operand > 0x0FFF) {
                         throw new MarieAsmError(
-                            "Syntax error",
+                            "SyntaxError",
                             instruction.line,
                             ["Address ", instruction.operand, " out of bounds."].join("")
                         );
@@ -1041,7 +1041,7 @@ var MarieSim,
                     // This must be a label
                     if (!(operand in symbols)) {
                         throw new MarieAsmError(
-                            "Syntax error",
+                            "SyntaxError",
                             instruction.line,
                             ["Unknown label ", instruction.operand, "."].join("")
                         );
