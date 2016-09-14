@@ -39,6 +39,7 @@ window.addEventListener("load", function() {
         binaryStringGroupLength: 4,
         defaultInputMode: 'HEX',
         defaultOutputMode: 'HEX',
+        defaultTheme: 'light',
         minDatapathDelay: 1000,
     };
 
@@ -62,6 +63,7 @@ window.addEventListener("load", function() {
             defaultInputMode = localStorage.getItem("defaultInputMode-value"),
             defaultOutputMode = localStorage.getItem("defaultOutputMode-value"),
             binaryStringGroupLength = localStorage.getItem("binaryStringGroup-Length"),
+            defaultTheme = localStorage.getItem('theme'),
             minDatapathDelay = localStorage.getItem("min-datapath-delay");
 
         if(["false", "true"].indexOf(autocomplete) >= 0) {
@@ -78,6 +80,10 @@ window.addEventListener("load", function() {
 
         if(defaultInputMode !== null) {
             prefs.defaultInputMode = defaultInputMode;
+        }
+
+        if(defaultTheme !== null) {
+            prefs.defaultTheme = defaultTheme;
         }
 
         if(defaultOutputMode !== null) {
@@ -108,7 +114,7 @@ window.addEventListener("load", function() {
         localStorage.setItem("binaryStringGroup-Length", prefs.binaryStringGroupLength);
         localStorage.setItem("defaultInputMode-value", prefs.defaultInputMode);
         localStorage.setItem("defaultOutputMode-value", prefs.defaultOutputMode);
-
+        localStorage.setItem("theme",prefs.defaultTheme);
         updatePrefs();
     }
 
@@ -136,6 +142,11 @@ window.addEventListener("load", function() {
             outputType = BIN;
         }
 
+        if(prefs.defaultTheme == "lighttheme") {
+          theme = 'light';
+        } else if(prefs.defaultTheme == 'darktheme'){
+          theme = 'dark';
+        }
         if(changedInputMode) {
             $('#input-type').val(prefs.defaultInputMode);
             changedInputMode = false;
@@ -144,6 +155,11 @@ window.addEventListener("load", function() {
         if(changedOutputMode) {
             $("#output-select").val(prefs.defaultOutputMode);
             changedOutputMode = false;
+        }
+
+        if(changedTheme) {
+          $('#themeSelect').val(prefs.defaultTheme);
+          changedTheme = false;
         }
     }
 
@@ -164,6 +180,7 @@ window.addEventListener("load", function() {
         outputType = HEX,
         changedInputMode = true,
         changedOutputMode = true,
+        changedTheme = true,
         datapath = new DataPath(datapathEle, datapathInstructionElement),
         outputList = [],
         saveTimeout = null,
@@ -1273,6 +1290,7 @@ window.addEventListener("load", function() {
     $("#prefs").click(function() {
         changedInputMode = false;
         changedOutputMode = false;
+        changedTheme = false;
 
         $("#save-changes").prop("disabled", true);
         $("#prefs-invalid-input-error").hide();
@@ -1285,6 +1303,7 @@ window.addEventListener("load", function() {
         $("#bstringLength").val(prefs.binaryStringGroupLength);
         $("#defaultInputModeSelect").val(prefs.defaultInputMode);
         $("#defaultOutputModeSelect").val(prefs.defaultOutputMode);
+        $('#themeSelect').val(prefs.defaultTheme);
         $("#prefs-modal").modal("show");
     });
 
@@ -1300,7 +1319,7 @@ window.addEventListener("load", function() {
         $("#save-changes").prop("disabled", false);
     });
 
-    $("#bstringLength, #defaultOutputModeSelect, #defaultInputModeSelect").change(function(e) {
+    $("#bstringLength, #defaultOutputModeSelect, #defaultInputModeSelect, #themeSelect").change(function(e) {
         $("#save-changes").prop("disabled", false);
 
         var target = $(e.target);
@@ -1321,6 +1340,7 @@ window.addEventListener("load", function() {
         var stringLength = parseInt($("#bstringLength").val());
         var defaultInputMode = $("#defaultInputModeSelect").val();
         var defaultOutputMode = $("#defaultOutputModeSelect").val();
+        var defaultTheme = $('#themeSelect').val();
         if(isNaN(minDelay) || isNaN(maxDelay) || minDelay >= maxDelay || minDelay < 0 || maxDelay < 0) {
             $("#prefs-invalid-input-error").show();
             return;
@@ -1341,6 +1361,7 @@ window.addEventListener("load", function() {
         prefs.binaryStringGroupLength = stringLength;
         prefs.defaultInputMode = defaultInputMode;
         prefs.defaultOutputMode = defaultOutputMode;
+        prefs.defaultTheme = defaultTheme;
         setPrefs();
 
         $("#prefs-modal").modal("hide");
