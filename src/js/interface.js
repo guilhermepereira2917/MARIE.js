@@ -147,6 +147,7 @@ window.addEventListener("load", function() {
         } else if(prefs.defaultTheme == 'darktheme'){
           theme = 'dark';
         }
+
         if(changedInputMode) {
             $('#input-type').val(prefs.defaultInputMode);
             changedInputMode = false;
@@ -180,6 +181,7 @@ window.addEventListener("load", function() {
         outputType = HEX,
         changedInputMode = true,
         changedOutputMode = true,
+        theme = 'light',
         changedTheme = true,
         datapath = new DataPath(datapathEle, datapathInstructionElement),
         outputList = [],

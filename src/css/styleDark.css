@@ -1,6 +1,14 @@
 body {
   background-color: #404040;
+  color: black;
+}
+
+.container {
   color: white;
+}
+
+..dropdown-menu > li > a {
+  color: black
 }
 
 button {
@@ -48,9 +56,8 @@ button[disabled=disabled], button:disabled {
   color: black;
 }
 
-
 .nav > li > a:hover, .nav > li > a:focus {
-  background-color: #c8c8c8;
+  background-color: #404040;
 }
 
 
