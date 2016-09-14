@@ -3,13 +3,11 @@ body {
   color: black;
 }
 
+
 .container {
   color: white;
 }
 
-..dropdown-menu > li > a {
-  color: black
-}
 
 button {
     background-color: #008a00;
@@ -48,19 +46,21 @@ button[disabled=disabled], button:disabled {
     padding: 10px 10px 10px 10px;
 }
 
-#top-menu .nav a {
+#top-menu .nav > a {
   color: white;
 }
 
-.nav a {
-  color: black;
-}
-
-.nav > li > a:hover, .nav > li > a:focus {
+.nav > li > a:hover, .nav > li > a:focus, .nav > li a:focus,.nav .open > a, .nav .open > a:hover, .nav .open > a:focus, .dropdown-menu > li > a > ul > li > a {
   background-color: #404040;
 }
 
+.nav li a, a:hover {
+  color:white;
+}
 
+#modal-dialog {
+  color: black
+}
 .output-type {
     width:100px;
     text-align: right;
@@ -96,4 +96,9 @@ button[disabled=disabled], button:disabled {
     height: 100%;
     min-height: 100%;
     max-height: 100%
+}
+
+
+.dropdown-menu > li > a {
+  color: black;
 }
