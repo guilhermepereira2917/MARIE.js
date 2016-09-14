@@ -374,7 +374,7 @@ NAVBAR TEST CODE
 }
 #custom-bootstrap-menu.navbar-default {
     font-size: 14px;
-    background-color: rgba(46, 46, 46, 1);
+    background-color: #d3d3d3;
     border-width: 1px;
     border-radius: 4px;
     cursor: default;
@@ -431,22 +431,22 @@ NAVBAR TEST CODE
     border-bottom-right-radius: 2px;
 }
 button {
-    background-color: #fff;
-    border: #fff;
-    color: #008a00;
+    background-color: #008a00;
+    border: #008a00;
+    color: #fff;
     height: 2.5em;
     padding: 10 auto 10 auto;
 }
 button:hover {
-    background-color: #fff;
-    border: #fff;
-    color: #0AC92B;
+    background-color: #007100;
+    border: #007100;
+    color: #fff;
     height: 2.5em;
 }
 button[disabled=disabled], button:disabled {
-    background-color: #fff;
-    border: #fff;
-    color: #545454;
+    background-color: #c8c8c8;
+    border: #c8c8c8;
+        color: #fff;
     height: 2.5em;
 }
 
@@ -480,6 +480,7 @@ codeblock {
 }
 
 @media screen and (max-width: 767px) {
+
     .container {
         margin-top: 240px;
     }
@@ -527,21 +528,24 @@ codeblock {
   font-size: 14px;
   border-width: 1px;
   border-radius: 4px;
-  background-color: #fff;
+  background-color: #eee;
   color: black;
-  border-color: #008a00;
 }
 
 #top-menu:a {
   color: black;
 }
+
+.nav > li > a:hover, .nav > li > a:focus {
+  background-color: #c8c8c8;
+}
+
 #bottom-menu{
     font-size: 14px;
     border-width: 1px;
     border-radius: 4px;
-    background-color: #fff;
+    background-color: #eee;
     color: black;
-    border-color: #008a00;
     padding: 10px 10px 10px 10px;
 }
 
