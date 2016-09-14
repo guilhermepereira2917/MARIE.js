@@ -180,6 +180,7 @@ window.addEventListener("load", function() {
         outputType = HEX,
         changedInputMode = true,
         changedOutputMode = true,
+        theme = 'light',
         changedTheme = true,
         datapath = new DataPath(datapathEle, datapathInstructionElement),
         outputList = [],
