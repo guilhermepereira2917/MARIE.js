@@ -147,6 +147,7 @@ window.addEventListener("load", function() {
         } else if(prefs.defaultTheme == 'darktheme'){
           theme = 'dark';
         }
+
         if(changedInputMode) {
             $('#input-type').val(prefs.defaultInputMode);
             changedInputMode = false;
@@ -1545,5 +1546,11 @@ $(document).ready(function(){
 
     if(localStorage.getItem("tosAgreed") === null || localStorage.getItem("tosAgreed") === 0){
         $('#tosModal').modal('show');
+    }
+
+    if(localStorage.getItem('theme')=='lighttheme'){
+      $('#mode').attr('href','/css/styleLight.css');
+    } else if (localStorage.getItem('theme') == 'darktheme') {
+      $('#mode').attr('href','/css/styleDark.css');
     }
 });
