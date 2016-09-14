@@ -165,88 +165,109 @@
                         <span class="glyphicon glyphicon-alert"></span> <strong>Invalid input</strong> Please try again.
                     </div>
                     <div class="modal-body">
-                        <table class="pref-table">
-                            <tr>
-                                <td><h4>User Interface Settings</h4></td>
-                                <td></td>
-                            </tr>
-                            <tr>
-                                <td>Theme:</td>
-                                <td class="prefs-row">
-                                    <select id="uitheme" style="width: 50%;text-align: right" disabled>
-                                        <option value="lighttheme">Light</option>
-                                        <option value="darktheme">Dark (Night)</option>
-                                    </select>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td><h4>Auto Settings</h4></td>
-                                <td></td>
-                            </tr>
-                            <tr>
-                                <td><label for="autocomplete">Autocomplete: </label></td>
-                                <td class="prefs-row"><input type="checkbox" id="autocomplete" /></td>
-                            </tr>
-                            <tr>
-                                <td><label for="autosave">Autosave: </label></td>
-                                <td class="prefs-row"><input type="checkbox" id="autosave" /></td>
-                            </tr>
-                            <tr>
-                                <td><h4>Delay Setings</h4></td>
-                                <td></td>
-                            </tr>
-                            <tr>
-                                <td><label for="min-delay">Minimum delay (ms):</label></td>
-                                <td class="prefs-row"><input type="text" class="form-control" id="min-delay" style="text-align: right;"/></td>
-                            </tr>
-                            <tr>
-                                <td><label for="max-delay">Maximum delay (ms):</label></td>
-                                <td class="prefs-row"><input type="text" class="form-control" id="max-delay" style="text-align: right;"/></td>
-                            </tr>
-                            <tr>
-                                <td><label for="min-datapath-delay">Minimum datapath delay (ms):</label></td>
-                                <td class="prefs-row"><input type="text" id="min-datapath-delay" class="form-control" style="text-align: right;"/></td>
-                            </tr>
-                            <tr>
-                                <td><h4>Input/Output Settings</h4></td>
-                                <td></td>
-                            </tr>
-                            <tr>
-                                <td>Binary String Group Length</td>
-                                <td class="prefs-row">
-                                    <select id="bstringLength" style="width: 50%;text-align: right">
-                                        <option value="0">0</option>
-                                        <option value="1">1</option>
-                                        <option value="2">2</option>
-                                        <option value="4">4</option>
-                                        <option value="8">8</option>
-                                    </select>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Default Input Mode:</td>
-                                <td class="prefs-row">
-                                    <select id="defaultInputModeSelect" style="width: 50%;text-align: right">
-                                        <option value="HEX">HEX</option>
-                                        <option value="DEC">DEC</option>
-                                        <option value="UNICODE">UNICODE</option>
-                                        <option value="BIN">BINARY</option>
-                                    </select>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Default Output Mode:</td>
-                                <td class="prefs-row">
-                                    <select id="defaultOutputModeSelect" style="width: 50%;text-align: right">
-                                        <option value="HEX">HEX</option>
-                                        <option value="DEC">DEC</option>
-                                        <option value="UNICODE">UNICODE</option>
-                                        <option value="BIN">BINARY</option>
-                                    </select>
-                                </td>
-                            </tr>
-                        </table>
-                    </div>
+                      <div class="container" style="margin-top: 0px">
+                        <!-- Nav tabs -->
+                        <ul class="nav nav-tabs" role="tablist">
+                          <li role="presentation" class="active"><a href="#uinterface" aria-controls="uinterface" role="tab" data-toggle="tab">User Interface</a></li>
+                          <li role="presentation"><a href="#simdelay" aria-controls="simdelay" role="tab" data-toggle="tab">Simulator Delays</a></li>
+                          <li role="presentation"><a href="#iocontrol" aria-controls="iocontrol" role="tab" data-toggle="tab">Input/Output</a></li>
+                        </ul>
+                        <!-- Tab panes -->
+                        <div class="tab-content">
+                          <div role="tabpanel" class="tab-pane active" id="uinterface">
+                                <table class="pref-table">
+                                    <tr>
+                                        <td><h4>User Interface Settings</h4></td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Theme:</td>
+                                        <td class="prefs-row">
+                                            <select id="uitheme" style="width: 50%;text-align: right" disabled>
+                                                <option value="lighttheme">Light</option>
+                                                <option value="darktheme">Dark (Night)</option>
+                                            </select>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td><h4>Auto Settings</h4></td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td><label for="autocomplete">Autocomplete: </label></td>
+                                        <td class="prefs-row"><input type="checkbox" id="autocomplete" /></td>
+                                    </tr>
+                                    <tr>
+                                        <td><label for="autosave">Autosave: </label></td>
+                                        <td class="prefs-row"><input type="checkbox" id="autosave" /></td>
+                                    </tr>
+                                </table>
+                          </div>
+                          <div role="tabpanel" class="tab-pane" id="simdelay">
+                              <table>
+                                <tr>
+                                    <td><h4>Delay Setings</h4></td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td><label for="min-delay">Minimum delay (ms):</label></td>
+                                    <td class="prefs-row"><input type="text" class="form-control" id="min-delay" style="text-align: right;"/></td>
+                                </tr>
+                                <tr>
+                                    <td><label for="max-delay">Maximum delay (ms):</label></td>
+                                    <td class="prefs-row"><input type="text" class="form-control" id="max-delay" style="text-align: right;"/></td>
+                                </tr>
+                                <tr>
+                                    <td><label for="min-datapath-delay">Minimum datapath delay (ms):</label></td>
+                                    <td class="prefs-row"><input type="text" id="min-datapath-delay" class="form-control" style="text-align: right;"/></td>
+                                </tr>
+                              </table>
+                          </div>
+                          <div role="tabpanel" class="tab-pane" id="iocontrol" style="border-color: black; border: 1px">
+                              <table>
+                                <tr>
+                                    <td><h4>Input/Output Settings</h4></td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td>Binary String Group Length</td>
+                                    <td class="prefs-row">
+                                        <select id="bstringLength" style="width: 50%;text-align: right">
+                                            <option value="0">0</option>
+                                            <option value="1">1</option>
+                                            <option value="2">2</option>
+                                            <option value="4">4</option>
+                                            <option value="8">8</option>
+                                        </select>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Default Input Mode:</td>
+                                    <td class="prefs-row">
+                                        <select id="defaultInputModeSelect" style="width: 50%;text-align: right">
+                                            <option value="HEX">HEX</option>
+                                            <option value="DEC">DEC</option>
+                                            <option value="UNICODE">UNICODE</option>
+                                            <option value="BIN">BINARY</option>
+                                        </select>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Default Output Mode:</td>
+                                    <td class="prefs-row">
+                                        <select id="defaultOutputModeSelect" style="width: 50%;text-align: right">
+                                            <option value="HEX">HEX</option>
+                                            <option value="DEC">DEC</option>
+                                            <option value="UNICODE">UNICODE</option>
+                                            <option value="BIN">BINARY</option>
+                                        </select>
+                                    </td>
+                                </tr>
+                              </table>
+                            </div>
+                          </div>
+                        </div>
+                  </div>
                     <div class="modal-footer">
                         <button id="save-changes" type="button" class="btn" disabled>Save changes</button>
                         <button id="cancel-changes" type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
