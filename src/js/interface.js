@@ -208,6 +208,12 @@ window.addEventListener("load", function() {
         gutters: ["CodeMirror-linenumbers", "breakpoints"]
     });
 
+    console.log(theme);
+
+    if(theme === "dark") {
+        programCodeMirror.setOption('theme', 'dracula');
+    }
+
     programCodeMirror.on("gutterClick", function(cm, n) {
         var info = cm.lineInfo(n);
         cm.setGutterMarker(n, "breakpoints", info.gutterMarkers ? null : makeMarker());
