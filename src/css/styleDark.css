@@ -131,3 +131,7 @@ button[disabled=disabled], button:disabled {
 #memory-headers th, #memory th{
   color: white;
 }
+
+#assemblyCodeLabel {
+  color: white;
+}
