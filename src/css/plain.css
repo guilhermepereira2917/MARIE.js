@@ -28,6 +28,10 @@ html, body {
     text-align: left;
 }
 
+hr {
+    margin: 0;
+}
+
 #file {
     width: 80%;
     margin: 10px auto;
@@ -41,6 +45,10 @@ html, body {
 
 #flex > * {
     height: 400px;
+}
+
+textarea {
+    background: transparent;
 }
 
 #program-container {
@@ -221,6 +229,10 @@ footer {
 
 .breakpoints {
     width: 0.8em;
+}
+
+#status-info-container {
+    margin: 0;
 }
 
 #status-info {
