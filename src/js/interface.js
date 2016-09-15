@@ -39,7 +39,7 @@ window.addEventListener("load", function() {
         binaryStringGroupLength: 4,
         defaultInputMode: 'HEX',
         defaultOutputMode: 'HEX',
-        defaultTheme: 'light',
+        defaultTheme: 'lighttheme',
         minDatapathDelay: 1000,
     };
 
