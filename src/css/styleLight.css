@@ -550,3 +550,7 @@ codeblock {
 .pref-table{
     width: 100%;
 }
+
+#assemblyCodeLabel {
+  color:black;
+}
