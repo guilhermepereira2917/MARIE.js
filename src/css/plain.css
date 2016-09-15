@@ -477,3 +477,9 @@ codeblock {
 .pref-table{
     width: 100%;
 }
+
+.row {
+  margin-left: 0px;
+  margin-right 0px;
+  margin-top: 5px;
+}
