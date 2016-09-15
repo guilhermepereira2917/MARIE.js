@@ -115,7 +115,6 @@ window.addEventListener("load", function() {
         localStorage.setItem("defaultInputMode-value", prefs.defaultInputMode);
         localStorage.setItem("defaultOutputMode-value", prefs.defaultOutputMode);
         localStorage.setItem("theme",prefs.defaultTheme);
-        updatePrefs();
     }
 
     function updatePrefs() {
@@ -1367,6 +1366,7 @@ window.addEventListener("load", function() {
         setPrefs();
 
         $("#prefs-modal").modal("hide");
+        location.reload();
     });
 
     $("#set-to-defaults").click(function() {
