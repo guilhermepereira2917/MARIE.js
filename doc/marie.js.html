@@ -222,7 +222,7 @@ var MarieSim,
     MarieSim.prototype.regSet = function(target, source, mask, alu_type) {
         var oldValue;
 
-        
+
         if (source == "m") {
             if (this.onRegLog) {
                 this.onRegLog([
@@ -247,7 +247,7 @@ var MarieSim,
                 address: this.mar
             });
 
-        
+
 
             if (this.onRegWrite) {
                 this.onRegWrite.call(this, {
@@ -307,6 +307,12 @@ var MarieSim,
             });
         }
         else {
+            if(target == "pc") {
+                if(this[target] >= 4096 || this[target] &lt; 0) {
+                    throw new MarieSimError("RuntimeError","the address " + this[target].toString() + " is out of bounds");
+                }
+            }
+
             if (this.onRegLog) {
                 if (mask === undefined) {
                     this.onRegLog([
@@ -329,11 +335,13 @@ var MarieSim,
 
             oldValue = this[target];
 
+
+
             this[target] = Utility.uintToInt(src &amp; msk);
 
             if(target == "pc") {
-                if(0 &lt;= this[target] &amp;&amp; this[target] >= 4096) {
-                    throw new MarieSimError("RuntimeError", "The address " + (this[target]).toString() + " is out of bounds.");
+                if(this[target] >= 4096 || this[target] &lt; 0) {
+                    throw new MarieSimError("RuntimeError","the address " + this[target].toString() + " is out of bounds");
                 }
             }
 
@@ -409,12 +417,20 @@ var MarieSim,
 
             this[target] += typeof source == "string" ? this[source] : source;
 
-            if(target == "pc") {
-                if(0 &lt;= this[target] &amp;&amp; this[target] >= 4096) {
-                    throw new MarieSimError("RuntimeError", "The address " + (this[target]).toString() + " is out of bounds.");
-                }
+        }
+
+        if(target == "pc") {
+            if(this[target] >= 4096 || this[target] &lt; 0) {
+                throw new MarieSimError("RuntimeError","the address " + this[target].toString() + " is out of bounds");
             }
         }
+
+
+        //this fixes the bug, where the user tries to go beyond HEX-FFFF
+        if(this[target] > 32767 || this[target] &lt; -32768){
+            throw new MarieSimError("OverFlow Error","the value " + this[target].toString() + "  is beyond the calculable range");
+        }
+
 
         if(typeof source == "string") {
             if (this.onRegRead) {
@@ -491,14 +507,19 @@ var MarieSim,
      * @memberof MarieSim
      */
     MarieSim.prototype.step = function() {
-        var microstep;
-        while (!this.halted &amp;&amp; microstep != "paused" &amp;&amp; microstep != "step") {
-            microstep = this.microStep(true);
-        }
+        try{
+            var microstep;
+            while (!this.halted &amp;&amp; microstep != "paused" &amp;&amp; microstep != "step") {
+                microstep = this.microStep(true);
+            }
 
-        this.stateHistory.push({
-            type: "step"
-        });
+            this.stateHistory.push({
+                type: "step"
+            });
+        }
+        catch(ex){
+            throw new MarieSimError(ex);
+        }
     };
 
 
@@ -827,7 +848,7 @@ var MarieSim,
 
         this.lineNumber = lineNumber;
         this.toString = function() {
-            return [name, " on line ", lineNumber, ". ", message].join("");
+            return [name, ":L", lineNumber, " - ", message].join("");
         };
     };
 
@@ -882,7 +903,7 @@ var MarieSim,
             if (originationDirective) {
                 if (parsed.length !== 0) {
                     throw new MarieAsmError(
-                        "Syntax error",
+                        "SyntaxError",
                         (i + 1),
                         "Unexpected origination directive."
                     );
@@ -897,9 +918,9 @@ var MarieSim,
             var matches = line.match(/^(?:([^,\/]+),)?\s*([^\s,]+?)(?:\s+([^\s,]+?))?\s*(?:\/.*)?$/);
 
             if (!matches) {
-                // Syntax error
+                // SyntaxError
                 throw new MarieAsmError(
-                    "Syntax error",
+                    "SyntaxError",
                     (i + 1),
                     "Incorrect form."
                 );
@@ -913,7 +934,7 @@ var MarieSim,
             if (label) {
                 if (label.match(/^\d.*$/))
                     throw new MarieAsmError(
-                        "Syntax error",
+                        "SyntaxError",
                         (i + 1),
                         "Labels cannot start with a number."
                     );
@@ -921,7 +942,7 @@ var MarieSim,
                     var entry = parsed.filter(checkLabel.bind(null, label));
 
                     throw new MarieAsmError(
-                        "Label error",
+                        "LabelError",
                         (i + 1),
                         [
                             "Labels must be unique. The label '",
@@ -968,7 +989,7 @@ var MarieSim,
             if (directiveBase) {
                 if (instruction.operand === undefined) {
                     throw new MarieAsmError(
-                        "Syntax error",
+                        "SyntaxError",
                         instruction.line,
                         "Expected operand."
                     );
@@ -976,7 +997,7 @@ var MarieSim,
                 var constant = parseInt(instruction.operand, directiveBase);
                 if (isNaN(constant)) {
                     throw new MarieAsmError(
-                        "Syntax error",
+                        "SyntaxError",
                         instruction.line,
                         "Failed to parse operand."
                     );
@@ -994,7 +1015,7 @@ var MarieSim,
 
                 if (constant > 0x8000 || constant &lt; -0x8000) {
                     throw new MarieAsmError(
-                        "Syntax error",
+                        "SyntaxError",
                         instruction.line,
                         "Literal out of bounds."
                     );
@@ -1008,7 +1029,7 @@ var MarieSim,
 
             if (!operator) {
                 throw new MarieAsmError(
-                    "Syntax error",
+                    "SyntaxError",
                     instruction.line,
                     ["Unknown operator ", instruction.operator, "."].join("")
                 );
@@ -1017,7 +1038,7 @@ var MarieSim,
             var needsOperand = operator.operand;
             if (needsOperand &amp;&amp; !operand) {
                 throw new MarieAsmError(
-                    "Syntax error",
+                    "SyntaxError",
                     instruction.line,
                     "Expected operand."
                 );
@@ -1026,7 +1047,7 @@ var MarieSim,
             if (operand) {
                 if (!needsOperand) {
                     throw new MarieAsmError(
-                        "Syntax error",
+                        "SyntaxError",
                         instruction.line,
                         ["Unexpected operand ", instruction.operand, "."].join("")
                     );
@@ -1038,7 +1059,7 @@ var MarieSim,
 
                     if (operand > 0x0FFF) {
                         throw new MarieAsmError(
-                            "Syntax error",
+                            "SyntaxError",
                             instruction.line,
                             ["Address ", instruction.operand, " out of bounds."].join("")
                         );
@@ -1048,7 +1069,7 @@ var MarieSim,
                     // This must be a label
                     if (!(operand in symbols)) {
                         throw new MarieAsmError(
-                            "Syntax error",
+                            "SyntaxError",
                             instruction.line,
                             ["Unknown label ", instruction.operand, "."].join("")
                         );
@@ -1078,13 +1099,13 @@ var MarieSim,
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="DataPath.html">DataPath</a></li><li><a href="MarieAsm.html">MarieAsm</a></li><li><a href="MarieAsmError.html">MarieAsmError</a></li><li><a href="MarieSim.html">MarieSim</a></li><li><a href="MarieSimError.html">MarieSimError</a></li></ul><h3>Namespaces</h3><ul><li><a href="Utility.html">Utility</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="DataPath.html">DataPath</a></li><li><a href="MarieAsm.html">MarieAsm</a></li><li><a href="MarieAsmError.html">MarieAsmError</a></li><li><a href="MarieSim.html">MarieSim</a></li><li><a href="MarieSimError.html">MarieSimError</a></li></ul><h3>Namespaces</h3><ul><li><a href="Utility.html">Utility</a></li></ul><h3>Global</h3><ul><li><a href="global.html#appendPre">appendPre</a></li><li><a href="global.html#checkAuth">checkAuth</a></li><li><a href="global.html#handleAuthClick">handleAuthClick</a></li><li><a href="global.html#handleAuthResult">handleAuthResult</a></li><li><a href="global.html#listFiles">listFiles</a></li><li><a href="global.html#loadDriveApi">loadDriveApi</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a> on Mon Sep 05 2016 11:26:15 GMT+1000 (AEST)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.1</a> on Fri Sep 16 2016 21:26:52 GMT+1000 (AEST)
 </footer>
 
 <script> prettyPrint(); </script>
