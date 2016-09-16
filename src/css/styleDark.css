@@ -165,3 +165,7 @@ button[disabled=disabled], button:disabled {
 #assemblyCodeLabel {
   color: white;
 }
+
+#about {
+  color: white;
+}
