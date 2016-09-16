@@ -17,6 +17,8 @@ var DataPath;
     DataPath = function(element, displayInstruction) {
         this.datapath = element;
         this.displayInstruction = displayInstruction;
+        this.theme = "light";
+        this.defaultColor = "black";
 
         /* Fixes loading svg contentDocument bug by dropping function calls
         if the svg document hasn't been loaded yet by the time the DOM
@@ -110,6 +112,23 @@ var DataPath;
         this.nextInstruction.textContent = "";
         this.showInstruction();
         this.incrementedPC = false;
+    };
+
+
+    /**
+     * Sets the theme of the DataPath simulator.
+     * @memberof DataPath
+     *
+     * @param {String} theme - Theme of MARIE.js
+     */
+    DataPath.prototype.setTheme = function(theme) {
+        this.theme = theme;
+
+        if(theme === "dark") {
+            this.defaultColor = "white";
+        } else {
+            this.defaultColor = "black";
+        }
     };
 
 
@@ -215,7 +234,7 @@ var DataPath;
                             control_bus[j].childNodes[i].style.stroke = "red";
                         }
                     } else {
-                        control_bus[j].childNodes[i].style.stroke = "black";
+                        control_bus[j].childNodes[i].style.stroke = this.defaultColor;
                     }
                 }
             }
@@ -223,7 +242,7 @@ var DataPath;
 
         if(this.isMemoryRead && type === "read") {
             this.isMemoryRead = false;
-            memoryReadWire.style.stroke = "black";
+            memoryReadWire.style.stroke = this.defaultColor;
             mainMemory.style.stroke = "black";
         } else if (this.isMemoryWrite && type === "write") {
             this.isMemoryWrite = false;
@@ -541,7 +560,7 @@ var DataPath;
             return;
         }
 
-        nodes[nodes.length - 1].style.background = "lime";
+        nodes[nodes.length - 1].style.background = this.theme === "dark" ? "#225e22" : "lime";
         if(nodes.length > 1) {
             nodes[nodes.length - 2].style.background = "transparent";
         }

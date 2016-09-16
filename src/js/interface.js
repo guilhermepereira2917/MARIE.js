@@ -142,10 +142,12 @@ window.addEventListener("load", function() {
         }
 
         if(prefs.defaultTheme == "lighttheme") {
-          theme = 'light';
+            theme = 'light';
         } else if(prefs.defaultTheme == 'darktheme'){
-          theme = 'dark';
+            theme = 'dark';
         }
+
+        datapath.setTheme(theme);
 
         if(changedInputMode) {
             $('#input-type').val(prefs.defaultInputMode);

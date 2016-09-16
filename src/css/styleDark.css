@@ -1,6 +1,6 @@
 body {
   background-color: #404040;
-  color: black;
+  color: white;
 }
 
 
@@ -8,6 +8,14 @@ body {
   color: white;
 }
 
+option {
+    background: #2e2e2e;
+}
+
+.form-control {
+    background: #2e2e2e;
+    color: #cccccc;
+}
 
 button {
     background-color: #008a00;
@@ -16,21 +24,73 @@ button {
     height: 2.5em;
     padding: 10 auto 10 auto;
 }
+
 button:hover {
     background-color: #0AC92B;
     border: #0AC92B;
     color: #fff;
     height: 2.5em;
 }
+
 button[disabled=disabled], button:disabled {
-    background-color: #2e2e2e;
+    background-color: #5e5e5e;
     border: #2e2e2e;
     color: #fff;
     height: 2.5em;
 }
 
+.btn-default {
+    color: #eee;
+    background-color: #000000;
+    border-color: rgb(51, 51, 51);
+}
+
+.btn-default:hover, .btn-default:focus, .btn-default:active, .btn-default:active:hover, .btn-default.active:hover, .open > .dropdown-toggle.btn-default:hover, .btn-default:active:focus, .btn-default.active:focus, .open > .dropdown-toggle.btn-default:focus, .btn-default:active.focus, .btn-default.active.focus, .open > .dropdown-toggle.btn-default.focus {
+    color: #fff;
+    background-color: #222222;
+    border-color: rgb(82, 82, 82);
+}
+
+.popover {
+    background-color: #404040;
+    color: white;
+    border: 1px solid #444444;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.popover-title {
+  background-color: #5e5e5e;
+  border-bottom: 1px solid #7e7e7e;
+}
+
+.popover.top > .arrow, .popover.right > .arrow, .popover.bottom > .arrow, .popover.left > .arrow {
+    border-left-color: #777777;
+    border-left-color: rgba(255, 255, 255, 0.25);
+}
+
+.popover.top > .arrow:after, .popover.right > .arrow:after, .popover.bottom > .arrow:after, .popover.left > .arrow:after {
+    border-left-color: #5e5e5e;
+}
+
+.popover-default > .popover-title {
+    background: #5e5e5e;
+    color: white;
+}
+
+.popover-footer {
+    background: #626262;
+}
+
 #program {
     color: white;
+}
+
+.current-pc {
+    background: #225e22 !important;
+}
+
+.current-mar {
+    background: #5e5e22 !important;
 }
 
 #top-menu {
@@ -65,10 +125,10 @@ button[disabled=disabled], button:disabled {
 #modal-dialog {
   color: black
 }
+
 .output-type {
     width:100px;
     text-align: right;
-    background-color: inherit;
     color: inherit;
     bottom:100%;
 }
@@ -124,18 +184,28 @@ button[disabled=disabled], button:disabled {
     background: #225e22;
 }
 
-/* TODO: find some way to reduce specifc CSS rules */
-#flex .nav-tabs > li.active > a, #flex .nav-tabs > li.active > a:hover, #flex .nav-tabs > li.active > a:focus {
+.nav-tabs > li.active > a, .nav-tabs > li.active > a:hover, .nav-tabs > li.active > a:focus {
     background: #2e2e2e;
     color: white;
 }
 
-.dropdown-menu > li > a, .container, .container > .nav > li > a {
-  color: black;
+.dropdown-menu {
+    background: #2e2e2e;
 }
 
-.container > .nav > li > a:hover{
-  background-color: #eee;
+.dropdown-menu > li > a, .container, .container > .nav > li > a {
+    color: white;
+}
+
+.dropdown-menu > li > a:hover, .dropdown-menu > li > a:focus {
+    color: white;
+    background: #5e5e5e;
+}
+
+.modal-content {
+    background: #2e2e2e;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: white;
 }
 
 #memory tr:nth-child(odd) .cell:nth-child(even) {
@@ -164,6 +234,22 @@ button[disabled=disabled], button:disabled {
 
 #assemblyCodeLabel {
   color: white;
+}
+
+.overlay {
+    background: #404040;
+}
+
+.close {
+    text-shadow: 0 1px 0 #000000;
+}
+
+.popup .close {
+    color: #fff;
+}
+
+.popup .close:hover {
+    color: #aaa;
 }
 
 #about {
