@@ -1,6 +1,6 @@
 // Your Client ID can be retrieved from your project in the Google
       // Developer Console, https://console.developers.google.com
-      var CLIENT_ID = '57044840397-qs7nu7a17ohiih95v334l6k209qh5oah.apps.googleusercontent.com';
+      var CLIENT_ID = '357044840397-qs7nu7a17ohiih95v334l6k209qh5oah.apps.googleusercontent.com';
 
       var SCOPES = ['https://www.googleapis.com/auth/drive.metadata.readonly'];
 
@@ -83,7 +83,6 @@
        * @param {string} message Text to be placed in pre element.
        */
       function appendPre(message) {
-        var pre = document.getElementById('output');
         var textContent = document.createTextNode(message + '\n');
-        pre.appendChild(textContent);
+        console.log(textContent);
       }
