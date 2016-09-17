@@ -1,88 +1,75 @@
-// Your Client ID can be retrieved from your project in the Google
-      // Developer Console, https://console.developers.google.com
-      var CLIENT_ID = '357044840397-qs7nu7a17ohiih95v334l6k209qh5oah.apps.googleusercontent.com';
+// The Browser API key obtained from the Google Developers Console.
+var developerKey = 'AIzaSyCpcTAAL4Yf9WoKVD_UE6f-_LwE6bDau-M';
 
-      var SCOPES = ['https://www.googleapis.com/auth/drive.metadata.readonly'];
+// The Client ID obtained from the Google Developers Console. Replace with your own Client ID.
+var clientId = "357044840397-qs7nu7a17ohiih95v334l6k209qh5oah.apps.googleusercontent.com"
 
-      /**
-       * Check if current user has authorized this application.
-       */
-      function checkAuth() {
-        gapi.auth.authorize(
-          {
-            'client_id': CLIENT_ID,
-            'scope': SCOPES.join(' '),
-            'immediate': true
-          }, handleAuthResult);
-      }
+// Scope to use to access user's photos.
+var scope = ['https://www.googleapis.com/auth/photos'];
 
-      /**
-       * Handle response from authorization server.
-       *
-       * @param {Object} authResult Authorization result.
-       */
-      function handleAuthResult(authResult) {
-        var authorizeDiv = document.getElementById('authorize-div');
-        if (authResult && !authResult.error) {
-          // Hide auth UI, then load client library.
-          authorizeDiv.style.display = 'none';
-          loadDriveApi();
-        } else {
-          // Show auth UI, allowing the user to initiate authorization by
-          // clicking authorize button.
-          authorizeDiv.style.display = 'inline';
-        }
-      }
+var pickerApiLoaded = false;
+var oauthToken;
 
-      /**
-       * Initiate auth flow in response to user clicking authorize button.
-       *
-       * @param {Event} event Button click event.
-       */
-      function handleAuthClick(event) {
-        gapi.auth.authorize(
-          {client_id: CLIENT_ID, scope: SCOPES, immediate: false},
-          handleAuthResult);
-        return false;
-      }
+// Use the API Loader script to load google.picker and gapi.auth.
+function onApiLoad() {
+  gapi.load('auth', {'callback': onAuthApiLoad});
+  gapi.load('picker', {'callback': onPickerApiLoad});
+}
 
-      /**
-       * Load Drive API client library.
-       */
-      function loadDriveApi() {
-        gapi.client.load('drive', 'v3', listFiles);
-      }
+function onAuthApiLoad() {
+  window.gapi.auth.authorize(
+      {
+        'client_id': clientId,
+        'scope': scope,
+        'immediate': false
+      },
+      handleAuthResult);
+}
 
-      /**
-       * Print files.
-       */
-      function listFiles() {
-        var request = gapi.client.drive.files.list({
-            'pageSize': 10,
-            'fields': "nextPageToken, files(id, name)"
-          });
+function onPickerApiLoad() {
+  pickerApiLoaded = true;
+  createPicker();
+}
 
-          request.execute(function(resp) {
-            appendPre('Files:');
-            var files = resp.files;
-            if (files && files.length > 0) {
-              for (var i = 0; i < files.length; i++) {
-                var file = files[i];
-                appendPre(file.name + ' (' + file.id + ')');
-              }
-            } else {
-              appendPre('No files found.');
-            }
-          });
-      }
+function handleAuthResult(authResult) {
+  if (authResult && !authResult.error) {
+    oauthToken = authResult.access_token;
+    createPicker();
+  }
+}
 
-      /**
-       * Append a pre element to the body containing the given message
-       * as its text node.
-       *
-       * @param {string} message Text to be placed in pre element.
-       */
-      function appendPre(message) {
-        var textContent = document.createTextNode(message + '\n');
-        console.log(textContent);
-      }
+// Create and render a Picker object for picking user Photos.
+function createPicker() {
+  if (pickerApiLoaded && oauthToken) {
+    var picker = new google.picker.PickerBuilder().
+        addView(google.picker.ViewId.DOCS).
+        setOAuthToken(oauthToken).
+        setDeveloperKey(developerKey).
+        setCallback(pickerCallback).
+        build();
+    picker.setVisible(true);
+  }
+}
+
+// A simple callback implementation.
+function pickerCallback(data) {
+  var url = 'nothing';
+  if (data[google.picker.Response.ACTION] == google.picker.Action.PICKED) {
+    var doc = data[google.picker.Response.DOCUMENTS][0];
+    url = doc[google.picker.Document.URL];
+  }
+  var message = 'You picked: ' + url;
+  console.log(message);
+}
+
+function importFile(file){
+  if(file.downloadUrl){
+    var accesstoken = gapi.auth.getToken().access_token;
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET',file.downloadUrl);
+    xhr.setRequestHeader('Authorization', 'Bearer ' + accesstoken);
+    xhr.onload = function() {
+      console.log(xhr.responsetext)
+    }
+  }
+}
