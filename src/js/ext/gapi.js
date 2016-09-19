@@ -72,7 +72,6 @@ function pickerCallback(data) {
 function readGFile(fileId) {
   var request = gapi.client.drive.files.get({
         'fileId': fileId
-
     });
   request.execute(function(resp) {
     console.log('Title: ' + resp.title);
