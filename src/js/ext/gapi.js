@@ -16,7 +16,7 @@
   onApiLoad = function() {
     gapi.load('auth', {'callback': onAuthApiLoad});
     gapi.load('picker', {'callback': onPickerApiLoad});
-    gapi.client.load('drive', 'v2');
+    gapi.client.load('drive', 'v3');
   }
 
   onAuthApiLoad  = function() {
