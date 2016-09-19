@@ -59,16 +59,14 @@ function pickerCallback(data) {
     ID = doc[google.picker.Document.ID];
   }
   console.log(ID);
-  //"https://docs.google.com/uc?id=0Bx2qC5WxhxsacWlobzdLUHVxODg&export=download"
-  var downURL = "https://docs.google.com/uc?id=" + ID + "&export=download"
-  readfile(downURL);
-  console.log(downURL)
+  readfile(ID);
 }
 
 //readCode() does a GET request for the the file based on the URL
-function readfile(URL){
+function readfile(fileID){
+    // address points to https://www.googleapis.com/drive/v3/files/fileId/export
     var xhr = new XMLHttpRequest();
-
+    var URL = "https://www.googleapis.com/drive/v3/files/" + fileID;
     xhr.onreadystatechange = function() {
         if(xhr.readyState === 4){
             if(xhr.status == 200){
@@ -81,6 +79,7 @@ function readfile(URL){
         }
     };
     xhr.open('GET',URL,true);
+    xhr.setRequestHeader("Authorization", "Negotiate");
     xhr.send();
 }
 
