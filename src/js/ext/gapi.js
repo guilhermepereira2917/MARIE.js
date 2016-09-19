@@ -48,6 +48,7 @@ function createPicker() {
         setDeveloperKey(developerKey).
         setCallback(pickerCallback).
         build();
+
     picker.setVisible(true);
   }
 }
@@ -64,10 +65,10 @@ function pickerCallback(data) {
 }
 
 /**
+ * readGFile function
  * Load a file from Drive. Fetches both the metadata & content in parallel.
  *
  * @param {String} fileID ID of the file to load
- * @return {Promise} promise that resolves to an object containing the file metadata & content
  */
 function readGFile(fileId) {
   var request = gapi.client.drive.files.get({
@@ -78,4 +79,5 @@ function readGFile(fileId) {
     console.log('Description: ' + resp.description);
     console.log('MIME type: ' + resp.mimeType);
   });
+  console.log(request)
 }

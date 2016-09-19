@@ -210,8 +210,6 @@ window.addEventListener("load", function() {
         gutters: ["CodeMirror-linenumbers", "breakpoints"]
     });
 
-    console.log(theme);
-
     if(theme === "dark") {
         programCodeMirror.setOption('theme', 'dracula');
     }
