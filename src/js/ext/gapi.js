@@ -53,23 +53,32 @@ function createPicker() {
 
 // A simple callback implementation.
 function pickerCallback(data) {
-  var url = 'nothing';
+  var ID = 'nothing';
   if (data[google.picker.Response.ACTION] == google.picker.Action.PICKED) {
     var doc = data[google.picker.Response.DOCUMENTS][0];
-    url = doc[google.picker.Document.URL];
+    ID = doc[google.picker.Document.ID];
   }
-  var message = 'You picked: ' + url;
-  console.log(message);
+  console.log(ID);
+  var request = downloadURL(ID);
+  console.log(request)
 }
 
-function importFile(file){
-  if(file.downloadUrl){
-    var accesstoken = gapi.auth.getToken().access_token;
-    var xhr = new XMLHttpRequest();
-    xhr.open('GET',file.downloadUrl);
-    xhr.setRequestHeader('Authorization', 'Bearer ' + accesstoken);
-    xhr.onload = function() {
-      console.log(xhr.responsetext)
-    }
-  }
+/*
+* function which does GET https://www.googleapis.com/drive/v3/files/fileId
+*/
+function downloadURL(fileID){
+  var baseURL = "https://www.googleapis.com/drive/v3/files/"
+  var fileAddress = baseURL + fileID
+  var xhr = new XMLHttpRequest();
+
+  xhr.onreadystatechange = function() {
+      if(xhr.readyState === 4){
+          if(xhr.status == 200){
+              console.log(xhr.responseText, xhr);
+          }
+      }
+  };
+  xhr.open('GET',fileAddress,true);
+  xhr.send();
+
 }
