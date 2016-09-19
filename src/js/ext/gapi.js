@@ -59,30 +59,32 @@ function pickerCallback(data) {
     ID = doc[google.picker.Document.ID];
   }
   console.log(ID);
-  var request = downloadURL(ID);
-  console.log(request)
   //"https://docs.google.com/uc?id=0Bx2qC5WxhxsacWlobzdLUHVxODg&export=download"
   var downURL = "https://docs.google.com/uc?id=" + ID + "&export=download"
+  readfile(downURL);
   console.log(downURL)
 }
 
-/*
-* function which does GET https://www.googleapis.com/drive/v3/files/fileId
-*/
-function downloadURL(fileID){
-  var accessToken = gapi.auth.getToken().access_token; //get access token
-  var fileAddress = "https://docs.google.com/uc?id=" + fileID + "&export=download"
-  var xhr = new XMLHttpRequest();
+//readCode() does a GET request for the the file based on the URL
+function readfile(URL){
+    var xhr = new XMLHttpRequest();
 
-  xhr.onreadystatechange = function() {
-      if(xhr.readyState === 4){
-          if(xhr.status == 200){
-            console.log(xhr.responseText);
-            return xhr.responseURL;
-          }
-      }
-  };
-  xhr.open('GET',fileAddress,true);
-  xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
-  xhr.send();
+    xhr.onreadystatechange = function() {
+        if(xhr.readyState === 4){
+            if(xhr.status == 200){
+                loadfile(xhr.responseText, xhr);
+                console.log('File Sucessfully Loaded');
+            }
+            else if(xhr.status == 404){
+                $('#warn-missing-file').show();
+            }
+        }
+    };
+    xhr.open('GET',URL,true);
+    xhr.send();
+}
+
+//loadContents() works in conjunction with readCode(), if the server responds with a Code 200
+function loadfile(responseText){
+    programCodeMirror.setValue(responseText);
 }
