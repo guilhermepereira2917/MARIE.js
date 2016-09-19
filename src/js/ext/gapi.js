@@ -14,6 +14,7 @@ var oauthToken;
 function onApiLoad() {
   gapi.load('auth', {'callback': onAuthApiLoad});
   gapi.load('picker', {'callback': onPickerApiLoad});
+  gapi.client.load('drive', 'v3');
 }
 
 function onAuthApiLoad() {
@@ -59,31 +60,23 @@ function pickerCallback(data) {
     ID = doc[google.picker.Document.ID];
   }
   console.log(ID);
-  readfile(ID);
+  readGFile(ID);
 }
 
-//readCode() does a GET request for the the file based on the URL
-function readfile(fileID){
-    // address points to https://www.googleapis.com/drive/v3/files/fileId/export
-    var xhr = new XMLHttpRequest();
-    var URL = "https://www.googleapis.com/drive/v3/files/" + fileID;
-    xhr.onreadystatechange = function() {
-        if(xhr.readyState === 4){
-            if(xhr.status == 200){
-                loadfile(xhr.responseText, xhr);
-                console.log('File Sucessfully Loaded');
-            }
-            else if(xhr.status == 404){
-                $('#warn-missing-file').show();
-            }
-        }
-    };
-    xhr.open('GET',URL,true);
-    xhr.setRequestHeader("Authorization", "Negotiate");
-    xhr.send();
-}
+/**
+ * Load a file from Drive. Fetches both the metadata & content in parallel.
+ *
+ * @param {String} fileID ID of the file to load
+ * @return {Promise} promise that resolves to an object containing the file metadata & content
+ */
+function readGFile(fileId) {
+  var request = gapi.client.drive.files.get({
+        'fileId': fileId
 
-//loadContents() works in conjunction with readCode(), if the server responds with a Code 200
-function loadfile(responseText){
-    programCodeMirror.setValue(responseText);
+    });
+  request.execute(function(resp) {
+    console.log('Title: ' + resp.title);
+    console.log('Description: ' + resp.description);
+    console.log('MIME type: ' + resp.mimeType);
+  });
 }
