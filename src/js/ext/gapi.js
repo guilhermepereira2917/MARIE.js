@@ -5,7 +5,7 @@ var developerKey = 'AIzaSyCpcTAAL4Yf9WoKVD_UE6f-_LwE6bDau-M';
 var clientId = "357044840397-qs7nu7a17ohiih95v334l6k209qh5oah.apps.googleusercontent.com"
 
 // Scope to use to access user's photos.
-var scope = ['https://www.googleapis.com/auth/photos'];
+var scope = ['https://www.googleapis.com/auth/drive'];
 
 var pickerApiLoaded = false;
 var oauthToken;
