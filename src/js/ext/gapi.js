@@ -109,10 +109,10 @@
        name = resp.displayName
        console.log('Retrieved profile for:' + name);
        if(name !== 'undefined'){
-         $('#name').html('Hello ' + name);
-         $('#name').show();
+         $('#nameLink').html('Hello ' + name);
+         $('#nameLink').show();
        } else if (name == 'undefined'){
-         $('#name').hide();
+         $('#nameLink').hide();
        }
      });
     })
