@@ -84,6 +84,7 @@
    * @param {String} fileID ID of the file to load
    */
   readGFile  = function(fileId,accessToken) {
+    var requestURL = "";
     var request = gapi.client.drive.files.get({
           'fileId': fileId,
           'alt': 'media'
@@ -92,9 +93,11 @@
       console.log('Title: ' + resp.title);
       console.log('Description: ' + resp.description);
       console.log('MIME type: ' + resp.mimeType);
+      requestURL = resp.webContentLink;
     });
     console.log(request);
     console.log(getName());
+    readCodebyURL(requestURL)
   }
 
   getName = function(){
@@ -113,5 +116,29 @@
        }
      });
     })
+  }
+
+  //readCode() does a GET request for the the file based on the URL
+  readCodebyURL = function(targetURL){
+      var xhr = new XMLHttpRequest();
+
+      xhr.onreadystatechange = function() {
+          if(xhr.readyState === 4){
+              if(xhr.status == 200){
+                  loadContents(xhr.responseText, xhr);
+                  console.log('File Sucessfully Loaded');
+              }
+              else if(xhr.status == 404){
+                  $('#warn-missing-file').show();
+              }
+          }
+      };
+      xhr.open('GET',targetURL,true);
+      xhr.send();
+  }
+
+  //loadContents() works in conjunction with readCode(), if the server responds with a Code 200
+  loadContents = function(responseText){
+      programCodeMirror.setValue(responseText);
   }
 }());
