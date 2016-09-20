@@ -1538,9 +1538,6 @@ window.addEventListener("load", function() {
         localStorage.setItem("tosAgreed",1);
         $('#tosModal').modal('hide');
     });
-
-    var username = getName();
-    console.log('Succesfully got name: ' + username);
 });
 
 $(document).ready(function(){
