@@ -105,9 +105,11 @@
      request.execute(function(resp) {
        name = resp.displayName
        console.log('Retrieved profile for:' + name);
-       if(name != undefined){
+       if(name !== 'undefined'){
          $('#name').html('Hello ' + name);
          $('#name').show();
+       } else if (name == 'undefined'){
+         $('#name').hide();
        }
      });
     })
