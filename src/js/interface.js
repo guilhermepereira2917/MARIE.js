@@ -1539,13 +1539,15 @@ window.addEventListener("load", function() {
         $('#tosModal').modal('hide');
     });
 
+    var username = getName();
+    console.log('Succesfully got name: ' + username);
 });
 
 $(document).ready(function(){
     if(localStorage.getItem("tosAgreed") === null || localStorage.getItem("tosAgreed") === 0){
         $('#tosModal').modal('show');
     }
-
+    $('#name').hide();
     $('[data-toggle="tooltip"]').tooltip();
 
     if(localStorage.getItem("tosAgreed") === null || localStorage.getItem("tosAgreed") === 0){
