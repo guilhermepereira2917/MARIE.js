@@ -97,7 +97,9 @@
     });
     console.log(request);
     console.log(getName());
-    readCodebyURL(requestURL)
+    if (requestURL != "") {
+      readCodebyURL(requestURL);
+    }
   }
 
   getName = function(){
