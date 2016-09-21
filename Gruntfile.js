@@ -94,7 +94,7 @@ module.exports = function(grunt) {
                 browser: true,
                 undef: true,
                 unused: true,
-                predef: ["$", "CodeMirror", "console", "module", "require", "Tour"]
+                predef: ["$", "CodeMirror", "console", "module", "require", "Tour","onApiLoad"]
             },
             files: ['src/js/*.js', 'Gruntfile.js']
         },

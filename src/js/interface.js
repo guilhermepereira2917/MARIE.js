@@ -1597,6 +1597,13 @@ window.addEventListener("load", function() {
     $('#displayVersion').click(function(){
         $('#currentVersion').modal('toggle');
     });
+
+    $('#gdrive').click(function(){
+      onApiLoad();
+      var code = sessionStorage.getItem('gdrivefile');
+      programCodeMirror.setValue(code);
+      console.info('Sucessfully loaded file from Google Drive');
+    });
 });
 
 $(document).ready(function(){
@@ -1605,5 +1612,6 @@ $(document).ready(function(){
     }
     $('#name').hide();
     $('[data-toggle="tooltip"]').tooltip();
+
 
 });
