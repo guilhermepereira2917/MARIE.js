@@ -1576,8 +1576,6 @@ window.addEventListener("load", function() {
         }
 
         $("#input-dialog").popoverX("refreshPosition");
-
-
     }
 
     handleDatapathUI();
