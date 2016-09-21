@@ -1606,6 +1606,7 @@ $(document).ready(function(){
     if(localStorage.getItem("tosAgreed") === null || localStorage.getItem("tosAgreed") === 0){
         $('#tosModal').modal('show');
     }
+    
     $('#displayVersion').click(function(){
         $('#currentVersion').modal('toggle');
     });
