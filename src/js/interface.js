@@ -1594,6 +1594,11 @@ window.addEventListener("load", function() {
         localStorage.setItem("tosAgreed",1);
         $('#tosModal').modal('hide');
     });
+
+
+    $('#displayVersion').click(function(){
+        $('#currentVersion').modal('toggle');
+    });
 });
 
 $(document).ready(function(){
@@ -1603,11 +1608,4 @@ $(document).ready(function(){
     $('#name').hide();
     $('[data-toggle="tooltip"]').tooltip();
 
-    if(localStorage.getItem("tosAgreed") === null || localStorage.getItem("tosAgreed") === 0){
-        $('#tosModal').modal('show');
-    }
-    
-    $('#displayVersion').click(function(){
-        $('#currentVersion').modal('toggle');
-    });
 });
