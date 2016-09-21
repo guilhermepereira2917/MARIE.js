@@ -710,7 +710,7 @@ window.addEventListener("load", function() {
         if (value === "") {
             return false;
         }
-        
+
         // delete the used input line
         $('#input-list').val(inputList.split('\n').slice(1).join('\n'));
 
@@ -1606,4 +1606,7 @@ $(document).ready(function(){
     if(localStorage.getItem("tosAgreed") === null || localStorage.getItem("tosAgreed") === 0){
         $('#tosModal').modal('show');
     }
+    $('#displayVersion').click(function(){
+        $('#currentVersion').modal('toggle');
+    });
 });
