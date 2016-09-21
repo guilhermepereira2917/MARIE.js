@@ -258,3 +258,7 @@ button[disabled=disabled], button:disabled {
 .a{
   color: #2192D8;
 }
+
+.sr-only {
+  color: white'
+}
