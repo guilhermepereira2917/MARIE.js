@@ -471,13 +471,14 @@ codeblock {
     visibility: hidden;
     z-index: -100;
 }
-
+#top-menu{
+  background-color: #eee;
+}
 #navbar{
   font-color: black;
   font-size: 14px;
   border-width: 1px;
   border-radius: 4px;
-  background-color: #eee;
   color: black;
 }
 
