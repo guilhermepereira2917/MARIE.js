@@ -472,7 +472,7 @@ codeblock {
     z-index: -100;
 }
 
-#top-menu{
+#navbar{
   font-color: black;
   font-size: 14px;
   border-width: 1px;
@@ -481,7 +481,7 @@ codeblock {
   color: black;
 }
 
-#top-menu:a {
+#navbar:a {
   color: black;
 }
 
