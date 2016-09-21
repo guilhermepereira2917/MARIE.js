@@ -7,7 +7,7 @@
   var clientId = "357044840397-qs7nu7a17ohiih95v334l6k209qh5oah.apps.googleusercontent.com"
 
   // Scope to use to access user's photos.
-  var scope = ['https://www.googleapis.com/auth/drive','https://www.googleapis.com/auth/userinfo.profile'];
+  var scope = ['https://www.googleapis.com/auth/drive.readonly','https://www.googleapis.com/auth/userinfo.profile'];
 
   var pickerApiLoaded = false;
   var oauthToken;
@@ -16,7 +16,7 @@
   onApiLoad = function() {
     gapi.load('auth', {'callback': onAuthApiLoad});
     gapi.load('picker', {'callback': onPickerApiLoad});
-    gapi.client.load('drive', 'v2');
+    gapi.client.load('drive', 'v3');
   }
 
   onAuthApiLoad  = function() {
@@ -74,7 +74,7 @@
       ID = doc[google.picker.Document.ID];
     }
     console.log(ID);
-    readGFile(ID,accessToken);
+    readGFile(ID);
   }
 
   /**
@@ -83,61 +83,14 @@
    *
    * @param {String} fileID ID of the file to load
    */
-  readGFile  = function(fileId,accessToken) {
-    var requestURL = "";
-    var request = gapi.client.drive.files.get({
-          'fileId': fileId,
-          'alt': 'media'
-      });
-    request.execute(function(resp) {
-      console.log('Title: ' + resp.title);
-      console.log('Description: ' + resp.description);
-      console.log('MIME type: ' + resp.mimeType);
-      requestURL = resp.webContentLink;
-    });
-    console.log(request);
-    console.log(getName());
-    if (requestURL != "") {
-      readCodebyURL(requestURL);
-    }
-  }
+   readGFile = function(fileID){
+     //GET https://www.googleapis.com/drive/v3/files/{id}?fields=webContentLink&key={YOUR_API_KEY}
+     var baseURL = "https://www.googleapis.com/drive/v3/files/{"
+     var fields = "?fields=webContentLink&key="
+     var fullURL = baseURL + fileID + fields + developerKey;
+     console.log(fullURL);
+   }
 
-  getName = function(){
-     gapi.client.load('plus','v1', function(){
-     var request = gapi.client.plus.people.get({
-       'userId': 'me'
-     });
-     request.execute(function(resp) {
-       name = resp.displayName
-       console.log('Retrieved profile for:' + name);
-       if(name !== 'undefined'){
-         $('#nameLink').html('Hello ' + name);
-         $('#nameLink').show();
-       } else if (name == 'undefined'){
-         $('#nameLink').hide();
-       }
-     });
-    })
-  }
-
-  //readCode() does a GET request for the the file based on the URL
-  readCodebyURL = function(targetURL){
-      var xhr = new XMLHttpRequest();
-
-      xhr.onreadystatechange = function() {
-          if(xhr.readyState === 4){
-              if(xhr.status == 200){
-                  loadContents(xhr.responseText, xhr);
-                  console.log('File Sucessfully Loaded');
-              }
-              else if(xhr.status == 404){
-                  $('#warn-missing-file').show();
-              }
-          }
-      };
-      xhr.open('GET',targetURL,true);
-      xhr.send();
-  }
 
   //loadContents() works in conjunction with readCode(), if the server responds with a Code 200
   loadContents = function(responseText){
