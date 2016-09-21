@@ -555,3 +555,7 @@ codeblock {
 #assemblyCodeLabel {
   color:black;
 }
+
+span.icon-bar {
+    background-color: black;
+}
