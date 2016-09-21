@@ -1600,7 +1600,7 @@ window.addEventListener("load", function() {
 
     $('#gdrive').click(function(){
       onApiLoad();
-      code = sessionStorage.getItem('gdrivefile');
+      var code = sessionStorage.getItem('gdrivefile');
       programCodeMirror.setValue(code);
       console.info('Sucessfully loaded file from Google Drive');
     });
