@@ -84,14 +84,29 @@
    * @param {String} fileID ID of the file to load
    */
    readGFile = function(fileID){
-     //GET https://www.googleapis.com/drive/v3/files/{id}?fields=webContentLink&key={YOUR_API_KEY}
-     var baseURL = "https://www.googleapis.com/drive/v3/files/{"
-     var fields = "?fields=webContentLink&key="
-     var fullURL = baseURL + fileID + fields + developerKey;
-     console.log(fullURL);
+     gapi.client.request({
+         'path': '/drive/v2/files/'+fileID,
+         'method': 'GET',
+         callback: function ( theResponseJS, theResponseTXT ) {
+             var myToken = gapi.auth.getToken();
+             var myXHR   = new XMLHttpRequest();
+             myXHR.open('GET', theResponseJS.downloadUrl, true );
+             myXHR.setRequestHeader('Authorization', 'Bearer ' + myToken.access_token );
+             myXHR.onreadystatechange = function( theProgressEvent ) {
+                 if (myXHR.readyState == 4) {
+     //          1=connection ok, 2=Request received, 3=running, 4=terminated
+                     if ( myXHR.status == 200 ) {
+     //              200=OK
+                         code = myXHR.response;
+                         console.info( "Got File, File Contents now logged in Sessionstorage" );
+                         sessionStorage.setItem('gdrivefile',code);
+                     }
+                 }
+             }
+             myXHR.send();
+         }
+     });
    }
-
-
   //loadContents() works in conjunction with readCode(), if the server responds with a Code 200
   loadContents = function(responseText){
       programCodeMirror.setValue(responseText);
