@@ -1,5 +1,4 @@
 (function() {
-
   // The Browser API key obtained from the Google Developers Console.
   var developerKey = 'AIzaSyCpcTAAL4Yf9WoKVD_UE6f-_LwE6bDau-M';
 
@@ -37,7 +36,8 @@
   handleAuthResult  = function(authResult) {
     if (authResult && !authResult.error) {
       oauthToken = authResult.access_token;
-      createPicker();
+      sessionStorage.setItem('oauth',oauthToken);
+      getName();
     }
   }
 
@@ -48,10 +48,11 @@
    * @return Returns Picker and Handles a callback once file is selected
    */
   createPicker  = function() {
-    if (pickerApiLoaded && oauthToken) {
+    token = sessionStorage.getItem('oauth');
+    if (pickerApiLoaded && token) {
       var picker = new google.picker.PickerBuilder().
           addView(google.picker.ViewId.DOCS).
-          setOAuthToken(oauthToken).
+          setOAuthToken(token).
           setDeveloperKey(developerKey).
           setCallback(pickerCallback,oauthToken).
           build();
@@ -79,11 +80,13 @@
 
   /**
    * readGFile function
+   * @class gapi
    * Load a file from Drive. Fetches both the metadata & content in parallel.
    *
    * @param {String} fileID ID of the file to load
    */
    readGFile = function(fileID){
+     NProgress.inc(0.2);
      gapi.client.request({
          'path': '/drive/v2/files/'+fileID,
          'method': 'GET',
@@ -95,10 +98,11 @@
              myXHR.onreadystatechange = function( theProgressEvent ) {
                  if (myXHR.readyState == 4) {
      //          1=connection ok, 2=Request received, 3=running, 4=terminated
+                     NProgress.inc(0.2);
                      if ( myXHR.status == 200 ) {
      //              200=OK
+                         NProgress.inc(0.2);
                          code = myXHR.response;
-                         console.info( "Got File, File Contents now logged in Sessionstorage" );
                          sessionStorage.setItem('gdrivefile',code);
                      }
                  }
@@ -107,8 +111,28 @@
          }
      });
    }
-  //loadContents() works in conjunction with readCode(), if the server responds with a Code 200
-  loadContents = function(responseText){
-      programCodeMirror.setValue(responseText);
-  }
+
+     /**
+      * getName function
+      * @class gapi
+      * Load a file from Drive. Fetches both the metadata & content in parallel.
+      *
+      * @return {String} name
+      */
+     getName = function(){
+      gapi.client.load('plus','v1', function(){
+      var request = gapi.client.plus.people.get({
+        'userId': 'me'
+      });
+      request.execute(function(resp) {
+        name = resp.displayName
+        console.log('Retrieved profile for:' + name);
+        if(name != undefined){
+          $('#nameLink').html('Hello ' + name);
+          $('#nameLink').show();
+          $('#login').hide();
+        }
+      });
+    });
+   }
 }());
