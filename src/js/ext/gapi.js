@@ -128,12 +128,13 @@
     request.execute(function(resp) {
       name = resp.displayName
       console.log('Retrieved profile for:' + name);
-      if(name != undefined){
+      if(name !== undefined || name !== "undefined"){
         $('#nameLink').html('Hello ' + name);
         $('#nameLink').show();
         $('#login').hide();
         $('#gdrive').show();
         $('#logOut').show();
+        $('#saveToGDrive').show();
         }
       });
     });
@@ -144,56 +145,66 @@
   }
 
   updateOrInsert = function(text, callback){
+    //NProgress starts with 10% when entering this function
     const boundary = '-------314159265358979323846';
     const delimiter = "\r\n--" + boundary + "\r\n";
     const close_delim = "\r\n--" + boundary + "--";
     var contentType = "plain/text";
     var myToken = gapi.auth.getToken();
     filename = "test.mas"
-
+    NProgress.inc(0.1);
       //no file present, must create a new one.  use insert method
 
-      var reader = new FileReader();
-      var fileData = new Blob([text], {type:'plain/text'});
-      reader.readAsBinaryString(fileData);
-      reader.onload = function(e) {
-      var contentType = fileData.type || 'plain/text';
-      var metadata = {
-                       'title': filename,
-                       'mimeType': contentType
-                     };
+    var reader = new FileReader();
+    var fileData = new Blob([text], {type:'plain/text'});
+    reader.readAsBinaryString(fileData);
+    reader.onload = function(e) {
+    var contentType = fileData.type || 'plain/text';
+    var metadata = {
+                     'title': filename,
+                     'mimeType': contentType
+                   };
 
-      var base64Data = btoa(reader.result);
-      var multipartRequestBody =
-          delimiter +
-          'Content-Type: application/json\r\n\r\n' +
-          JSON.stringify(metadata) +
-          delimiter +
-          'Content-Type: ' + contentType + '\r\n' +
-          'Content-Transfer-Encoding: base64\r\n' +
-          '\r\n' +
-          base64Data +
-          close_delim;
-
-      var request = gapi.client.request(
-          {
-            'path': '/upload/drive/v2/files',
-            'method': 'POST',
-            'params': {'uploadType': 'media'},
-            'fields': 'selfLink',
-            'headers': {
-                         'Authorization': 'Bearer '+myToken.access_token,
-                         'Content-Type': 'multipart/mixed; boundary="' + boundary + '"'
-                       },
-            'body': multipartRequestBody
-          });
-      if (!callback)
-      {
-        callback = function(file) { console.log(file) };
-      }
-      console.log(request.id);
-      request.execute(callback);
+    var base64Data = btoa(reader.result);
+    NProgress.inc(0.2);
+    var multipartRequestBody =
+        delimiter +
+        'Content-Type: application/json\r\n\r\n' +
+        JSON.stringify(metadata) +
+        delimiter +
+        'Content-Type: ' + contentType + '\r\n' +
+        'Content-Transfer-Encoding: base64\r\n' +
+        '\r\n' +
+        base64Data +
+        close_delim;
+    NProgress.inc(0.1);
+    var request = gapi.client.request({
+          'path': '/upload/drive/v2/files',
+          'method': 'POST',
+          'params': {'uploadType': 'multipart'},
+          'fields': 'selfLink',
+          'headers': {
+                       'Authorization': 'Bearer '+myToken.access_token,
+                       'Content-Type': 'multipart/mixed; boundary="' + boundary + '"'
+                     },
+          'body': multipartRequestBody
+        });
+    NProgress.inc(0.1);
+    if (!callback){
+      callback = function(file) { console.log(file) };
     }
+    NProgress.inc(0.2);
+    console.log(request.id);
+    request.execute(function(request){
+      savedToURL = request.alternateLink; //view online link
+      NProgress.inc(0.1);
+      console.log(savedToURL);
+      text = 'The file is saved to <a href="' + savedToURL + '" target="_blank">' + savedToURL + '</a>' ;
+      $('#linkText').html(text);
+      NProgress.inc(0.1);
+      $('#saveLink').modal('toggle');
+      NProgress.done();
+    });
   }
-
+}
 }());

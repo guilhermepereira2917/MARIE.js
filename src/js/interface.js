@@ -1632,5 +1632,13 @@ $(document).ready(function(){
     $('#nameLink').hide();
     $('#gdrive').hide();
     $('#logOut').hide();
+    $('#saveToGDrive').hide();
+
+    $('#saveToGDrive').click(function(){
+      NProgress.start();
+      var code = localStorage.getItem('marie-program');
+      NProgress.inc(0.1);
+      updateOrInsert(code);
+    });
 
 });
