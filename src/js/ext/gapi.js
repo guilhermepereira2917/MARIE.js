@@ -104,6 +104,7 @@
                          NProgress.inc(0.2);
                          code = myXHR.response;
                          sessionStorage.setItem('gdrivefile',code);
+                         $('#o').click();
                      }
                  }
              }
@@ -131,6 +132,8 @@
           $('#nameLink').html('Hello ' + name);
           $('#nameLink').show();
           $('#login').hide();
+          $('#gdrive').show();
+          $('#logOut').show();
         }
       });
     });
