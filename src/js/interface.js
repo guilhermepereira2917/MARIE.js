@@ -1606,7 +1606,6 @@ window.addEventListener("load", function() {
     $('#gdrive').click(function(){
       NProgress.start();
       createPicker();
-      $('#o').click();
     });
 
     $('#o').click(function(){
@@ -1630,5 +1629,7 @@ $(document).ready(function(){
     }
     $('[data-toggle="tooltip"]').tooltip();
     $('#nameLink').hide();
+    $('#gdrive').hide();
+    $('#logOut').hide();
 
 });
