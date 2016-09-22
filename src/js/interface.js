@@ -1598,11 +1598,29 @@ window.addEventListener("load", function() {
         $('#currentVersion').modal('toggle');
     });
 
+    $('#login').click(function(){
+        onApiLoad();
+    });
+
+
     $('#gdrive').click(function(){
-      onApiLoad();
-      var code = sessionStorage.getItem('gdrivefile');
-      programCodeMirror.setValue(code);
-      console.info('Sucessfully loaded file from Google Drive');
+      NProgress.start();
+      createPicker();
+      $('#o').click();
+    });
+
+    $('#o').click(function(){
+        var code = sessionStorage.getItem('gdrivefile');
+        NProgress.inc(0.1);
+        if(code !== ''){
+          programCodeMirror.setValue(code);
+          NProgress.inc(0.1);
+          console.info('Sucessfully loaded file from Google Drive');
+          sessionStorage.setItem('gdrivefile','');
+        } else {
+          console.error('Empty file loaded, aborting.');
+        }
+        NProgress.done();
     });
 });
 
@@ -1610,8 +1628,7 @@ $(document).ready(function(){
     if(localStorage.getItem("tosAgreed") === null || localStorage.getItem("tosAgreed") === 0){
         $('#tosModal').modal('show');
     }
-    $('#name').hide();
     $('[data-toggle="tooltip"]').tooltip();
-
+    $('#nameLink').hide();
 
 });
