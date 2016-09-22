@@ -1628,6 +1628,7 @@ $(document).ready(function(){
         $('#tosModal').modal('show');
     }
     $('[data-toggle="tooltip"]').tooltip();
+
     $('#nameLink').hide();
     $('#gdrive').hide();
     $('#logOut').hide();

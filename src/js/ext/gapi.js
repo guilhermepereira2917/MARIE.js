@@ -113,29 +113,87 @@
      });
    }
 
-     /**
-      * getName function
-      * @class gapi
-      * Load a file from Drive. Fetches both the metadata & content in parallel.
-      *
-      * @return {String} name
-      */
-     getName = function(){
-      gapi.client.load('plus','v1', function(){
-      var request = gapi.client.plus.people.get({
-        'userId': 'me'
-      });
-      request.execute(function(resp) {
-        name = resp.displayName
-        console.log('Retrieved profile for:' + name);
-        if(name != undefined){
-          $('#nameLink').html('Hello ' + name);
-          $('#nameLink').show();
-          $('#login').hide();
-          $('#gdrive').show();
-          $('#logOut').show();
+   /**
+    * getName function
+    * @class gapi
+    * Load a file from Drive. Fetches both the metadata & content in parallel.
+    *
+    * @return {String} name
+    */
+   getName = function(){
+    gapi.client.load('plus','v1', function(){
+    var request = gapi.client.plus.people.get({
+      'userId': 'me'
+    });
+    request.execute(function(resp) {
+      name = resp.displayName
+      console.log('Retrieved profile for:' + name);
+      if(name != undefined){
+        $('#nameLink').html('Hello ' + name);
+        $('#nameLink').show();
+        $('#login').hide();
+        $('#gdrive').show();
+        $('#logOut').show();
         }
       });
     });
-   }
+  }
+
+  test = function() {
+    console.log('Success');
+  }
+
+  updateOrInsert = function(text, callback){
+    const boundary = '-------314159265358979323846';
+    const delimiter = "\r\n--" + boundary + "\r\n";
+    const close_delim = "\r\n--" + boundary + "--";
+    var contentType = "plain/text";
+    var myToken = gapi.auth.getToken();
+    filename = "test.mas"
+
+      //no file present, must create a new one.  use insert method
+
+      var reader = new FileReader();
+      var fileData = new Blob([text], {type:'plain/text'});
+      reader.readAsBinaryString(fileData);
+      reader.onload = function(e) {
+      var contentType = fileData.type || 'plain/text';
+      var metadata = {
+                       'title': filename,
+                       'mimeType': contentType
+                     };
+
+      var base64Data = btoa(reader.result);
+      var multipartRequestBody =
+          delimiter +
+          'Content-Type: application/json\r\n\r\n' +
+          JSON.stringify(metadata) +
+          delimiter +
+          'Content-Type: ' + contentType + '\r\n' +
+          'Content-Transfer-Encoding: base64\r\n' +
+          '\r\n' +
+          base64Data +
+          close_delim;
+
+      var request = gapi.client.request(
+          {
+            'path': '/upload/drive/v2/files',
+            'method': 'POST',
+            'params': {'uploadType': 'media'},
+            'fields': 'selfLink',
+            'headers': {
+                         'Authorization': 'Bearer '+myToken.access_token,
+                         'Content-Type': 'multipart/mixed; boundary="' + boundary + '"'
+                       },
+            'body': multipartRequestBody
+          });
+      if (!callback)
+      {
+        callback = function(file) { console.log(file) };
+      }
+      console.log(request.id);
+      request.execute(callback);
+    }
+  }
+
 }());
