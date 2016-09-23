@@ -8,5 +8,5 @@ $(document).ready(function(){
       }
       $('#displayVersion').click(function(){
         $('#currentVersion').modal('toggle');
-      })
+      });
 });
