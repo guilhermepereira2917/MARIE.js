@@ -51,6 +51,8 @@ window.addEventListener("load", function() {
         programCodeMirror.clearHistory();
         saveFile();
         localStorage.setItem("marie-program",null);
+        sessionStorage.setItem('savedFileID',null); //resets GAPI FileInfo upon New File
+        sessionStorage.setItem("parentID",null); //resets GAPI FileInfo upon New File
         $("#saved-status").text("New file");
         location.reload(); //reloads
     }
@@ -1632,14 +1634,19 @@ $(document).ready(function(){
     $('#nameLink').hide();
     $('#gdrive').hide();
     $('#logOut').hide();
-    $('#saveToGDrive').hide();
+    $('#opensgdModal').hide();
 
     $('#saveToGDrive').click(function(){
       NProgress.start();
+      $('#savetoGDriveModal').modal('toggle');
       var fileID = sessionStorage.getItem('savedFileID');
       var folderID = sessionStorage.getItem("parentID");
       var code = localStorage.getItem('marie-program');
       NProgress.inc(0.1);
       updateOrInsert(fileID,folderID,code);
+    });
+
+    $('#opensgdModal').click(function(){
+      $('#savetoGDriveModal').modal('toggle');
     });
 });
