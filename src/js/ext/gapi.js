@@ -137,7 +137,7 @@
         $('#login').hide();
         $('#gdrive').show();
         $('#logOut').show();
-        $('#saveToGDrive').show();
+        $('#opensgdModal').show();
         }
       });
     });
@@ -154,10 +154,14 @@
     const close_delim = "\r\n--" + boundary + "--";
     var contentType = "plain/text";
     var myToken = gapi.auth.getToken();
-    filename = "test.mas"
+
+    var filename = $("#GFileName").val();
+    var fileType = $('#saveGFileMode option:selected').val();
+
+    filename = filename + "." + fileType;
     NProgress.inc(0.1);
 
-    if (fileID === "") {
+    if (fileID === "" || fileID === null) {
       var reader = new FileReader();
       var fileData = new Blob([text], {type:'plain/text'});
       reader.readAsBinaryString(fileData);
