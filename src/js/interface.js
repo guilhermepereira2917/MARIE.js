@@ -1636,9 +1636,10 @@ $(document).ready(function(){
 
     $('#saveToGDrive').click(function(){
       NProgress.start();
+      var fileID = sessionStorage.getItem('savedFileID');
+      var folderID = sessionStorage.getItem("parentID");
       var code = localStorage.getItem('marie-program');
       NProgress.inc(0.1);
-      updateOrInsert(code);
+      updateOrInsert(fileID,folderID,code);
     });
-
 });

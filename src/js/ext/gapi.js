@@ -36,7 +36,6 @@
   handleAuthResult  = function(authResult) {
     if (authResult && !authResult.error) {
       oauthToken = authResult.access_token;
-      sessionStorage.setItem('oauth',oauthToken);
       getName();
     }
   }
@@ -48,11 +47,10 @@
    * @return Returns Picker and Handles a callback once file is selected
    */
   createPicker  = function() {
-    token = sessionStorage.getItem('oauth');
-    if (pickerApiLoaded && token) {
+    if (pickerApiLoaded && oauthToken) {
       var picker = new google.picker.PickerBuilder().
           addView(google.picker.ViewId.DOCS).
-          setOAuthToken(token).
+          setOAuthToken(oauthToken).
           setDeveloperKey(developerKey).
           setCallback(pickerCallback,oauthToken).
           build();
@@ -69,13 +67,18 @@
    * @param  {string} data       Passes authentication
    */
   pickerCallback  = function(data,accessToken) {
-    var ID = 'nothing';
     if (data[google.picker.Response.ACTION] == google.picker.Action.PICKED) {
       var doc = data[google.picker.Response.DOCUMENTS][0];
       ID = doc[google.picker.Document.ID];
+      var folderID = doc[google.picker.Document.PARENT_ID]
     }
+    if (ID !== ""){
     console.log(ID);
     readGFile(ID);
+    console.log('The file is located: ' + folderID);
+    sessionStorage.setItem("savedFileID",ID);
+    sessionStorage.setItem("parentID", folderID);
+  }
   }
 
   /**
@@ -144,7 +147,7 @@
     console.log('Success');
   }
 
-  updateOrInsert = function(text, callback){
+  updateOrInsert = function(fileID,folderId,text, callback){
     //NProgress starts with 10% when entering this function
     const boundary = '-------314159265358979323846';
     const delimiter = "\r\n--" + boundary + "\r\n";
@@ -153,58 +156,88 @@
     var myToken = gapi.auth.getToken();
     filename = "test.mas"
     NProgress.inc(0.1);
-      //no file present, must create a new one.  use insert method
 
-    var reader = new FileReader();
-    var fileData = new Blob([text], {type:'plain/text'});
-    reader.readAsBinaryString(fileData);
-    reader.onload = function(e) {
-    var contentType = fileData.type || 'plain/text';
-    var metadata = {
-                     'title': filename,
-                     'mimeType': contentType
-                   };
+    if (fileID === "") {
+      var reader = new FileReader();
+      var fileData = new Blob([text], {type:'plain/text'});
+      reader.readAsBinaryString(fileData);
+      reader.onload = function(e) {
+      var contentType = fileData.type || 'plain/text';
+      var metadata = {
+                       'title': filename,
+                       'mimeType': contentType
+                     };
 
-    var base64Data = btoa(reader.result);
-    NProgress.inc(0.2);
-    var multipartRequestBody =
-        delimiter +
-        'Content-Type: application/json\r\n\r\n' +
-        JSON.stringify(metadata) +
-        delimiter +
-        'Content-Type: ' + contentType + '\r\n' +
-        'Content-Transfer-Encoding: base64\r\n' +
-        '\r\n' +
-        base64Data +
-        close_delim;
-    NProgress.inc(0.1);
-    var request = gapi.client.request({
-          'path': '/upload/drive/v2/files',
-          'method': 'POST',
-          'params': {'uploadType': 'multipart'},
-          'fields': 'selfLink',
-          'headers': {
-                       'Authorization': 'Bearer '+myToken.access_token,
-                       'Content-Type': 'multipart/mixed; boundary="' + boundary + '"'
-                     },
-          'body': multipartRequestBody
+      var base64Data = btoa(reader.result);
+      NProgress.inc(0.2);
+      var multipartRequestBody =
+          delimiter +
+          'Content-Type: application/json\r\n\r\n' +
+          JSON.stringify(metadata) +
+          delimiter +
+          'Content-Type: ' + contentType + '\r\n' +
+          'Content-Transfer-Encoding: base64\r\n' +
+          '\r\n' +
+          base64Data +
+          close_delim;
+      NProgress.inc(0.1);
+      var request = gapi.client.request({
+            'path': '/upload/drive/v2/files',
+            'method': 'POST',
+            'params': {'uploadType': 'multipart'},
+            'fields': 'selfLink',
+            'headers': {
+                         'Authorization': 'Bearer '+myToken.access_token,
+                         'Content-Type': 'multipart/mixed; boundary="' + boundary + '"'
+                       },
+            'body': multipartRequestBody
+          });
+      NProgress.inc(0.1);
+      if (!callback){
+        callback = function(file) { console.log(file) };
+      }
+      NProgress.inc(0.2);
+      console.log(request.id);
+      request.execute(function(request){
+        savedToURL = request.alternateLink; //view online link
+        NProgress.inc(0.1);
+        console.log(savedToURL);
+        text = 'The file is saved to <a href="' + savedToURL + '" target="_blank">' + savedToURL + '</a>' ;
+        $('#linkText').html(text);
+        NProgress.inc(0.1);
+        $('#saveLink').modal('toggle');
+        NProgress.done();
+      });
+      }
+    } else {
+        var metadata = {'mimeType': contentType,};
+
+        var multipartRequestBody =
+            delimiter +  'Content-Type: application/json\r\n\r\n' +
+            JSON.stringify(metadata) +
+            delimiter + 'Content-Type: ' + contentType + '\r\n' + '\r\n' +
+            text +
+            close_delim;
+
+        if (!callback) {
+          callback = function(file) {
+            console.log("Update Complete ",file);
+            savedToURL = request.webViewLink;
+            console.log(savedToURL);
+            NProgress.done();
+          };
+        }
+
+        var request = gapi.client.request({
+            'path': '/upload/drive/v2/files/'+folderId+"?fileId="+fileID+"&uploadType=multipart",
+            'method': 'PUT',
+            'params': {'fileId': fileID, 'uploadType': 'multipart'},
+            'headers': { 'Authorization': 'Bearer '+myToken.access_token,
+                         'Content-Type': 'multipart/mixed; boundary="' + boundary + '"'},
+            'body': multipartRequestBody,
         });
-    NProgress.inc(0.1);
-    if (!callback){
-      callback = function(file) { console.log(file) };
+        request.execute(callback);
+      }
     }
-    NProgress.inc(0.2);
-    console.log(request.id);
-    request.execute(function(request){
-      savedToURL = request.alternateLink; //view online link
-      NProgress.inc(0.1);
-      console.log(savedToURL);
-      text = 'The file is saved to <a href="' + savedToURL + '" target="_blank">' + savedToURL + '</a>' ;
-      $('#linkText').html(text);
-      NProgress.inc(0.1);
-      $('#saveLink').modal('toggle');
-      NProgress.done();
-    });
-  }
-}
+
 }());
