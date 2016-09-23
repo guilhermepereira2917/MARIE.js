@@ -51,8 +51,8 @@ window.addEventListener("load", function() {
         programCodeMirror.clearHistory();
         saveFile();
         localStorage.setItem("marie-program",null);
-        var fileID = sessionStorage.setItem('savedFileID',null); //resets GAPI FileInfo upon New File
-        var folderID = sessionStorage.setItem("parentID",null); //resets GAPI FileInfo upon New File
+        sessionStorage.setItem('savedFileID',null); //resets GAPI FileInfo upon New File
+        sessionStorage.setItem("parentID",null); //resets GAPI FileInfo upon New File
         $("#saved-status").text("New file");
         location.reload(); //reloads
     }
