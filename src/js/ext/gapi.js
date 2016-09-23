@@ -222,11 +222,13 @@
         if (!callback) {
           callback = function(file) {
             console.log("Update Complete ",file);
+            savedToURL = request.webViewLink;
+            console.log(savedToURL);
             NProgress.done();
           };
         }
 
-        gapi.client.request({
+        var request = gapi.client.request({
             'path': '/upload/drive/v2/files/'+folderId+"?fileId="+fileID+"&uploadType=multipart",
             'method': 'PUT',
             'params': {'fileId': fileID, 'uploadType': 'multipart'},
@@ -234,6 +236,7 @@
                          'Content-Type': 'multipart/mixed; boundary="' + boundary + '"'},
             'body': multipartRequestBody,
         });
+        request.execute(callback);
       }
     }
 
