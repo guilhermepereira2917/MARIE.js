@@ -1638,12 +1638,14 @@ $(document).ready(function(){
 
     $('#saveToGDrive').click(function(){
       NProgress.start();
-      $('#savetoGDriveModal').modal('toggle');
       var fileID = sessionStorage.getItem('savedFileID');
       var folderID = sessionStorage.getItem("parentID");
       var code = localStorage.getItem('marie-program');
       NProgress.inc(0.1);
-      updateOrInsert(fileID,folderID,code);
+      if (fileID === "" && folderID === "" ){
+        $('#savetoGDriveModal').modal('toggle'); //Toggle Modal if file is not actually saved to GoogleDrive
+      }
+      saveToGDrive(fileID,folderID,code);
     });
 
     $('#opensgdModal').click(function(){

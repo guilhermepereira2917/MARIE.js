@@ -1,13 +1,14 @@
-/ Addition Calculator
+/ Subtraction Calculator
 / by the MARIE.js Team
 / Copyright (C) 2016. Licensed under the MIT License
 
 Input
 Store X
-Input 
+Input
 Store Y
 
-Add X
+Load X
+Subt Y
 Output
 Halt
 

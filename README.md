@@ -61,10 +61,18 @@ pull request to this repository. We'll review the pull request, and if it is
 accepted, we'll add your name to our license.
 
 ## Recommended Commit/Pull Request Tags
-    [D] Dependency Update
-    [HF] HotFix
-    [P] Patch
-    [UI] User Input (including css) Update
+    [HF]    HotFix
+    [P]     Patch
+    [PROV]  Provisioning Update
+    [CU]    Cumulative Update
+    [MU]    Migration Updates
+    
+    [D]     Dependency Update
+    [DOC]   Documentation Updates
+
+    [UI]    User Input/Ouput Update
+    [UX]    User Experience Update
+    [GAPI]  Google API Updates
 
     [O] Other
 
@@ -72,7 +80,7 @@ accepted, we'll add your name to our license.
 
 ### The MIT License (MIT)
 
-Copyright &copy; 2016 Jason Nguyen, Saurabh Joshi, Eric Jiang, Erfan Norozi
+Copyright &copy; 2016 Jason Nguyen, Saurabh Joshi, Eric Jiang, Erfan Norozi, Josh Nelsson-Smith
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
