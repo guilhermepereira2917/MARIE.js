@@ -6,7 +6,7 @@ $(document).ready(function(){
         $('#mode').attr('href','/css/styleDark.css');
         console.info("Switching to Dark Theme");
       }
-      $('#displayVersion').click(function(){
+      $('#displayVersion').click(function(){w
         $('#currentVersion').modal('toggle');
       });
 });

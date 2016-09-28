@@ -147,11 +147,24 @@
     console.log('Success');
   }
 
-  updateOrInsert = function(fileID,folderId,text, callback){
+  /**
+   * saveToGDrive function
+   * @class gapi
+   * Load a file from Drive. Fetches both the metadata & content in parallel.
+   *
+   * @param {string} fileID     Unique File ID from Google Drive which identifies it
+   * @param {string} folderId   Unique Folder ID of File ID
+   * @param {string} text       text to be updated
+   */
+  saveToGDrive = function(fileID,folderId,text, callback){
     //NProgress starts with 10% when entering this function
+
+    //GAPI POST/PUT REQUST CONSTs
     const boundary = '-------314159265358979323846';
     const delimiter = "\r\n--" + boundary + "\r\n";
     const close_delim = "\r\n--" + boundary + "--";
+
+
     var contentType = "plain/text";
     var myToken = gapi.auth.getToken();
 
