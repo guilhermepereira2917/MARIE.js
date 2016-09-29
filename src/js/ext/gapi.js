@@ -69,16 +69,16 @@
   pickerCallback  = function(data,accessToken) {
     if (data[google.picker.Response.ACTION] == google.picker.Action.PICKED) {
       var doc = data[google.picker.Response.DOCUMENTS][0];
-      ID = doc[google.picker.Document.ID];
-      var folderID = doc[google.picker.Document.PARENT_ID]
+      ID = doc[google.picker.Document.ID];                    // Get FileID
+      var folderID = doc[google.picker.Document.PARENT_ID]    // Folder ID Is the file's Parent ID
     }
     if (ID !== ""){
-    console.log(ID);
-    readGFile(ID);
-    console.log('The file is located: ' + folderID);
-    sessionStorage.setItem("savedFileID",ID);
-    sessionStorage.setItem("parentID", folderID);
-  }
+      console.log(ID);
+      readGFile(ID);
+      console.log('The file is located: ' + folderID);
+      sessionStorage.setItem("savedFileID",ID);             // Save File ID into Session Storage for Reusability Purposes
+      sessionStorage.setItem("parentID", folderID);        // Save Folder ID into Session Storage for Reusability Purposes
+    }
   }
 
   /**
@@ -94,24 +94,26 @@
          'path': '/drive/v2/files/'+fileID,
          'method': 'GET',
          callback: function ( theResponseJS, theResponseTXT ) {
-             var myToken = gapi.auth.getToken();
-             var myXHR   = new XMLHttpRequest();
-             myXHR.open('GET', theResponseJS.downloadUrl, true );
-             myXHR.setRequestHeader('Authorization', 'Bearer ' + myToken.access_token );
-             myXHR.onreadystatechange = function( theProgressEvent ) {
-                 if (myXHR.readyState == 4) {
-     //          1=connection ok, 2=Request received, 3=running, 4=terminated
+             var myToken = gapi.auth.getToken();          // Get new Authentication Token for security purposes
+             var xhRequest   = new XMLHttpRequest();
+             xhRequest.open('GET', theResponseJS.downloadUrl, true );
+             xhRequest.setRequestHeader('Authorization', 'Bearer ' + myToken.access_token );
+             xhRequest.onreadystatechange = function( theProgressEvent ) {
+                // check if XHR is terminated
+                 if (xhRequest.readyState == 4) {
                      NProgress.inc(0.2);
-                     if ( myXHR.status == 200 ) {
-     //              200=OK
+                     if ( xhRequest.status === 200 ) {
+                        //  XHR Status 200 is OK
                          NProgress.inc(0.2);
-                         code = myXHR.response;
+                         code = xhRequest.response;
                          sessionStorage.setItem('gdrivefile',code);
-                         $('#o').click();
+                         $('#o').click();     //this is very buggy and will be improved
+                     } else if(xhRequest.status === 404){
+                          $('warn-missing-file').show();  // show file missing alert box, if file cannot be found
                      }
                  }
              }
-             myXHR.send();
+             xhRequest.send();
          }
      });
    }
@@ -119,7 +121,7 @@
    /**
     * getName function
     * @class gapi
-    * Load a file from Drive. Fetches both the metadata & content in parallel.
+    * Loads Display Name based on Data from Google+ API
     *
     * @return {String} name
     */
