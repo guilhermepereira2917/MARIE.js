@@ -5,7 +5,7 @@
   // The Client ID obtained from the Google Developers Console. Replace with your own Client ID.
   var clientId = "357044840397-qs7nu7a17ohiih95v334l6k209qh5oah.apps.googleusercontent.com"
 
-  // Scope to use to access user's photos.
+  // Scope(s) to use to access various data
   var scope = ['https://www.googleapis.com/auth/drive.readonly','https://www.googleapis.com/auth/userinfo.profile'];
 
   var pickerApiLoaded = false;
@@ -57,7 +57,6 @@
           setDeveloperKey(developerKey).
           setCallback(pickerCallback,oauthToken).
           build();
-
       picker.setVisible(true);
     }
   }
@@ -70,17 +69,23 @@
    * @param  {string} data       Passes authentication
    */
   pickerCallback  = function(data,accessToken) {
-    if (data[google.picker.Response.ACTION] == google.picker.Action.PICKED) {
-      var doc = data[google.picker.Response.DOCUMENTS][0];
-      ID = doc[google.picker.Document.ID];                    // Get FileID
+    var pickerAction = data[google.picker.Response.ACTION];
+    var pickedState = google.picker.Action.PICKED;
+
+    if (pickerAction == pickedState) {
+      var doc = data[google.picker.Response.DOCUMENTS][0];    // set the variable doc as First document
+      fileID = doc[google.picker.Document.ID];                    // Get FileID
       var folderID = doc[google.picker.Document.PARENT_ID]    // Folder ID Is the file's Parent ID
+    } else if (pickerAction === "cancel") {
+      NProgress.done();
     }
-    if (ID !== ""){
-      console.log(ID);
-      readGFile(ID);
-      console.log('The file is located: ' + folderID);
-      sessionStorage.setItem("savedFileID",ID);             // Save File ID into Session Storage for Reusability Purposes
+    if (fileID !== ""){
+      readGFile(fileID);
+      console.info('The file id ' + fileID + ' is located: ' + folderID);
+      sessionStorage.setItem("savedFileID",fileID);             // Save File ID into Session Storage for Reusability Purposes
       sessionStorage.setItem("parentID", folderID);        // Save Folder ID into Session Storage for Reusability Purposes
+    } else {
+      NProgress.done();
     }
   }
 
@@ -89,7 +94,7 @@
    * @class gapi
    * Load a file from Drive. Fetches both the metadata & content in parallel.
    *
-   * @param {String} fileID ID of the file to load
+   * @param {String} fileID   the ID of the file to load
    */
    readGFile = function(fileID){
      NProgress.inc(0.2);
@@ -207,7 +212,7 @@
             'path': '/upload/drive/v2/files',
             'method': 'POST',
             'params': {'uploadType': 'multipart'},
-            'fields': 'selfLink',
+            'fields': 'selfLink',   //returns Unique Link to file
             'headers': {
                          'Authorization': 'Bearer '+myToken.access_token,
                          'Content-Type': 'multipart/mixed; boundary="' + boundary + '"'
