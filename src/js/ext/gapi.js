@@ -72,7 +72,7 @@
     var pickerAction = data[google.picker.Response.ACTION];
     var pickedState = google.picker.Action.PICKED;
 
-    if (pickerAction == pickedState) {
+    if (pickerAction === pickedState) {
       var doc = data[google.picker.Response.DOCUMENTS][0];    // set the variable doc as First document
       fileID = doc[google.picker.Document.ID];                    // Get FileID
       var folderID = doc[google.picker.Document.PARENT_ID]    // Folder ID Is the file's Parent ID
