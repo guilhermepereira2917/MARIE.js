@@ -1597,7 +1597,7 @@ window.addEventListener("load", function() {
 
 
     $('#displayVersion').click(function(){
-        $('#currentVersion').modal('toggle');
+        $('#currentVersion').modal('show');
     });
 
     $('#login').click(function(){

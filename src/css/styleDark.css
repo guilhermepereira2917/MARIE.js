@@ -266,3 +266,7 @@ button[disabled=disabled], button:disabled {
 span.icon-bar {
     background-color: white;
 }
+
+a {
+  color: #33b7b2;
+}
