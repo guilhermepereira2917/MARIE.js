@@ -5,7 +5,7 @@
   // The Client ID obtained from the Google Developers Console. Replace with your own Client ID.
   var clientId = "357044840397-qs7nu7a17ohiih95v334l6k209qh5oah.apps.googleusercontent.com"
 
-  // Scope to use to access user's photos.
+  // Scope(s) to use to access various data
   var scope = ['https://www.googleapis.com/auth/drive.readonly','https://www.googleapis.com/auth/userinfo.profile'];
 
   var pickerApiLoaded = false;
@@ -57,7 +57,6 @@
           setDeveloperKey(developerKey).
           setCallback(pickerCallback,oauthToken).
           build();
-
       picker.setVisible(true);
     }
   }
@@ -74,6 +73,8 @@
       var doc = data[google.picker.Response.DOCUMENTS][0];
       ID = doc[google.picker.Document.ID];                    // Get FileID
       var folderID = doc[google.picker.Document.PARENT_ID]    // Folder ID Is the file's Parent ID
+    } else if (data[google.picker.Response.ACTION] === "cancel") {
+      NProgress.done();
     }
     if (ID !== ""){
       console.log(ID);
@@ -81,6 +82,8 @@
       console.log('The file is located: ' + folderID);
       sessionStorage.setItem("savedFileID",ID);             // Save File ID into Session Storage for Reusability Purposes
       sessionStorage.setItem("parentID", folderID);        // Save Folder ID into Session Storage for Reusability Purposes
+    } else {
+      NProgress.done();
     }
   }
 
@@ -207,7 +210,7 @@
             'path': '/upload/drive/v2/files',
             'method': 'POST',
             'params': {'uploadType': 'multipart'},
-            'fields': 'selfLink',
+            'fields': 'selfLink',   //returns Unique Link to file
             'headers': {
                          'Authorization': 'Bearer '+myToken.access_token,
                          'Content-Type': 'multipart/mixed; boundary="' + boundary + '"'
