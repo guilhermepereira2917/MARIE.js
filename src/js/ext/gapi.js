@@ -48,8 +48,11 @@
    */
   createPicker  = function() {
     if (pickerApiLoaded && oauthToken) {
+      var view = new google.picker.DocsView().
+          setParent('root').
+          setIncludeFolders(true);
       var picker = new google.picker.PickerBuilder().
-          addView(google.picker.ViewId.DOCS).
+          addView(view).
           setOAuthToken(oauthToken).
           setDeveloperKey(developerKey).
           setCallback(pickerCallback,oauthToken).
