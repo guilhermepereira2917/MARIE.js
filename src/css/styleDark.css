@@ -270,3 +270,7 @@ span.icon-bar {
 a {
   color: #33b7b2;
 }
+
+select:disabled {
+  background-color: #969696;
+}
