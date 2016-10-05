@@ -1642,7 +1642,7 @@ $(document).ready(function(){
       var folderID = sessionStorage.getItem("parentID");
       var code = localStorage.getItem('marie-program');
       NProgress.inc(0.1);
-      if (fileID === "" && folderID === "" ){
+      if (fileID === "" || folderID === "" ){
         $('#savetoGDriveModal').modal('toggle'); //Toggle Modal if file is not actually saved to GoogleDrive
       }
       saveToGDrive(fileID,folderID,code);
