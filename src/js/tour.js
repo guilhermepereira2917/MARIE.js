@@ -14,9 +14,18 @@ $(document).ready(function() {
             {
                 onShow: viewHome,
                 smartPlacement: true,
+                backdrop: false,
                 element: "#brand",
                 title: "Welcome to MARIE.js",
                 content: "This tour introduces the features and how to use MARIE.js"
+            },
+            {
+                onShow: viewHome,
+                smartPlacement: true,
+                backdrop: false,
+                element: "#google",
+                title: "Google Services",
+                content: "We added Google Services! Click here to import/export from Google Drive",
             },
             {
                 onShow: viewHome,

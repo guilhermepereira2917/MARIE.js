@@ -212,7 +212,7 @@
             'path': '/upload/drive/v2/files',
             'method': 'POST',
             'params': {'uploadType': 'multipart'},
-            'fields': 'selfLink',   //returns Unique Link to file
+            'fields': ['selfLink'],  //returns Unique Link to file
             'headers': {
                          'Authorization': 'Bearer '+myToken.access_token,
                          'Content-Type': 'multipart/mixed; boundary="' + boundary + '"'
@@ -224,13 +224,16 @@
         callback = function(file) { console.log(file) };
       }
       NProgress.inc(0.2);
-      console.log(request.id);
       request.execute(function(request){
         savedToURL = request.alternateLink; //view online link
         NProgress.inc(0.1);
         console.log(savedToURL);
         text = 'The file is saved to <a href="' + savedToURL + '" target="_blank">' + savedToURL + '</a>' ;
         $('#linkText').html(text);
+        var fileID = request.ID;
+        var folderID = request.parents[0].id;
+        sessionStorage.setItem("savedFileID",fileID);             // Save File ID into Session Storage for Reusability Purposes
+        sessionStorage.setItem("parentID", folderID);        // Save Folder ID into Session Storage for Reusability Purposes
         NProgress.inc(0.1);
         $('#saveLink').modal('toggle');
         NProgress.done();
