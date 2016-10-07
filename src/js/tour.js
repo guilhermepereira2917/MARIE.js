@@ -12,10 +12,9 @@ $(document).ready(function() {
             onEnd: viewHome,
             steps: [
             {
-                onShow: viewHome,
                 smartPlacement: true,
                 backdrop: false,
-                element: "#brand",
+                element: "#logo",
                 title: "Welcome to MARIE.js",
                 content: "This tour introduces the features and how to use MARIE.js"
             },
