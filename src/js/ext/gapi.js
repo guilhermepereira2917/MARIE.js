@@ -157,6 +157,30 @@
     console.log('Success');
   }
 
+  folderPicker = function(){
+      if(pickerApiLoaded && oauthToken) {
+        var picker = new google.picker.PickerBuilder().
+            addView(google.picker.ViewId.FOLDERS).
+            setOAuthToken(oauthToken).
+            setDeveloperKey(developerKey).
+            setCallback(folderPickerCallback).
+            build();
+        picker.setVisible(true);
+      }
+  }
+
+  folderPickerCallback = function(data,callback){
+    var pickerAction = data[google.picker.Response.ACTION];
+    var pickedState = google.picker.Action.PICKED;
+    if (pickerAction === pickedState) {
+      var doc = data[google.picker.Response.DOCUMENTS][0];    // set the variable doc as First document
+      var fileID = doc[google.picker.Document.ID];                    // Get FileID
+      var folderID = doc[google.picker.Document.PARENT_ID]    // Folder ID Is the file's Parent ID
+    }
+    console.log(folderID,fileID)
+  }
+
+
   /**
    * saveToGDrive function
    * @class gapi
@@ -269,5 +293,4 @@
         request.execute(callback);
       }
     }
-
 }());
