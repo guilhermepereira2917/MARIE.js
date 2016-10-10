@@ -1628,7 +1628,7 @@ window.addEventListener("load", function() {
       NProgress.start();
       var fileID = sessionStorage.getItem('savedFileID');
       var folderID = sessionStorage.getItem("parentID");
-      var code = programCodeMirror.getValue()
+      var code = programCodeMirror.getValue();
       sessionStorage.setItem('code',code);
 
       NProgress.inc(0.1);
@@ -1645,7 +1645,6 @@ window.addEventListener("load", function() {
 
     $('#saveToGDrive').click(function(){
       $('#savetoGDriveModal').modal('hide'); //hide Modal if file is not actually saved to GoogleDrive
-      var code = localStorage.getItem('marie-program');
       folderPicker();
     });
 });
