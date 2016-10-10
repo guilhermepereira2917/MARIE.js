@@ -1623,6 +1623,31 @@ window.addEventListener("load", function() {
         }
         NProgress.done();
     });
+
+    $('#opensgdModal').click(function(){
+      NProgress.start();
+      var fileID = sessionStorage.getItem('savedFileID');
+      var folderID = sessionStorage.getItem("parentID");
+      var code = programCodeMirror.getValue()
+      sessionStorage.setItem('code',code);
+
+      NProgress.inc(0.1);
+      // case when saving for first time
+      if (fileID === "" || fileID === null || folderID === null || folderID === "" ){
+        $('#savetoGDriveModal').modal('show'); //Toggle Modal if file is not actually saved to GoogleDrive
+      } else {                                   //otherwise call a direct function
+        saveToGDrive(fileID,folderID,code);
+        console.log(programCodeMirror.getValue());
+      }
+    });
+
+
+
+    $('#saveToGDrive').click(function(){
+      $('#savetoGDriveModal').modal('hide'); //hide Modal if file is not actually saved to GoogleDrive
+      var code = localStorage.getItem('marie-program');
+      folderPicker();
+    });
 });
 
 $(document).ready(function(){
@@ -1636,19 +1661,7 @@ $(document).ready(function(){
     $('#logOut').hide();
     $('#opensgdModal').hide();
 
-    $('#saveToGDrive').click(function(){
-      NProgress.start();
-      var fileID = sessionStorage.getItem('savedFileID');
-      var folderID = sessionStorage.getItem("parentID");
-      var code = localStorage.getItem('marie-program');
-      NProgress.inc(0.1);
-      if (fileID === "" || folderID === "" ){
-        $('#savetoGDriveModal').modal('toggle'); //Toggle Modal if file is not actually saved to GoogleDrive
-      }
-      saveToGDrive(fileID,folderID,code);
-    });
 
-    $('#opensgdModal').click(function(){
-      $('#savetoGDriveModal').modal('toggle');
-    });
+
+
 });
