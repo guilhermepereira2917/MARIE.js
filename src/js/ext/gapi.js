@@ -42,7 +42,6 @@
 
   /**
    * Google Picker Creation Handler.
-   * @class gapi
    *
    * @return Returns Picker and Handles a callback once file is selected
    */
@@ -63,7 +62,6 @@
 
   /**
    * Google Picker Handler.
-   * @class gapi
    *
    * @see createPicker
    * @param  {string} data       Passes authentication
@@ -139,8 +137,9 @@
       'userId': 'me'
     });
     request.execute(function(resp) {
-      name = resp.displayName
-      console.log('Retrieved profile for:' + name);
+      name = resp.displayName;
+      console.info('Successfully Logged In');
+      console.info('Retrieved profile for:' + name);
       if(name !== undefined || name !== "undefined"){
         $('#nameLink').html('Hello ' + name);
         $('#nameLink').show();
@@ -157,16 +156,57 @@
     console.log('Success');
   }
 
+  folderPicker = function(){
+      console.info('Loading FilePicker');
+      //enable docsView to allow user to pick and interact with Google Drive Folder(s)
+      var docsView = new google.picker.DocsView()
+          .setIncludeFolders(true)
+          .setMimeTypes('application/vnd.google-apps.folder')
+          .setSelectFolderEnabled(true);
+      if(pickerApiLoaded && oauthToken) {
+        var picker = new google.picker.PickerBuilder().
+            addView(docsView).
+            setOAuthToken(oauthToken).
+            setDeveloperKey(developerKey).
+            setCallback(function(data){
+              var fileName = $("#GFileName").val();
+              var fileType = $('#saveGFileMode option:selected').val();
+
+              if(fileName === "" || fileName === null){
+                fileName = "code";      //default name set to code.<extension> if not selected
+              }
+              if(fileType === "" || fileType === null){
+                fileType = "mas";      //default name set to <name>.mas if not selected
+              }
+
+              var code = sessionStorage.getItem('code');
+              var pickerAction = data[google.picker.Response.ACTION];
+              var pickedState = google.picker.Action.PICKED;
+              if (pickerAction === pickedState) {
+                console.log(fileName,fileType);
+                var doc = data[google.picker.Response.DOCUMENTS][0];    // set the variable doc as First document
+                var locationID = doc[google.picker.Document.PARENT_ID]    // Folder ID Is the file's Parent ID
+                console.log(locationID);
+                var fullFileName = fileName + "." + fileType;
+                console.log(fullFileName);
+                saveToGDrive("",locationID,code, fullFileName);
+              }
+            }).
+            build();
+        picker.setVisible(true);
+      }
+  }
+
+
   /**
    * saveToGDrive function
-   * @class gapi
    * Load a file from Drive. Fetches both the metadata & content in parallel.
    *
    * @param {string} fileID     Unique File ID from Google Drive which identifies it
    * @param {string} folderId   Unique Folder ID of File ID
    * @param {string} text       text to be updated
    */
-  saveToGDrive = function(fileID,folderId,text, callback){
+  saveToGDrive = function(fileID,folderId,text, filename, callback){
     //NProgress starts with 10% when entering this function
 
     //GAPI POST/PUT REQUST CONSTs
@@ -178,10 +218,8 @@
     var contentType = "plain/text";
     var myToken = gapi.auth.getToken();
 
-    var filename = $("#GFileName").val();
-    var fileType = $('#saveGFileMode option:selected').val();
 
-    filename = filename + "." + fileType;
+
     NProgress.inc(0.1);
 
     if (fileID === "" || fileID === null) {
@@ -192,7 +230,8 @@
       var contentType = fileData.type || 'plain/text';
       var metadata = {
                        'title': filename,
-                       'mimeType': contentType
+                       'mimeType': contentType,
+                       'parents':[{"id": folderId}]
                      };
 
       var base64Data = btoa(reader.result);
@@ -239,7 +278,7 @@
         NProgress.done();
       });
       }
-    } else {
+    } else { //attempt to update file
         var metadata = {'mimeType': contentType,};
 
         var multipartRequestBody =
@@ -250,10 +289,13 @@
             close_delim;
 
         if (!callback) {
-          callback = function(file) {f
+          callback = function(file) {
             console.log("Update Complete ",file);
-            savedToURL = request.webViewLink;
+            var savedToURL = file.alternateLink;
             console.log(savedToURL);
+            text = 'The file is located to <a href="' + savedToURL + '" target="_blank">' + savedToURL + '</a>' ;
+            $('#linkText').html(text);
+            $('#saveLink').modal('toggle');
             NProgress.done();
           };
         }
@@ -267,7 +309,7 @@
             'body': multipartRequestBody,
         });
         request.execute(callback);
+        console.log(request.alternateLink);
       }
     }
-
 }());
