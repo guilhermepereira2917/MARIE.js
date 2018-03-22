@@ -1001,7 +1001,8 @@ window.addEventListener("load", function() {
             });
 
             sim.setEventListener("regwrite", function(e) {
-                document.getElementById(e.register).textContent = Utility.hex(e.newValue, e.register == "mar" || e.register == "pc" ? 3 : 4);
+                document.getElementById(e.register).textContent = Utility.hex(e.newValue, e.register == "mar" || e.register == "pc" ? 3 : 4);                
+                $("#"+e.register).attr("title","DEC "+e.newValue).tooltip('fixTitle');
 
                 if(!running || delay >= prefs.minDatapathDelay) {
                     datapath.setRegister(e.register, Utility.hex(e.newValue, e.register == "mar" || e.register == "pc" ? 3 : 4));
