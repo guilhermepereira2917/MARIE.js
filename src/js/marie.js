@@ -765,13 +765,11 @@ var MarieSim,
             opcode: 0x0,
             operand: true,
             fn: function*() {
-                yield this.regSet("mbr", "pc");
                 yield this.regSet("mar", "ir", 0xFFF);
+                yield this.regSet("mbr", "pc");
                 yield this.regSet("m", "mbr");
-                yield this.regSet("mbr", "ir", 0xFFF);
-                yield this.regSet("ac", 1);
-                yield this.regAdd("ac", "mbr", "add");
-                yield this.regSet("pc", "ac");
+                yield this.regSet("pc", "mar");
+                yield this.regAdd("pc", 1, "incr_pc");
             }
         },
         jumpi: {
