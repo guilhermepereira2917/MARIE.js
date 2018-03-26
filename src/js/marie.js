@@ -536,7 +536,8 @@ var MarieSim,
      */
     MarieSim.prototype.fetch = function*() {
         yield this.regSet("mar", "pc");
-        yield this.regSet("ir", "m");
+        yield this.regSet("mbr", "m");
+        yield this.regSet("ir", "mbr");
         yield this.regAdd("pc", 1, "incr_pc");
     };
 
@@ -740,19 +741,19 @@ var MarieSim,
                         if (this.onRegLog)
                             this.onRegLog("Is AC < 0? " + (this.ac < 0 ? "Yes!" : "No!"), "is_negative");
                         if (this.ac < 0)
-                            this.regAdd("pc", 1, "is_negative");
+                            this.regAdd("pc", 1, "incr_pc");
                         break;
                     case 0x400:
                         if (this.onRegLog)
                             this.onRegLog("Is AC = 0? " + (this.ac === 0 ? "Yes!" : "No!"), "is_zero");
                         if (this.ac === 0)
-                            this.regAdd("pc", 1, "is_zero");
+                            this.regAdd("pc", 1, "incr_pc");
                         break;
                     case 0x800:
                         if (this.onRegLog)
                             this.onRegLog("Is AC > 0? " + (this.ac > 0 ? "Yes!" : "No!"), "is_positive");
                         if (this.ac > 0)
-                            this.regAdd("pc", 1, "is_positive");
+                            this.regAdd("pc", 1, "incr_pc");
                         break;
                     default:
                         throw new MarieSimError("Undefined skipcond operand.", this.ir);
