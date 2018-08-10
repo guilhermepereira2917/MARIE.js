@@ -435,6 +435,7 @@ window.addEventListener("load", function() {
                 } else {
                   return document.createTextNode(String.fromCharCode(value));
                 }
+                break;
             case BIN:
                 return document.createTextNode(Utility.uintToBinGroup(value, 16, prefs.binaryStringGroupLength));
             default:
