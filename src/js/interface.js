@@ -869,9 +869,17 @@ window.addEventListener("load", function() {
             if (interval)
                 window.clearInterval(interval);
 
+            var realDelay = delay;
+            var itersPerLoop = 1;
+            if (realDelay < 10) {
+                realDelay = 10;
+                itersPerLoop = 10;
+            }
             // Don't pass in setInterval callback arguments into runLoop function.
             interval = window.setInterval(function() {
-                runLoop();
+                for (var i=0; i<itersPerLoop; i++) {
+                    runLoop();
+                }
             }, delay);
 
             runButton.textContent = "Pause";
