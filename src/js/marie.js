@@ -955,6 +955,9 @@ var MarieSim,
                 case "hex":
                     directiveBase = 16;
                     break;
+                case "adr":
+                   instruction.operator = "jns";
+                   break;
             }
 
             if (directiveBase) {
