@@ -880,7 +880,7 @@ window.addEventListener("load", function() {
                 for (var i=0; i<itersPerLoop; i++) {
                     runLoop();
                 }
-            }, delay);
+            }, realDelay);
 
             runButton.textContent = "Pause";
             runButton.disabled = false;
