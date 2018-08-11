@@ -435,6 +435,7 @@ window.addEventListener("load", function() {
                 } else {
                   return document.createTextNode(String.fromCharCode(value));
                 }
+                break;
             case BIN:
                 return document.createTextNode(Utility.uintToBinGroup(value, 16, prefs.binaryStringGroupLength));
             default:
@@ -869,10 +870,18 @@ window.addEventListener("load", function() {
             if (interval)
                 window.clearInterval(interval);
 
+            var realDelay = delay;
+            var itersPerLoop = 1;
+            if (realDelay < 10) {
+                realDelay = 10;
+                itersPerLoop = 10;
+            }
             // Don't pass in setInterval callback arguments into runLoop function.
             interval = window.setInterval(function() {
-                runLoop();
-            }, delay);
+                for (var i=0; i<itersPerLoop; i++) {
+                    runLoop();
+                }
+            }, realDelay);
 
             runButton.textContent = "Pause";
             runButton.disabled = false;
@@ -1001,7 +1010,8 @@ window.addEventListener("load", function() {
             });
 
             sim.setEventListener("regwrite", function(e) {
-                document.getElementById(e.register).textContent = Utility.hex(e.newValue, e.register == "mar" || e.register == "pc" ? 3 : 4);
+                document.getElementById(e.register).textContent = Utility.hex(e.newValue, e.register == "mar" || e.register == "pc" ? 3 : 4);                
+                $("#"+e.register).attr("title","DEC "+e.newValue).tooltip('fixTitle');
 
                 if(!running || delay >= prefs.minDatapathDelay) {
                     datapath.setRegister(e.register, Utility.hex(e.newValue, e.register == "mar" || e.register == "pc" ? 3 : 4));
