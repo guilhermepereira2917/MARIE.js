@@ -1,14 +1,14 @@
 CodeMirror.defineSimpleMode("marie", {
     start: [
         {regex: /[^\d,\/\s][^,\/\s]*,/, token: "string", next: "operator"}, // Labels
-        {regex: /(?:add|subt|addi|load|loadi|store|storei|jump|skipcond|jns|jumpi)\b/i, token: "keyword", next: "operand"}, // Operator
+        {regex: /(?:add|subt|addi|load|loadi|store|storei|jump|skipcond|jns|jumpi|adr)\b/i, token: "keyword", next: "operand"}, // Operator
         {regex: /(?:clear|input|output|halt)\b/i, token: "keyword", next: "start"}, // Operator
         {regex: /(?:org|dec|oct|hex)\b/i, token: "atom", next: "literal"},
         {regex: /\/.*/, token: "comment"}, // Comments
         {regex: /end\b/i, token: "comment", next: "end"},
     ],
     operator: [
-        {regex: /(?:add|subt|addi|load|loadi|store|storei|jump|skipcond|jns|jumpi)\b/i, token: "keyword", next: "operand"}, // Operator
+        {regex: /(?:add|subt|addi|load|loadi|store|storei|jump|skipcond|jns|jumpi|adr)\b/i, token: "keyword", next: "operand"}, // Operator
         {regex: /(?:clear|input|output|halt)\b/i, token: "keyword", next: "start"}, // Operator
         {regex: /(?:org|dec|oct|hex)\b/i, token: "atom", next: "literal"}, // Literal
     ],

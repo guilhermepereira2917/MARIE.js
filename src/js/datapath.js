@@ -303,7 +303,7 @@ var DataPath;
 
         var dpDocument = this.datapath.contentDocument;
 
-        var alu_opcodes = ["set", "add", "subtract", "clear", "is_negative", "is_zero", "is_positive", "incr_pc"];
+        var alu_opcodes = ["set", "subtract", "add", "clear", "incr_pc", "is_negative", "is_zero", "is_positive"];
         var alu_op_int = alu_opcodes.indexOf(type);
 
         if(alu_op_int === -1) {
