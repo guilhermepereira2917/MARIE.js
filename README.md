@@ -26,30 +26,26 @@ run the code. You'll need to install `npm`, then run the following commands to
 install dependencies, build the release version, and run a localhost server as
 well as opening the default browser directing to the localhost site.
 
-    ```
     npm run start
-    ```
+    
 ## Development
 To test and build the development version of MARIE.js, run the following
 commands.
 
-    ```
     npm run start
 
     # or if you are using yarn
 
     yarn start
-    ```
+    
 ## Building
 To build just run
 
-    ```
     npm run build
 
     # or if you are using yarn
     
     yarn build
-    ```
 
 
 ## To Do List
