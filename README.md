@@ -48,6 +48,15 @@ To build just run
     yarn build
 
 
+### Electron Mode
+    cd /path/to/repo/MARIE.js
+    npm install
+    npm install grunt-cli
+    npm install electron      //for electron branch
+    grunt test # you need JRE 8 for this command
+    grunt bar-dev
+
+
 ## To Do List
 To view full to-do list visit: [https://github.com/MARIE-js/MARIE.js/issues/162](https://github.com/MARIE-js/MARIE.js/issues/162)
 
