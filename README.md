@@ -9,6 +9,10 @@ from [The Essentials of Computer Organization and Architecture](https://books.go
 
 **[Try the simulator](https://marie-js.github.io/MARIE.js/)**
 
+It is used within the unit [FIT1047 - Introduction to computer systems, networks and security](http://www.monash.edu/pubs/handbooks/units/FIT1047.html) at [Monash University](https://monash.edu)
+
+![Monash Uni logo](https://www.monash.edu/__data/assets/git_bridge/0006/509343/deploy/mysource_files/monash-logo-mono.svg)
+
 ## Setup
 Latest Stable: [https://github.com/MARIE-js/MARIE.js/releases/latest](https://github.com/MARIE-js/MARIE.js/releases/latest])
 
@@ -96,7 +100,8 @@ accepted, we'll add your name to our license.
 
 ### The MIT License (MIT)
 
-Copyright &copy; 2017 Jason Nguyen, Saurabh Joshi, Eric Jiang, Erfan Norozi, Josh Nelsson-Smith, Guido Tack
+Copyright &copy; 2016 - 2019 Jason Nguyen, Saurabh Joshi, Eric Jiang, Erfan Norozi, Josh Nelsson-Smith, Guido Tack
+Copyright &copy; 2017 - 2019 Monash University
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
