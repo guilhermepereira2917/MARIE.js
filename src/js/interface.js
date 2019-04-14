@@ -197,6 +197,29 @@ window.addEventListener("load", function() {
 
     getPrefs();
 
+    $("#overridebtn").click(function() {
+        restoreUrlHashCode();
+        $("#copyOverrideModal").modal("hide");
+    });
+    $("#canceloverridebtn").click(function() {
+        $("#copyOverrideModal").modal("hide");
+    });
+    function handleLoadingUrlCode() {
+        if (window.location.hash.startsWith("#code=")) {
+            if (localStorage.getItem("marie-program")) {
+                $("#copyOverrideModal").modal("show");
+            } else {
+                restoreUrlHashCode();
+            }
+        }
+    }
+    function restoreUrlHashCode() {
+        loadContents(decodeURI(window.location.hash.replace("#code=", "")));
+        $("#saved-status").text("Loaded linked code");
+        window.location.hash = ""; // keep clean
+    }
+
+    handleLoadingUrlCode();
     textArea.value = localStorage.getItem("marie-program") || "";
 
     if(textArea.value !== "") {
@@ -1358,6 +1381,28 @@ window.addEventListener("load", function() {
         return;
     };
 
+    $("#copylink").click(function() {
+        var copyCode = programCodeMirror.getValue();
+        if (!copyCode) {
+            return;
+        }
+        var copyUrl = (window.location.origin !== "null" // local origin
+            ? window.location.origin + window.location.pathname
+            : "https://marie.js.org/"
+        ) + "#code=" + encodeURI(copyCode);
+
+        // copying stuff
+        var el = document.createElement("textarea");
+        el.value = copyUrl;
+        el.setAttribute("readonly", "");
+        el.style = { display: "none" };
+        document.body.appendChild(el);
+        el.select();
+        document.execCommand("copy");
+        document.body.removeChild(el);
+        $("#saved-status").text("File copied as link");
+    });
+
     uploadButton.addEventListener("click", function() {
         fileInput.click();
     });
@@ -1602,6 +1647,7 @@ window.addEventListener("load", function() {
 
     $(window).on('hashchange', function() {
         handleDatapathUI();
+        handleLoadingUrlCode();
     });
 
     $("body").removeClass("preload");
