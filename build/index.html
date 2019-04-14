@@ -55,6 +55,8 @@
               <li class="divider"></li>
               <li><a id="upload"><span class="fa fa-folder-open-o"></span>  Upload...</a></li>
               <li><a id="download"><span class="fa fa-download"></span> Download</a></li>
+              <li class="divider"></li>
+              <li><a id="copylink"><span class="fa fa-copy"></span> Copy link</a></li>
           </ul>
       </li>
       <li class="dropdown">
@@ -127,6 +129,7 @@
     </div><!--/.nav-collapse -->
   </div><!--/.container-fluid -->
 </nav>
+
 </header>
 
         <main>
@@ -584,6 +587,25 @@
                           </div>
                         </div>
                     </div>
+
+        <!-- Copy Override Modal -->
+        <div class="modal fade" id="copyOverrideModal" role="dialog" tabindex="-1">
+            <div class="modal-dialog">
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title">MARIE.js | <span class="fa fa-copy"></span> Linked Code</h4>
+                    </div>
+                    <div class="modal-body">
+                        <p>Your code will be overridden with Linked Code. Continue?</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button id="canceloverridebtn" type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                        <button id="overridebtn" type="button" class="btn btn-danger" data-dismiss="modal">Yes</button>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <!-- ToU Agreement Modal -->
             <div class="modal fade" id="tosModal" role="dialog" data-backdrop="static">
