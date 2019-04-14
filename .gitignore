@@ -51,8 +51,11 @@ Temporary Items
 
 # Node modules and build folder
 node_modules
-build
+/build
+build/index.html
+build/about.html
 working
+
 
 # Vim
 *.swp
