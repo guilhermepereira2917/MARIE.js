@@ -8,25 +8,55 @@ Store X
 INPUT
 Store Y
 
+/ check if Y is negative, if -ve make counter as +Y and set negative flag
+Load Y
+Skipcond 000
+Jump cont
+
+Subt Y
+Subt Y
+Store counter
+Clear
+Add one
+Store negflag
+Clear
+Jump loop
+
+cont,	Load Y
+		Store counter
+
 / Loop for performing iterative addition
 loop,    Load num
          Add X
          Store num
 
-         Load Y
+         Load counter
          Subt one
-         Store Y
-
+         Store counter
+	
          Skipcond 400 / have we completed the multiplication?
          Jump loop / no; repeat loop
          / yes, so exit the loop
 
-/ Output result to user then halt program
+/ check for negative flag, if it is set, negate the result
+load negflag
+skipcond 800
+Jump halt
+
 Load num
-Output
-Halt
+subt num
+subt num
+store num
+Jump halt
+
+/ Output result to user then halt program
+halt,	Load num
+		Output	
+		Halt
 
 X, DEC 0
 Y, DEC 0
 num, DEC 0
 one, DEC 1
+negflag, DEC 0
+counter, DEC 0
