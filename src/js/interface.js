@@ -473,7 +473,7 @@ window.addEventListener("load", function() {
                 }
                 break;
             case BIN:
-                return document.createTextNode(Utility.uintToBinGroup(value, 16, prefs.binaryStringGroupLength));
+                return document.createTextNode(Utility.intToBinGroup(value, 16, prefs.binaryStringGroupLength));
             default:
                 return document.createTextNode("Invalid output type.");
         }
