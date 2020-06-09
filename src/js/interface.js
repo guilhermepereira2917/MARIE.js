@@ -447,6 +447,9 @@ window.addEventListener("load", function() {
     }
 
     function convertOutput(value) {
+        if( convertOutput.highSurrogate === undefined ) {
+            convertOutput.highSurrogate = 0;
+        }
         switch(outputType) {
             case HEX:
                 return document.createTextNode(Utility.hex(value));
@@ -456,6 +459,16 @@ window.addEventListener("load", function() {
                 if (value===10) {
                   return document.createElement("br");
                 } else {
+                  if(value>=-10240 && value<=-9217) {
+                    convertOutput.highSurrogate = value;
+                    return document.createTextNode("");
+                  }
+                  if(convertOutput.highSurrogate!=0 &&
+                     value>=-9216 && value<=-8193) {
+                       var output = String.fromCharCode(convertOutput.highSurrogate, value);
+                       convertOutput.highSurrogate = 0;
+                       return document.createTextNode(output);
+                     }
                   return document.createTextNode(String.fromCharCode(value));
                 }
                 break;
