@@ -3,60 +3,67 @@
 / Copyright (C) 2016. Licensed under the MIT License
 
 / Prompt user to type in integers
-INPUT
+Clear
+Store result
+Input
 Store X
-INPUT
+Input
 Store Y
 
-/ check if Y is negative, if -ve make counter as +Y and set negative flag
+/ check if Y is negative, if -ve negate Y and set negative flag
 Load Y
 Skipcond 000
-Jump cont
+Jump nonneg
 
 Subt Y
 Subt Y
-Store counter
+Store Y
 Clear
 Add one
 Store negflag
 Clear
 Jump loop
 
-cont,	Load Y
-		Store counter
+nonneg,  Clear
+         Store negflag
+         / check if Y is zero, if it is, then we jump to halt
+         Load Y
+         Skipcond 400
+         Jump loop / false
+         Jump halt / true
 
 / Loop for performing iterative addition
-loop,    Load num
+loop,    Load result
          Add X
-         Store num
+         Store result
 
-         Load counter
+         Load Y
          Subt one
-         Store counter
+         Store Y
 	
          Skipcond 400 / have we completed the multiplication?
          Jump loop / no; repeat loop
          / yes, so exit the loop
 
 / check for negative flag, if it is set, negate the result
-load negflag
-skipcond 800
+Load negflag
+Skipcond 800
 Jump halt
 
-Load num
-subt num
-subt num
-store num
-Jump halt
+/ negate result
+Load result
+Subt result
+Subt result
+Store result
+/ run the next three instructions, which halts the program
 
 / Output result to user then halt program
-halt,	Load num
-		Output	
-		Halt
+halt,    Load result
+         Output	
+         Halt
 
 X, DEC 0
 Y, DEC 0
-num, DEC 0
 one, DEC 1
 negflag, DEC 0
-counter, DEC 0
+result, DEC 0
