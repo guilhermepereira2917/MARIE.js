@@ -35,7 +35,7 @@ var Utility = {};
     };
 
     /**
-     * Converts a signed integer in *size*-bit twos-complement format
+     * Converts a signed integer in *size*-bit two's-complement format
      * into an array of binary numbers.
      * @memberof Utility
      *
@@ -45,7 +45,6 @@ var Utility = {};
      */
     Utility.intToBinArray = function(num, size) {
         var binArray = [];
-        console.log(size);
         for(var i=0; i<size; i++){
             binArray.push(num & 1);
             num >>= 1;
@@ -83,7 +82,7 @@ var Utility = {};
     };
 
     /**
-     * Converts a signed integer in *size*-bit twos complement format
+     * Converts a signed integer in *size*-bit two's complement format
      * into an array of binary numbers, and then converts into a bit string
      * with even spacing between each group of binary digits.
      * @memberof Utility
