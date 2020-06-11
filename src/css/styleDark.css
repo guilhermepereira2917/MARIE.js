@@ -127,7 +127,6 @@ button[disabled=disabled], button:disabled {
 }
 
 .output-type {
-    width:100px;
     text-align: right;
     color: inherit;
     bottom:100%;
