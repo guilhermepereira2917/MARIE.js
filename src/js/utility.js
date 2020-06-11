@@ -34,6 +34,26 @@ var Utility = {};
         return binArray;
     };
 
+    /**
+     * Converts a signed integer in *size*-bit two's-complement format
+     * into an array of binary numbers.
+     * @memberof Utility
+     *
+     * @param {Number} num - the signed integer to be converted.
+     * @param {Number} size - size of the signed integer.
+     * @returns {Array} the binary array representation of signed integer.
+     */
+    Utility.intToBinArray = function(num, size) {
+        var binArray = [];
+        for(var i=0; i<size; i++){
+            binArray.push(num & 1);
+            num >>= 1;
+        }
+
+        binArray.reverse();
+
+        return binArray;
+    };
 
     /**
      * Converts an unsigned integer into an array of
@@ -61,6 +81,31 @@ var Utility = {};
         return binString;
     };
 
+    /**
+     * Converts a signed integer in *size*-bit two's complement format
+     * into an array of binary numbers, and then converts into a bit string
+     * with even spacing between each group of binary digits.
+     * @memberof Utility
+     *
+     * @param {Number} num - The unsigned integer to be converted.
+     * @param {Number} size - Size of the signed integer.
+     * @param {Number} bitSize - The length of each bit group.
+     * @returns {String} The binary array representation of signed integer.
+     */
+    Utility.intToBinGroup = function(num, size, bitSize) {
+        var binArray = Utility.intToBinArray(num, size);
+        var binString = "";
+
+        for (var i = 0; i < size; i++) {
+            binString += binArray[i];
+
+            if(i % bitSize == bitSize - 1){
+                binString += " ";
+            }
+        }
+
+        return binString;
+    };
 
     /**
      * Converts signed integer into unsigned integer.

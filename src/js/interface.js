@@ -447,6 +447,16 @@ window.addEventListener("load", function() {
     }
 
     function convertOutput(value) {
+        // Unicode UTF-16BE characters outside the Basic Multilingual Plane
+        // are encoded using a 2-word sequence called a surrogate pair.
+        // Assuming network byte order, i.e. a big-endian encoding,
+        // the high surrogate comes first in the output stream,
+        // and then comes the  low surrogate.
+        // Since we assume network byte order, we can legally ignore Byte Order
+        // Markers according to the Unicode standard.
+        if( convertOutput.highSurrogate === undefined ) {
+            convertOutput.highSurrogate = 0;
+        }
         switch(outputType) {
             case HEX:
                 return document.createTextNode(Utility.hex(value));
@@ -455,12 +465,53 @@ window.addEventListener("load", function() {
             case UNICODE:
                 if (value===10) {
                   return document.createElement("br");
-                } else {
-                  return document.createTextNode(String.fromCharCode(value));
                 }
+                if(value >= -10240 && value <= -9217) {
+                  // start of a valid UTF-16BE surrogate pair
+                  // high surrogates are in the range of 0xD800 - 0xDBFF
+                  // converted to 16-bit two's complement integers,
+                  // this yields the negative number range from
+                  // -10240 to -9217
+                  convertOutput.highSurrogate = value;
+                  return null;
+                }
+                if (convertOutput.highSurrogate === 0 &&
+                    value >= -9216 && value <= -8193) {
+                  // low surrogate without high surrogate
+                  // invalid UTF-16BE sequence
+                  // low surrogates are in the range of 0xDC00 - 0xDFFF
+                  // converted to 16-bit two's complement integers,
+                  // this yields the negative number range from
+                  // -9216 to -8193
+                  return null;
+                }
+                if (convertOutput.highSurrogate != 0 &&
+                    value >= -9216 && value <= -8193) {
+                  // valid UTF-16BE surrogate pair
+                  var output = String.fromCharCode(convertOutput.highSurrogate, value);
+                  convertOutput.highSurrogate = 0;
+                  return document.createTextNode(output);
+                }
+                if (convertOutput.highSurrogate != 0 &&
+                    !(value >= -9216 && value <= -8193)) {
+                  // high surrogate without low surrogate
+                  // invalid UTF-16BE sequence
+                  convertOutput.highSurrogate = 0;
+                  return null;
+                }
+                if (value === -2 || value === -257) {
+                  // Byte Order Mark (0xFFFE or 0xFEFF), ignore
+                  // 0xFFFE converted to 16-bit two's complement integer
+                  // is -2,
+                  // 0xFEFF converted to 16-bit two's complement integer
+                  // is -257
+                  return null;
+                }
+                // character is in the Basic Multilingual Plane
+                return document.createTextNode(String.fromCharCode(value));
                 break;
             case BIN:
-                return document.createTextNode(Utility.uintToBinGroup(value, 16, prefs.binaryStringGroupLength));
+                return document.createTextNode(Utility.intToBinGroup(value, 16, prefs.binaryStringGroupLength));
             default:
                 return document.createTextNode("Invalid output type.");
         }
@@ -472,7 +523,10 @@ window.addEventListener("load", function() {
         }
 
         for(var i = 0; i < outputList.length; i++) {
-            outputLog.appendChild(convertOutput(outputList[i]));
+            var element = convertOutput(outputList[i]);
+            if (element != null) {
+              outputLog.appendChild(element);
+            }
             if (outputType!==UNICODE) {
               outputLog.appendChild(document.createElement("br"));
             }
@@ -788,8 +842,10 @@ window.addEventListener("load", function() {
         var shouldScrollToBottomOutputLog = outputLog.getAttribute("data-stick-to-bottom") == "true";
 
         outputList.push(value);
-
-        outputLog.appendChild(convertOutput(value));
+        var element = convertOutput(value);
+        if (element != null) {
+          outputLog.appendChild(element);
+        }
         if (outputType!==UNICODE) {
           outputLog.appendChild(document.createElement("br"));
         }
