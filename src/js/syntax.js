@@ -15,7 +15,7 @@ CodeMirror.defineSimpleMode("marie", {
     operand: [
         {regex: /(?:org|dec|oct|hex)\b/i, token: "atom", next: "literal"}, // Literal
         {regex: /\d[0-9a-f]*\b/i, token: "variable-3", next: "start"}, // Address
-        {regex: /[0-9a-z]+\b/i, token: "variable-2", next: "start"}, // Reference
+        {regex: /[0-9a-z_\.]+\b/i, token: "variable-2", next: "start"}, // Reference
     ],
     literal: [
         {regex: /[0-9a-f]+/i, token: "number", next: "start"} // Number
