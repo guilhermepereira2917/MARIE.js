@@ -909,6 +909,12 @@ var MarieSim,
                         (i + 1),
                         "Labels cannot start with a number."
                     );
+                if (label.match(/\s/))
+                    throw new MarieAsmError(
+                        "SyntaxError",
+                        (i + 1),
+                        "Labels cannot contain whitespace."
+                    );
                 if (label in symbols) {
                     var entry = parsed.filter(checkLabel.bind(null, label));
 
