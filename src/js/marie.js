@@ -62,11 +62,11 @@ var MarieSim,
 
         Array.prototype.push.apply(this.memory, assembled.program);
 
-        if (this.memory.length > 0xFFF) {
+        if (this.memory.length > 0x1000) {
             throw new MarieSimError("Insufficent memory error", "Failed to load program. Insufficent memory.");
         }
 
-        while (this.memory.length <= 0xFFF) {
+        while (this.memory.length <= 0x1000) {
             this.memory.push({
                 contents: 0x0000
             });
