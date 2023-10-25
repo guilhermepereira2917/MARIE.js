@@ -55,7 +55,7 @@ select, option {
     background: inherit;
 }
 
-#program-container {
+#program-container, #cpp-container {
     display: flex;
     flex-direction: column;
     flex: 2 0 0;
@@ -358,7 +358,7 @@ footer {
         flex-wrap: wrap;
     }
 
-    #program-container {
+    #program-container, #cpp-container {
         width: 100%;
     }
 }
@@ -521,4 +521,15 @@ codeblock {
 
 .simComponents{
   resize: both;
+}
+
+.convert-container {
+  background-color: #eee;
+  border: 0.1em solid #ccc;
+  border-top: none;
+}
+
+#convert {
+  float: right;
+  margin: 5px;
 }

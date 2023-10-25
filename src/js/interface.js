@@ -3,7 +3,8 @@
 window.addEventListener("load", function() {
     "use strict";
 
-    var assembleButton = document.getElementById("assemble"),
+    var convertButton = document.getElementById("convert"),
+        assembleButton = document.getElementById("assemble"),
         stepButton = document.getElementById("step"),
         microStepButton = document.getElementById("microstep"),
         stepBackButton = document.getElementById("step-back"),
@@ -12,6 +13,7 @@ window.addEventListener("load", function() {
         displayDelayMs = document.getElementById("display-delay-ms"),
         restartButton = document.getElementById("restart"),
         textArea = document.getElementById("program"),
+        cppTextArea = document.getElementById("cpp-program"),
         memoryContainer = document.getElementById("memory-container"),
         memoryHeaders = document.getElementById("memory-headers"),
         memory = document.getElementById("memory"),
@@ -51,6 +53,7 @@ window.addEventListener("load", function() {
         programCodeMirror.clearHistory();
         saveFile();
         localStorage.setItem("marie-program",null);
+        localStorage.setItem("cpp-program",null);
         sessionStorage.setItem('savedFileID',null); //resets GAPI FileInfo upon New File
         sessionStorage.setItem("parentID",null); //resets GAPI FileInfo upon New File
         $("#saved-status").text("New file");
@@ -171,6 +174,7 @@ window.addEventListener("load", function() {
         sim = null,
         interval = null,
         lastErrorLine = null,
+        lastErrorLineCpp = null,
         lastCurrentLine = null,
         lastBreakPointLine = null,
         currentInstructionLine = null,
@@ -221,6 +225,7 @@ window.addEventListener("load", function() {
 
     handleLoadingUrlCode();
     textArea.value = localStorage.getItem("marie-program") || "";
+    cppTextArea.value = localStorage.getItem("cpp-program") || "";
 
     if(textArea.value !== "") {
         $("#saved-status").text("Restored file");
@@ -233,6 +238,11 @@ window.addEventListener("load", function() {
         mode: "marie",
         lineNumbers: true,
         gutters: ["CodeMirror-linenumbers", "breakpoints"]
+    });
+
+    var cppProgramCodeMirror = CodeMirror.fromTextArea(cppTextArea, {
+        mode: "text/x-c++src",
+        lineNumbers: true
     });
 
     if(theme === "dark") {
@@ -1037,6 +1047,34 @@ window.addEventListener("load", function() {
         }
     }
 
+    convertButton.addEventListener("click", () => {
+        const tokens = [];
+
+        for (let line = 0; line < cppProgramCodeMirror.lineCount(); line++) {
+            const lineTokens = cppProgramCodeMirror.getLineTokens(line).filter((token) => token.string.trim() !== "");
+            lineTokens.forEach(token => token.line = line + 1);
+            tokens.push(...lineTokens);
+        }
+
+        if (lastErrorLineCpp != null) {
+            cppProgramCodeMirror.removeLineClass(lastErrorLineCpp, "background", "error-line");
+        }
+
+        const converter = new CppConverter(tokens);
+
+        try {
+            const convertedCode = converter.convert();
+            programCodeMirror.setValue(convertedCode);
+        } catch (e) {
+            setStatus(e.toString(), true);
+            lastErrorLineCpp = e.line - 1;
+            cppProgramCodeMirror.addLineClass(lastErrorLineCpp, "background", "error-line");
+            throw e;
+        }
+
+        setStatus("Converted successfully", false);
+    });
+
     assembleButton.addEventListener("click", function() {
         assembleButton.textContent = "Assembling...";
         assembleButton.disabled = true;
@@ -1386,6 +1424,7 @@ window.addEventListener("load", function() {
 
     function saveFile(autoSave) {
         window.localStorage.setItem("marie-program", programCodeMirror.getValue());
+        window.localStorage.setItem("cpp-program", cppProgramCodeMirror.getValue());
 
         var breakpoints = [];
         var count = programCodeMirror.lineCount(), i;

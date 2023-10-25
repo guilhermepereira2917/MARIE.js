@@ -292,7 +292,7 @@ footer {
         flex-wrap: wrap;
     }
 
-    #program-container {
+    #program-container, #cpp-container {
         width: 100%;
     }
 }
