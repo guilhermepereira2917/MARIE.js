@@ -8,6 +8,8 @@ let CppConverter,
 
     CppConverter.prototype.convert = function() {
         this.current = 0;
+        this.ifCounter = 0;
+        this.nextLabelForIfExit = null;
 
         this.instructions = [];
         this.variables = [];
@@ -57,6 +59,9 @@ let CppConverter,
         }
         else if (this.match("keyword", "cin")) {
             this.cin();
+        }
+        else if (this.match("keyword", "if")) {
+            this.if();
         }
         else {
             this.error("Unidentified expression.");
@@ -132,6 +137,43 @@ let CppConverter,
         this.appendInstruction(`Store ${variable.string}`);
     };
 
+    CppConverter.prototype.if = function() {
+        const ifStatement = this.consume("keyword", "if");
+        const leftParen = this.consume(null, "(");
+        const leftVariable = this.consume("variable");
+        const operator = this.consume("operator")
+        const rightVariable = this.consume("variable");
+        const rightParen = this.consume(null, ")");
+        const openBrackets = this.consume(null, "{");
+
+        if (!["==", ">", "<"].includes(operator.string)) {
+            this.error(`Only "==", ">" and "<" operations supported in if statements.`);
+        }
+
+        const skipcondOpcode = function() {
+            switch (operator.string) {
+                case "<": return "000";
+                case "==": return "400";
+                case ">": return "800";
+            }
+        }();
+
+        const ifExitLabel = `EndIf${++this.ifCounter}`;
+
+        this.appendInstruction(`Load ${leftVariable.string}`);
+        this.appendInstruction(`Subt ${rightVariable.string}`);
+        this.appendInstruction(`Skipcond ${skipcondOpcode}`);
+        this.appendInstruction(`Jump ${ifExitLabel}`);
+
+        while (!this.isAtEnd() && !this.match(null, "}")) {
+            this.statement();
+        }
+
+        this.nextLabelForIfExit = ifExitLabel;
+
+        const closeBrackets = this.consume(null, "}")
+    }
+
     CppConverter.prototype.addMultiplicationSubroutine = function() {
         this.appendSubroutine("");
         this.appendSubroutine("/ Multiplication SubRoutine");
@@ -175,11 +217,11 @@ let CppConverter,
         const token = this.peek();
 
         if (this.isAtEnd() || token.type !== tokenType) {
-            this.error(`Expected ${tokenType || "semicolon"}.`);
+            this.error(`Expected ${tokenType || string}.`);
         }
 
         if (string && token.string !== string) {
-            this.error(`Expected ${tokenType || "semicolon"} to be equals to "${string}"`)
+            this.error(`Expected ${tokenType || "token"} to be equals to "${string}"`)
         }
 
         this.advance();
@@ -197,6 +239,11 @@ let CppConverter,
     };
 
     CppConverter.prototype.appendInstruction = function(instruction) {
+        if (this.nextLabelForIfExit != null && instruction !== "") {
+            instruction = `${this.nextLabelForIfExit}, ${instruction}`;
+            this.nextLabelForIfExit = null;
+        }
+
         this.instructions.push(instruction);
     };
 
