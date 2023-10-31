@@ -11,11 +11,19 @@ let CppConverter,
 
         this.instructions = [];
         this.variables = [];
+        this.subroutines = [];
+        this.constants = [];
+
+        this.usesMultiplicationSubroutine = false;
 
         console.log(this.tokens);
 
         while (!this.isAtEnd()) {
             this.statement();
+        }
+
+        if (this.usesMultiplicationSubroutine) {
+            this.addMultiplicationSubroutine();
         }
 
         if (this.haveInstructions() && !this.isLastInstructionEmptyLine()) {
@@ -30,7 +38,7 @@ let CppConverter,
            this.appendInstruction("");
         }
 
-        return [...this.instructions, ...this.variables].join("\n");
+        return [...this.instructions, ...this.variables, ...this.subroutines, ...this.constants].join("\n");
     };
 
     CppConverter.prototype.statement = function() {
@@ -70,7 +78,7 @@ let CppConverter,
             const semicolon = this.consume(null, ";");
         }
 
-        this.variables.push(`${identifier.string}, DEC ${initialValue}`);
+        this.appendVariable(`${identifier.string}, DEC ${initialValue}`);
     };
 
     CppConverter.prototype.assignment = function() {
@@ -81,14 +89,26 @@ let CppConverter,
         const rightVariable = this.consume("variable");
         const semicolon = this.consume(null, ";");
 
-        if (!["+", "-"].includes(operator.string)) {
-            this.error(`Only "+" and "-" operations supported.`);
+        if (!["+", "-", "*"].includes(operator.string)) {
+            this.error(`Only "+", "-" and "*" operations supported.`);
         }
 
-        const operation = operator.string === "+" ? "Add" : "Subt";
+        if (["+", "-"].includes(operator.string)) {
+            const operation = operator.string === "+" ? "Add" : "Subt";
 
-        this.appendInstruction(`Load ${leftVariable.string}`);
-        this.appendInstruction(`${operation} ${rightVariable.string}`);
+            this.appendInstruction(`Load ${leftVariable.string}`);
+            this.appendInstruction(`${operation} ${rightVariable.string}`);
+        } else {
+            this.usesMultiplicationSubroutine = true;
+
+            this.appendInstruction(`Load ${leftVariable.string}`);
+            this.appendInstruction(`Store MultA`);
+            this.appendInstruction(`Load ${rightVariable.string}`);
+            this.appendInstruction(`Store MultB`);
+            this.appendInstruction(`JnS MultReturn`);
+            this.appendInstruction(`Load MultResult`);
+        }
+
         this.appendInstruction(`Store ${variable.string}`);
     };
 
@@ -112,9 +132,44 @@ let CppConverter,
         this.appendInstruction(`Store ${variable.string}`);
     };
 
+    CppConverter.prototype.addMultiplicationSubroutine = function() {
+        this.appendSubroutine("");
+        this.appendSubroutine("/ Multiplication SubRoutine");
+        this.appendSubroutine("MultReturn, DEC 0");
+        this.appendSubroutine("            Clear");
+        this.appendSubroutine("            Store MultResult");
+        this.appendSubroutine("");
+        this.appendSubroutine("            Load MultB");
+        this.appendSubroutine("            Skipcond 400");
+        this.appendSubroutine("            Jump Mult");
+        this.appendSubroutine("            JumpI MultReturn");
+        this.appendSubroutine("");
+        this.appendSubroutine("Mult,    Load MultResult");
+        this.appendSubroutine("         Add MultA");
+        this.appendSubroutine("         Store MultResult");
+        this.appendSubroutine("");
+        this.appendSubroutine("         Load MultB");
+        this.appendSubroutine("         Subt One");
+        this.appendSubroutine("         Store MultB");
+        this.appendSubroutine("");
+        this.appendSubroutine("         Skipcond 400");
+        this.appendSubroutine("         Jump Mult");
+        this.appendSubroutine("");
+        this.appendSubroutine("         JumpI MultReturn");
+        this.appendSubroutine("");
+        this.appendSubroutine("MultA, DEC 0");
+        this.appendSubroutine("MultB, DEC 0");
+        this.appendSubroutine("");
+        this.appendSubroutine("MultResult, DEC 0");
+        this.appendSubroutine("");
+
+        this.appendConstant("/ Constants");
+        this.appendConstant("One, DEC 1");
+    };
+
     CppConverter.prototype.emptyLine = function() {
         this.appendInstruction("");
-    }
+    };
 
     CppConverter.prototype.consume = function(tokenType, string) {
         const token = this.peek();
@@ -137,8 +192,20 @@ let CppConverter,
         throw new CppConverterError(message, errorToken.line);
     };
 
+    CppConverter.prototype.appendVariable = function(variable) {
+        this.variables.push(variable);
+    };
+
     CppConverter.prototype.appendInstruction = function(instruction) {
         this.instructions.push(instruction);
+    };
+
+    CppConverter.prototype.appendConstant = function(constant) {
+        this.constants.push(constant);
+    }
+
+    CppConverter.prototype.appendSubroutine = function(subroutine) {
+        this.subroutines.push(subroutine);
     };
 
     CppConverter.prototype.advance = function() {
