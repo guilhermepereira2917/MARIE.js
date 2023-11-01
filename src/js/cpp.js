@@ -10,6 +10,7 @@ let CppConverter,
         this.current = 0;
         this.ifCounter = 0;
         this.nextLabelForIfExit = null;
+        this.currentConsumedTokens = [];
 
         this.instructions = [];
         this.variables = [];
@@ -63,7 +64,7 @@ let CppConverter,
         else if (this.match("keyword", "if")) {
             this.if();
         }
-        else {
+        else if (!this.isAtEnd()) {
             this.error("Unidentified expression.");
         }
     };
@@ -83,7 +84,7 @@ let CppConverter,
             const semicolon = this.consume(null, ";");
         }
 
-        this.appendVariable(`${identifier.string}, DEC ${initialValue}`);
+        this.appendVariable(`${identifier.string}, DEC ${initialValue} / ${this.getFormattedCurrentConsumedTokens()}`);
     };
 
     CppConverter.prototype.assignment = function() {
@@ -214,6 +215,8 @@ let CppConverter,
     };
 
     CppConverter.prototype.consume = function(tokenType, string) {
+        this.advanceUselessTokens();
+
         const token = this.peek();
 
         if (this.isAtEnd() || token.type !== tokenType) {
@@ -234,11 +237,22 @@ let CppConverter,
         throw new CppConverterError(message, errorToken.line);
     };
 
+    CppConverter.prototype.advanceUselessTokens = function() {
+        while (!this.isAtEnd() && (this.peek().type === "comment" || this.peek().string.trim() === "")) {
+            this.advance();
+        }
+    }
+
     CppConverter.prototype.appendVariable = function(variable) {
         this.variables.push(variable);
     };
 
     CppConverter.prototype.appendInstruction = function(instruction) {
+        const currentConsumedTokensFormatted = this.getFormattedCurrentConsumedTokens();
+        if (currentConsumedTokensFormatted) {
+            this.instructions.push(`/ ${currentConsumedTokensFormatted}`);
+        }
+
         if (this.nextLabelForIfExit != null && instruction !== "") {
             instruction = `${this.nextLabelForIfExit}, ${instruction}`;
             this.nextLabelForIfExit = null;
@@ -256,12 +270,18 @@ let CppConverter,
     };
 
     CppConverter.prototype.advance = function() {
+        if (this.peek() && this.peek().type !== "comment") {
+            this.currentConsumedTokens.push(this.peek());
+        }
+
         if (!this.isAtEnd()) {
             this.current++;
         }
     };
 
     CppConverter.prototype.match = function(tokenType, string) {
+        this.advanceUselessTokens();
+
         if (this.isAtEnd()) {
             return false;
         }
@@ -277,6 +297,13 @@ let CppConverter,
         }
 
         return this.peekNext() && this.peekNext().line - currentLineNumber > 1;
+    }
+
+    CppConverter.prototype.getFormattedCurrentConsumedTokens = function() {
+        const formattedTokens = this.currentConsumedTokens.map(token => token.string).join("").trim();
+        this.currentConsumedTokens = [];
+
+        return formattedTokens;
     }
 
     CppConverter.prototype.peekPrevious = function() {

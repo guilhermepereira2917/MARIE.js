@@ -1051,7 +1051,7 @@ window.addEventListener("load", function() {
         const tokens = [];
 
         for (let line = 0; line < cppProgramCodeMirror.lineCount(); line++) {
-            const lineTokens = cppProgramCodeMirror.getLineTokens(line).filter((token) => token.string.trim() !== "");
+            const lineTokens = cppProgramCodeMirror.getLineTokens(line);
             lineTokens.forEach(token => token.line = line + 1);
             tokens.push(...lineTokens);
         }
